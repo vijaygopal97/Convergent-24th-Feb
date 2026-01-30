@@ -52,9 +52,12 @@ const QCPerformancePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Determine if we're in project manager route
+  // Determine if we're in project manager or quality manager route
   const isProjectManagerRoute = location.pathname.includes('/project-manager/');
-  const backPath = isProjectManagerRoute ? '/project-manager/survey-reports' : '/company/surveys';
+  const isQualityManagerRoute = location.pathname.includes('/quality-manager/');
+  const backPath = isProjectManagerRoute ? '/project-manager/survey-reports' : 
+                   isQualityManagerRoute ? '/quality-manager/survey-reports' : 
+                   '/company/surveys';
   const [survey, setSurvey] = useState(null);
   const [qualityAgents, setQualityAgents] = useState([]);
   const [trendsData, setTrendsData] = useState(null);
@@ -1003,7 +1006,9 @@ const QCPerformancePage = () => {
                         <div className="text-center">
                           <button
                             onClick={() => {
-                              const basePath = isProjectManagerRoute ? '/project-manager' : '/company';
+                              const basePath = isProjectManagerRoute ? '/project-manager' : 
+                                             isQualityManagerRoute ? '/quality-manager' : 
+                                             '/company';
                               navigate(`${basePath}/surveys/${surveyId}/responses-v2?qualityAgentId=${qa._id}&status=approved_rejected`);
                             }}
                             className="flex items-center space-x-1 px-3 py-1.5 text-xs font-medium text-white bg-[#373177] rounded-lg hover:bg-[#001D48] transition-colors"

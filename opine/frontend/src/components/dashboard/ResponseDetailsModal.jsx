@@ -21,12 +21,16 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
   const { showSuccess, showError } = useToast();
   const { user } = useAuth();
   
-  // Check if current user is a project manager (should not be able to approve responses)
-  // CRITICAL: Check multiple possible variations of userType to ensure project managers cannot approve
+  // Check if current user is a project manager or quality manager (should not be able to approve responses)
+  // CRITICAL: Check multiple possible variations of userType to ensure project managers and quality managers cannot approve
   const isProjectManager = user?.userType === 'project_manager' || 
                           user?.userType === 'Project Manager' ||
                           user?.role === 'project_manager' ||
                           user?.role === 'Project Manager';
+  const isQualityManager = user?.userType === 'quality_manager' || 
+                          user?.userType === 'Quality Manager' ||
+                          user?.role === 'quality_manager' ||
+                          user?.role === 'Quality Manager';
 
   // Update currentResponse when response prop changes
   useEffect(() => {
@@ -1999,8 +2003,8 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
               </div>
             )}
 
-            {/* Survey Responses - Hide for project managers */}
-            {!hideSurveyResponses && !isProjectManager && (
+            {/* Survey Responses - Hide for project managers and quality managers */}
+            {!hideSurveyResponses && !isProjectManager && !isQualityManager && (
             <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Survey Responses</h3>
@@ -2291,13 +2295,13 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
             </div>
 
             {/* Status Change Buttons - Show for Approved/Rejected/Pending_Approval responses */}
-            {!hideActions && !hideStatusChange && (currentResponse.status === 'Approved' || currentResponse.status === 'Rejected' || currentResponse.status === 'Pending_Approval') && (
+            {!hideActions && !hideStatusChange && !isQualityManager && (currentResponse.status === 'Approved' || currentResponse.status === 'Rejected' || currentResponse.status === 'Pending_Approval') && (
               <div className="bg-gray-50 border-t border-gray-200 p-4 mt-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Change Response Status</h3>
                 <div className="flex items-center justify-end space-x-3 flex-wrap gap-2">
                   {/* Set to Pending Approval - Show if Approved or Rejected, but ONLY for Company Admins */}
-                  {/* CRITICAL: Project managers should NOT see this button */}
-                  {!isProjectManager && (currentResponse.status === 'Approved' || currentResponse.status === 'Rejected') && (
+                  {/* CRITICAL: Project managers and quality managers should NOT see this button */}
+                  {!isProjectManager && !isQualityManager && (currentResponse.status === 'Approved' || currentResponse.status === 'Rejected') && (
                     <button
                       onClick={handleSetPendingApproval}
                       disabled={isSubmitting}
@@ -2308,9 +2312,9 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
                     </button>
                   )}
                   
-                  {/* Approve - Show if Rejected or Pending_Approval, but NOT for project managers */}
-                  {/* CRITICAL: Project managers should NEVER see the approve button */}
-                  {!isProjectManager && (currentResponse.status === 'Rejected' || currentResponse.status === 'Pending_Approval') && (
+                  {/* Approve - Show if Rejected or Pending_Approval, but NOT for project managers or quality managers */}
+                  {/* CRITICAL: Project managers and quality managers should NEVER see the approve button */}
+                  {!isProjectManager && !isQualityManager && (currentResponse.status === 'Rejected' || currentResponse.status === 'Pending_Approval') && (
                     <button
                       onClick={handleApproveResponse}
                       disabled={isSubmitting}
@@ -2322,8 +2326,8 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
                   )}
                   
                   {/* Reject - Show if Pending_Approval or Approved, but ONLY for Company Admins */}
-                  {/* CRITICAL: Project managers should NOT see this button */}
-                  {!isProjectManager && (currentResponse.status === 'Pending_Approval' || currentResponse.status === 'Approved') && (
+                  {/* CRITICAL: Project managers and quality managers should NOT see this button */}
+                  {!isProjectManager && !isQualityManager && (currentResponse.status === 'Pending_Approval' || currentResponse.status === 'Approved') && (
                     <button
                       onClick={() => setShowRejectForm(true)}
                       disabled={isSubmitting}

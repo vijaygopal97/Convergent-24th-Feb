@@ -20,6 +20,7 @@ const userTypes = [
   { value: 'super_admin', label: 'Super Admin', icon: <ShieldCheck className="w-6 h-6" />, description: 'Platform owner with full control.' },
   { value: 'company_admin', label: 'Company Admin', icon: <Building2 className="w-6 h-6" />, description: 'Manages company operations, users, and finances.' },
   { value: 'project_manager', label: 'Project Manager', icon: <BarChart3 className="w-6 h-6" />, description: 'Creates and manages surveys, assigns interviewers.' },
+  { value: 'quality_manager', label: 'Quality Manager', icon: <Users className="w-6 h-6" />, description: 'Manages quality agents and monitors QC performance.' },
   { value: 'interviewer', label: 'Interviewer', icon: <User className="w-6 h-6" />, description: 'Conducts field interviews and collects data.' },
   { value: 'quality_agent', label: 'Quality Agent', icon: <Users className="w-6 h-6" />, description: 'Verifies data quality and ensures authenticity.' },
   { value: 'Data_Analyst', label: 'Data Analyst', icon: <Brain className="w-6 h-6" />, description: 'Analyzes survey data and creates professional reports.' },

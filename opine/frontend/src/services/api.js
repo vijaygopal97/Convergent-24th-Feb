@@ -318,6 +318,16 @@ export const authAPI = {
           }
         },
 
+        // Add quality agent by quality manager
+        addQualityAgentByQualityManager: async (qualityAgentData) => {
+          try {
+            const response = await api.post('/api/auth/quality-manager/add-quality-agent', qualityAgentData);
+            return response.data;
+          } catch (error) {
+            throw error;
+          }
+        },
+
         // Update interviewer preferences by project manager
         updateInterviewerPreferencesByPM: async (interviewerId, preferencesData) => {
           try {

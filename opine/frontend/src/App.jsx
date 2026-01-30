@@ -149,6 +149,12 @@ function App() {
             <Route path="/project-manager/surveys/:surveyId/responses-v2" element={<ViewResponsesV2Page />} />
             <Route path="/project-manager/surveys/:surveyId/qc-performance" element={<AdminDashboard />} />
             
+            {/* Quality Manager routes */}
+            <Route path="/quality-manager/survey-reports" element={<AdminDashboard />} />
+            <Route path="/quality-manager/team-management" element={<AdminDashboard />} />
+            <Route path="/quality-manager/surveys/:surveyId/qc-performance" element={<AdminDashboard />} />
+            <Route path="/quality-manager/surveys/:surveyId/responses-v2" element={<ViewResponsesV2Page />} />
+            
             {/* Interviewer routes */}
             <Route path="/interviewer/dashboard" element={<AdminDashboard />} />
             <Route path="/interviewer/available-surveys" element={<AdminDashboard />} />

@@ -37,9 +37,12 @@ const ViewResponsesV2Page = () => {
   const location = useLocation();
   const { user } = useAuth();
   
-  // Determine if we're in project manager route
+  // Determine if we're in project manager or quality manager route
   const isProjectManagerRoute = location.pathname.includes('/project-manager/');
-  const backPath = isProjectManagerRoute ? '/project-manager/survey-reports' : '/company/surveys';
+  const isQualityManagerRoute = location.pathname.includes('/quality-manager/');
+  const backPath = isProjectManagerRoute ? '/project-manager/survey-reports' : 
+                   isQualityManagerRoute ? '/quality-manager/survey-reports' : 
+                   '/company/surveys';
   
   // Check if user is company admin (for CSV download)
   const isCompanyAdmin = user?.userType === 'company_admin';

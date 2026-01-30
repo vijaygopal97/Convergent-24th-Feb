@@ -1431,7 +1431,8 @@ exports.registerCompanyUser = async (req, res) => {
       gig_enabled,
       interviewModes,
       canSelectMode,
-      assignedTeamMembers
+      assignedTeamMembers,
+      assignedSurveys
     } = req.body;
 
     // Validate required fields
@@ -1443,7 +1444,7 @@ exports.registerCompanyUser = async (req, res) => {
     }
 
     // Validate user type (company admin can only create certain types)
-    const allowedUserTypes = ['project_manager', 'interviewer', 'quality_agent', 'Data_Analyst'];
+    const allowedUserTypes = ['project_manager', 'quality_manager', 'interviewer', 'quality_agent', 'Data_Analyst'];
     if (!allowedUserTypes.includes(userType)) {
       return res.status(400).json({
         success: false,
@@ -1546,6 +1547,31 @@ exports.registerCompanyUser = async (req, res) => {
       userData.assignedTeamMembers = assignedTeamMembers;
     }
 
+    // Add assignedSurveys for quality managers
+    if (userType === 'quality_manager' && assignedSurveys && Array.isArray(assignedSurveys)) {
+      const Survey = require('../models/Survey');
+      
+      // Validate assigned surveys
+      for (const surveyId of assignedSurveys) {
+        const survey = await Survey.findById(surveyId);
+        if (!survey) {
+          return res.status(400).json({
+            success: false,
+            message: `Survey with ID ${surveyId} not found`
+          });
+        }
+
+        // Check if survey belongs to the same company
+        if (survey.company.toString() !== currentUser.company._id.toString()) {
+          return res.status(400).json({
+            success: false,
+            message: `Survey must belong to the same company`
+          });
+        }
+      }
+      userData.assignedSurveys = assignedSurveys;
+    }
+
     // Generate memberId for interviewers and quality agents
     if (userType === 'interviewer' || userType === 'quality_agent') {
       try {
@@ -1562,8 +1588,9 @@ exports.registerCompanyUser = async (req, res) => {
     // Create user
     const user = await User.create(userData);
 
-    // Populate assignedTeamMembers for response
+    // Populate assignedTeamMembers and assignedSurveys for response
     await user.populate('assignedTeamMembers.user', 'firstName lastName email memberId userType');
+    await user.populate('assignedSurveys', 'surveyName title status');
 
     // Generate token
     const token = generateToken(user._id);
@@ -1583,6 +1610,7 @@ exports.registerCompanyUser = async (req, res) => {
       isEmailVerified: user.isEmailVerified,
       isPhoneVerified: user.isPhoneVerified,
       assignedTeamMembers: user.assignedTeamMembers, // Include assignedTeamMembers in response
+      assignedSurveys: user.assignedSurveys, // Include assignedSurveys in response
       createdAt: user.createdAt
     };
 
@@ -1730,6 +1758,37 @@ exports.updateCompanyUser = async (req, res) => {
       }
     }
 
+    // Handle assignedSurveys for quality managers
+    if (updateData.assignedSurveys !== undefined) {
+      if (Array.isArray(updateData.assignedSurveys)) {
+        const Survey = require('../models/Survey');
+        
+        // Validate assigned surveys
+        for (const surveyId of updateData.assignedSurveys) {
+          const survey = await Survey.findById(surveyId);
+          if (!survey) {
+            return res.status(400).json({
+              success: false,
+              message: `Survey with ID ${surveyId} not found`
+            });
+          }
+
+          // Check if survey belongs to the same company
+          if (survey.company.toString() !== currentUser.company._id.toString()) {
+            return res.status(400).json({
+              success: false,
+              message: `Survey must belong to the same company`
+            });
+          }
+        }
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'assignedSurveys must be an array'
+        });
+      }
+    }
+
     // Update the user
     const updatedUser = await User.findByIdAndUpdate(
       id,
@@ -1737,6 +1796,7 @@ exports.updateCompanyUser = async (req, res) => {
       { new: true, runValidators: true }
     ).populate('company', 'companyName companyCode')
     .populate('assignedTeamMembers.user', 'firstName lastName email memberId userType')
+    .populate('assignedSurveys', 'surveyName title status')
     .select('-password -emailVerificationToken -phoneVerificationToken');
 
     res.status(200).json({
@@ -2560,6 +2620,277 @@ exports.addInterviewerByProjectManager = async (req, res) => {
     });
   } catch (error) {
     console.error('Add interviewer by project manager error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+};
+
+// @desc    Add quality agent by quality manager
+// @route   POST /api/auth/quality-manager/add-quality-agent
+// @access  Private (Quality Manager)
+exports.addQualityAgentByQualityManager = async (req, res) => {
+  try {
+    const {
+      qualityAgentId, // Member ID (optional - will be auto-generated if not provided)
+      firstName,
+      lastName,
+      phone,
+      password,
+      usePhoneAsPassword,
+      surveyIds // Array of survey IDs to assign quality agent to
+    } = req.body;
+
+    // Validate required fields
+    if (!firstName || !lastName || !phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'First name, last name, and phone are required'
+      });
+    }
+
+    // Get current user (quality manager)
+    const qualityManager = await User.findById(req.user.id).populate('company');
+    if (!qualityManager || qualityManager.userType !== 'quality_manager') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only quality managers can add quality agents'
+      });
+    }
+
+    if (!qualityManager.company) {
+      return res.status(400).json({
+        success: false,
+        message: 'Quality manager not associated with any company'
+      });
+    }
+
+    // Normalize phone number (remove country code)
+    let normalizedPhone = phone.replace(/^\+91/, '').replace(/^91/, '').trim();
+    if (normalizedPhone.length !== 10) {
+      return res.status(400).json({
+        success: false,
+        message: 'Phone number must be 10 digits'
+      });
+    }
+
+    // Determine password
+    const finalPassword = usePhoneAsPassword ? normalizedPhone : password;
+    if (!finalPassword || finalPassword.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 8 characters long'
+      });
+    }
+
+    // Handle member ID
+    let finalMemberId = qualityAgentId;
+    if (!finalMemberId || finalMemberId.trim() === '') {
+      // Auto-generate member ID (numeric, up to 6 digits)
+      finalMemberId = await generateMemberId();
+    } else {
+      // Validate provided member ID (must be numeric, max 6 digits)
+      if (!/^\d+$/.test(finalMemberId)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Quality Agent ID must be numeric (up to 6 digits)'
+        });
+      }
+      if (finalMemberId.length > 6) {
+        return res.status(400).json({
+          success: false,
+          message: 'Quality Agent ID can only have up to 6 digits'
+        });
+      }
+
+      // Check if member ID is available
+      const existingUser = await User.findOne({ memberId: finalMemberId });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: `Quality Agent ID "${finalMemberId}" is already taken`
+        });
+      }
+    }
+
+    // Check if email/phone already exists
+    const emailToCheck = `qa${finalMemberId}@gmail.com`;
+    const existingEmail = await User.findOne({ email: emailToCheck.toLowerCase() });
+    const existingPhoneUser = await User.findOne({ phone: normalizedPhone });
+
+    if (existingEmail || existingPhoneUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'User with this email or phone already exists'
+      });
+    }
+
+    // Get reference user for default values
+    const referenceUser = await User.findOne({
+      userType: 'quality_agent',
+      company: qualityManager.company._id
+    }).limit(1);
+
+    // Create user data
+    const userData = {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: emailToCheck.toLowerCase(),
+      phone: normalizedPhone,
+      password: finalPassword, // Plain password - will be hashed by pre-save hook
+      userType: 'quality_agent',
+      company: qualityManager.company._id,
+      companyCode: qualityManager.companyCode,
+      memberId: finalMemberId,
+      status: 'active',
+      isActive: true,
+      isEmailVerified: false,
+      isPhoneVerified: false,
+      gig_enabled: false,
+      gig_availability: false,
+      registrationSource: 'quality_manager',
+      profile: referenceUser?.profile || { languages: [], education: [], experience: [] },
+      documents: referenceUser?.documents || {
+        aadhaar: { isVerified: false },
+        pan: { isVerified: false },
+        drivingLicense: { isVerified: false },
+        bankDetails: { isVerified: false }
+      },
+      performance: referenceUser?.performance || {
+        trustScore: 100,
+        totalReviews: 0,
+        approvedReviews: 0,
+        rejectedReviews: 0,
+        averageRating: 0,
+        totalEarnings: 0
+      },
+      preferences: {
+        notifications: {
+          email: true,
+          sms: true,
+          push: true,
+          surveyAssignments: true,
+          paymentUpdates: true,
+          qualityFeedback: true
+        }
+      },
+      loginAttempts: 0,
+      assignedTeamMembers: []
+    };
+
+    // Create the quality agent
+    const newQualityAgent = await User.create(userData);
+
+    // Verify password was hashed correctly
+    const bcrypt = require('bcryptjs');
+    const savedUser = await User.findById(newQualityAgent._id).select('+password');
+    const passwordValid = await savedUser.comparePassword(finalPassword);
+    
+    if (!passwordValid) {
+      console.log(`⚠️  Password verification failed, retrying...`);
+      // Re-hash and update directly (bypassing pre-save hook)
+      const retrySalt = await bcrypt.genSalt(12);
+      const retryHashedPassword = await bcrypt.hash(finalPassword, retrySalt);
+      await User.updateOne(
+        { _id: savedUser._id },
+        { $set: { password: retryHashedPassword } }
+      );
+      
+      // Verify again
+      const retryUser = await User.findById(savedUser._id).select('+password');
+      const retryValid = await retryUser.comparePassword(finalPassword);
+      if (!retryValid) {
+        // If still fails, delete the user and return error
+        await User.deleteOne({ _id: newQualityAgent._id });
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to set password correctly. Please try again.'
+        });
+      }
+    }
+
+    // Assign quality agent to quality manager
+    if (!qualityManager.assignedTeamMembers) {
+      qualityManager.assignedTeamMembers = [];
+    }
+
+    // Check if already assigned
+    const alreadyAssigned = qualityManager.assignedTeamMembers.some(
+      member => member.user && member.user.toString() === newQualityAgent._id.toString()
+    );
+
+    if (!alreadyAssigned) {
+      qualityManager.assignedTeamMembers.push({
+        user: newQualityAgent._id,
+        userType: 'quality_agent',
+        assignedAt: new Date(),
+        assignedBy: qualityManager._id
+      });
+      await qualityManager.save();
+    }
+
+    // Assign to surveys if provided
+    const Survey = require('../models/Survey');
+    if (surveyIds && Array.isArray(surveyIds) && surveyIds.length > 0) {
+      for (const surveyId of surveyIds) {
+        try {
+          const survey = await Survey.findById(surveyId);
+          if (!survey) continue;
+
+          // Check if survey belongs to same company
+          if (survey.company.toString() !== qualityManager.company._id.toString()) {
+            continue;
+          }
+
+          // Assign to quality agents
+          if (!survey.assignedQualityAgents) {
+            survey.assignedQualityAgents = [];
+          }
+          const existingQA = survey.assignedQualityAgents.find(
+            assignment => assignment.qualityAgent.toString() === newQualityAgent._id.toString()
+          );
+          if (!existingQA) {
+            survey.assignedQualityAgents.push({
+              qualityAgent: newQualityAgent._id,
+              assignedBy: qualityManager._id,
+              assignedAt: new Date(),
+              status: 'assigned',
+              assignedACs: [],
+              selectedState: survey.assignedQualityAgents?.[0]?.selectedState || null
+            });
+            await survey.save();
+          }
+        } catch (error) {
+          console.error(`Error assigning quality agent to survey ${surveyId}:`, error);
+          // Continue with other surveys
+        }
+      }
+    }
+
+    // Populate for response
+    await newQualityAgent.populate('company', 'companyName companyCode');
+
+    res.status(201).json({
+      success: true,
+      message: 'Quality agent added successfully',
+      data: {
+        qualityAgent: {
+          _id: newQualityAgent._id,
+          firstName: newQualityAgent.firstName,
+          lastName: newQualityAgent.lastName,
+          email: newQualityAgent.email,
+          phone: newQualityAgent.phone,
+          memberId: newQualityAgent.memberId,
+          userType: newQualityAgent.userType,
+          status: newQualityAgent.status,
+          company: newQualityAgent.company
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Add quality agent by quality manager error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',

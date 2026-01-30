@@ -5213,6 +5213,7 @@ const getSurveyResponseById = async (req, res) => {
 
     // Authorization check: Allow access based on user role
     // Company admins and project managers can view all responses from their company
+    // Quality managers can view responses from their assigned surveys
     // Quality agents can view responses they're assigned to review
     // Interviewers can only view their own responses
     if (userRole === 'company_admin' || userRole === 'project_manager') {
@@ -5249,6 +5250,49 @@ const getSurveyResponseById = async (req, res) => {
           // Allow if interviewer is managed by this project manager OR if company check passed
           // (Company check already passed above, so this is just for additional validation)
         }
+      }
+    } else if (userRole === 'quality_manager') {
+      // For quality managers, verify the response belongs to their company and is from an assigned survey
+      const survey = surveyResponse.survey;
+      if (!survey) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Survey not found for this response.'
+        });
+      }
+
+      const currentUser = await User.findById(userId).populate('company').populate('assignedSurveys');
+      if (!currentUser || !currentUser.company) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. User not associated with any company.'
+        });
+      }
+
+      // Check if survey belongs to the same company
+      if (survey.company) {
+        const surveyCompanyId = survey.company._id ? survey.company._id.toString() : survey.company.toString();
+        const userCompanyId = currentUser.company._id ? currentUser.company._id.toString() : currentUser.company.toString();
+        
+        if (surveyCompanyId !== userCompanyId) {
+          return res.status(403).json({
+            success: false,
+            message: 'Access denied. You can only view responses from your company.'
+          });
+        }
+      }
+
+      // Check if survey is assigned to this quality manager
+      const assignedSurveyIds = currentUser.assignedSurveys.map(s => 
+        typeof s === 'object' && s._id ? s._id.toString() : s.toString()
+      );
+      
+      const surveyId = survey._id ? survey._id.toString() : survey.toString();
+      if (!assignedSurveyIds.includes(surveyId)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. This survey is not assigned to you.'
+        });
       }
     } else if (userRole === 'quality_agent') {
       // Quality agents can view responses they're assigned to review
@@ -7173,6 +7217,37 @@ const getSurveyResponsesV2 = async (req, res) => {
       });
     }
 
+    // For quality managers, verify they have access to this survey
+    if (req.user.userType === 'quality_manager') {
+      const currentUser = await User.findById(req.user.id).populate('company').populate('assignedSurveys');
+      if (!currentUser || !currentUser.company) {
+        return res.status(400).json({
+          success: false,
+          message: 'User not associated with any company'
+        });
+      }
+
+      // Check if survey belongs to the same company
+      if (survey.company.toString() !== currentUser.company._id.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. You can only view responses from surveys in your company.'
+        });
+      }
+
+      // Check if survey is assigned to this quality manager
+      const assignedSurveyIds = currentUser.assignedSurveys.map(s => 
+        typeof s === 'object' && s._id ? s._id.toString() : s.toString()
+      );
+      
+      if (!assignedSurveyIds.includes(survey._id.toString())) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. This survey is not assigned to you.'
+        });
+      }
+    }
+
     // Build match filter for MongoDB aggregation (NO LIMITS - handles millions of records)
     const matchFilter = { survey: mongoose.Types.ObjectId.isValid(surveyId) ? new mongoose.Types.ObjectId(surveyId) : surveyId };
 
@@ -8345,12 +8420,49 @@ const getSurveyResponseCounts = async (req, res) => {
     } = req.query;
 
     // Verify survey exists (lightweight check)
-    const survey = await Survey.findById(surveyId).select('_id').lean();
+    const survey = await Survey.findById(surveyId).select('_id company').lean();
     if (!survey) {
       return res.status(404).json({
         success: false,
         message: 'Survey not found'
       });
+    }
+
+    // For quality managers, verify they have access to this survey
+    if (req.user.userType === 'quality_manager') {
+      const currentUser = await User.findById(req.user.id).populate('company').populate('assignedSurveys');
+      if (!currentUser || !currentUser.company) {
+        return res.status(400).json({
+          success: false,
+          message: 'User not associated with any company'
+        });
+      }
+
+      // Check if survey belongs to the same company
+      if (survey.company) {
+        const surveyCompanyId = survey.company.toString();
+        const userCompanyId = currentUser.company._id ? currentUser.company._id.toString() : currentUser.company.toString();
+        
+        if (surveyCompanyId !== userCompanyId) {
+          return res.status(403).json({
+            success: false,
+            message: 'Access denied. You can only view counts from surveys in your company.'
+          });
+        }
+      }
+
+      // Check if survey is assigned to this quality manager
+      const assignedSurveyIds = currentUser.assignedSurveys.map(s => 
+        typeof s === 'object' && s._id ? s._id.toString() : s.toString()
+      );
+      
+      const surveyIdStr = survey._id.toString();
+      if (!assignedSurveyIds.includes(surveyIdStr)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. This survey is not assigned to you.'
+        });
+      }
     }
 
     // Build match filter (same logic as getSurveyResponsesV2 but optimized for counts)

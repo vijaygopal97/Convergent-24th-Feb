@@ -194,10 +194,10 @@ router.get('/debug-responses', debugSurveyResponses);
 router.get('/survey/:surveyId/responses', getSurveyResponses);
 
 // Get survey responses V2 (Optimized for big data - No limits)
-router.get('/survey/:surveyId/responses-v2', protect, authorize('company_admin', 'project_manager'), getSurveyResponsesV2);
+router.get('/survey/:surveyId/responses-v2', protect, authorize('company_admin', 'project_manager', 'quality_manager'), getSurveyResponsesV2);
 
 // Get response counts (lightweight endpoint for counts only)
-router.get('/survey/:surveyId/responses-v2/counts', protect, authorize('company_admin', 'project_manager'), getSurveyResponseCounts);
+router.get('/survey/:surveyId/responses-v2/counts', protect, authorize('company_admin', 'project_manager', 'quality_manager'), getSurveyResponseCounts);
 
 // Get all survey responses V2 for CSV download (no pagination, company admin only)
 router.get('/survey/:surveyId/responses-v2-csv', getSurveyResponsesV2ForCSV);

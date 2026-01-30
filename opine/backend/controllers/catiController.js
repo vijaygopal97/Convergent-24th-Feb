@@ -8,6 +8,7 @@ const CatiAgent = require('../models/CatiAgent');
 const ProviderFactory = require('../services/catiProviders/providerFactory');
 const CloudTelephonyProvider = require('../services/catiProviders/cloudtelephonyProvider');
 const Company = require('../models/Company');
+const User = require('../models/User');
 
 // DeepCall API Configuration
 const DEEPCALL_API_BASE_URL = 'https://s-ct3.sarv.com/v2/clickToCall/para';
@@ -1696,8 +1697,8 @@ const getCallById = async (req, res) => {
       });
     }
 
-    // If user is an interviewer (not company_admin, project_manager, or quality_agent), verify they own a response linked to this call
-    if (userRole !== 'company_admin' && userRole !== 'project_manager' && userRole !== 'quality_agent') {
+    // If user is an interviewer (not company_admin, project_manager, quality_manager, or quality_agent), verify they own a response linked to this call
+    if (userRole !== 'company_admin' && userRole !== 'project_manager' && userRole !== 'quality_manager' && userRole !== 'quality_agent') {
       // Check if this call is linked to one of the interviewer's survey responses
       const callIdToCheck = call.callId || call._id.toString();
       const responseWithCall = await SurveyResponse.findOne({
@@ -1718,6 +1719,63 @@ const getCallById = async (req, res) => {
             message: 'Access denied. You can only view calls associated with your own interviews.'
           });
         }
+      }
+    } else if (userRole === 'quality_manager') {
+      // For quality managers, verify the call is linked to a response from their assigned surveys
+      const callIdToCheck = call.callId || call._id.toString();
+      
+      // Find the response linked to this call
+      let responseWithCall = await SurveyResponse.findOne({
+        call_id: callIdToCheck
+      }).populate('survey');
+
+      // If not found, try by MongoDB _id
+      if (!responseWithCall) {
+        responseWithCall = await SurveyResponse.findOne({
+          call_id: call._id.toString()
+        }).populate('survey');
+      }
+
+      if (!responseWithCall || !responseWithCall.survey) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Call not linked to any response.'
+        });
+      }
+
+      // Check if the survey belongs to the quality manager's company
+      const currentUser = await User.findById(userId).populate('company').populate('assignedSurveys');
+      if (!currentUser || !currentUser.company) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. User not associated with any company.'
+        });
+      }
+
+      const survey = responseWithCall.survey;
+      if (survey.company) {
+        const surveyCompanyId = survey.company._id ? survey.company._id.toString() : survey.company.toString();
+        const userCompanyId = currentUser.company._id ? currentUser.company._id.toString() : currentUser.company.toString();
+        
+        if (surveyCompanyId !== userCompanyId) {
+          return res.status(403).json({
+            success: false,
+            message: 'Access denied. You can only view calls from your company.'
+          });
+        }
+      }
+
+      // Check if survey is assigned to this quality manager
+      const assignedSurveyIds = currentUser.assignedSurveys.map(s => 
+        typeof s === 'object' && s._id ? s._id.toString() : s.toString()
+      );
+      
+      const surveyId = survey._id ? survey._id.toString() : survey.toString();
+      if (!assignedSurveyIds.includes(surveyId)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. This survey is not assigned to you.'
+        });
       }
     } else if (userRole === 'quality_agent') {
       // For quality agents, verify the call is linked to a response they can review

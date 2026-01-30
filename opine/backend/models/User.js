@@ -84,7 +84,7 @@ const userSchema = new mongoose.Schema({
   userType: {
     type: String,
     required: [true, 'User type is required'],
-    enum: ['super_admin', 'company_admin', 'project_manager', 'interviewer', 'quality_agent', 'Data_Analyst'],
+    enum: ['super_admin', 'company_admin', 'project_manager', 'quality_manager', 'interviewer', 'quality_agent', 'Data_Analyst'],
     default: 'interviewer'
   },
   
@@ -102,23 +102,23 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Company',
     required: function() {
-      // Company is required for company_admin and project_manager
+      // Company is required for company_admin, project_manager, and quality_manager
       // Optional for interviewer, quality_agent, and Data_Analyst (independent workers)
-      return ['company_admin', 'project_manager'].includes(this.userType);
+      return ['company_admin', 'project_manager', 'quality_manager'].includes(this.userType);
     }
   },
   companyCode: {
     type: String,
     required: function() {
-      // Company code is required for company_admin and project_manager
+      // Company code is required for company_admin, project_manager, and quality_manager
       // Optional for interviewer, quality_agent, and Data_Analyst (independent workers)
-      return ['company_admin', 'project_manager'].includes(this.userType);
+      return ['company_admin', 'project_manager', 'quality_manager'].includes(this.userType);
     },
     trim: true,
     uppercase: true
   },
 
-  // Assigned Team Members (for Project Managers)
+  // Assigned Team Members (for Project Managers and Quality Managers)
   assignedTeamMembers: [{
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -138,6 +138,12 @@ const userSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
     }
+  }],
+
+  // Assigned Surveys (for Quality Managers)
+  assignedSurveys: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Survey'
   }],
 
   // Profile Information
@@ -510,6 +516,11 @@ userSchema.methods.canPerformAction = function(action, resource) {
   // Project manager can manage surveys
   if (this.userType === 'project_manager') {
     return ['create_surveys', 'manage_surveys', 'view_analytics'].includes(action);
+  }
+  
+  // Quality manager can manage quality agents and view QC performance
+  if (this.userType === 'quality_manager') {
+    return ['manage_quality_agents', 'view_qc_performance', 'view_analytics'].includes(action);
   }
   
   // Interviewer can conduct interviews

@@ -8,6 +8,8 @@ import ProjectManagerSurveyReports from './ProjectManagerSurveyReports';
 import ProjectManagerSurveyReportsPage from './ProjectManagerSurveyReportsPage';
 import ProjectManagerQCPerformancePage from './ProjectManagerQCPerformancePage';
 import ProjectManagerTeamManagement from './ProjectManagerTeamManagement';
+import QualityManagerSurveyReports from './QualityManagerSurveyReports';
+import QualityManagerTeamManagement from './QualityManagerTeamManagement';
 import InterviewerDashboard from './InterviewerDashboard';
 import QualityAgentDashboard from './QualityAgentDashboard';
 import DataAnalystDashboard from './DataAnalystDashboard';
@@ -127,6 +129,21 @@ const AdminDashboard = () => {
       }
       // Default to survey reports
       return <ProjectManagerSurveyReports />;
+    }
+    
+    // Quality Manager routes
+    if (user?.userType === 'quality_manager') {
+      if (path === '/quality-manager/survey-reports') {
+        return <QualityManagerSurveyReports />;
+      }
+      if (path === '/quality-manager/team-management') {
+        return <QualityManagerTeamManagement />;
+      }
+      if (path.startsWith('/quality-manager/surveys/') && path.endsWith('/qc-performance')) {
+        return <ProjectManagerQCPerformancePage />; // Reuse same component
+      }
+      // Default to survey reports
+      return <QualityManagerSurveyReports />;
     }
     
     // Interviewer routes

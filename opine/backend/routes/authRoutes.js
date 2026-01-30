@@ -30,6 +30,7 @@ const {
   resetPassword,
   checkMemberIdAvailability,
   addInterviewerByProjectManager,
+  addQualityAgentByQualityManager,
   updateInterviewerPreferencesByPM,
   getInterviewerSurveys,
   updateInterviewerByPM,
@@ -88,10 +89,13 @@ router.put('/company/users/:id', protect, authorize('company_admin'), updateComp
 router.delete('/company/users/:id', protect, authorize('company_admin'), deleteCompanyUser);
 
 // Project Manager routes - Team Management
-router.get('/check-member-id/:memberId', protect, authorize('project_manager', 'company_admin'), checkMemberIdAvailability);
+router.get('/check-member-id/:memberId', protect, authorize('project_manager', 'company_admin', 'quality_manager'), checkMemberIdAvailability);
 router.post('/project-manager/add-interviewer', protect, authorize('project_manager'), addInterviewerByProjectManager);
 router.put('/project-manager/interviewer/:id/preferences', protect, authorize('project_manager'), updateInterviewerPreferencesByPM);
 router.get('/project-manager/interviewer/:id/surveys', protect, authorize('project_manager'), getInterviewerSurveys);
+
+// Quality Manager routes - Team Management
+router.post('/quality-manager/add-quality-agent', protect, authorize('quality_manager'), addQualityAgentByQualityManager);
 
 // Search interviewer by memberId (for Reports V2)
 router.get('/search-interviewer', protect, authorize('company_admin', 'project_manager'), searchInterviewerByMemberId);

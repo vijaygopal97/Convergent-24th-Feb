@@ -260,7 +260,7 @@ exports.createSurvey = async (req, res) => {
 
 // @desc    Get all surveys for a company
 // @route   GET /api/surveys
-// @access  Private (Company Admin, Project Manager)
+// @access  Private (Company Admin, Project Manager, Quality Manager)
 exports.getSurveys = async (req, res) => {
   try {
     console.log('🚀 getSurveys function called');
@@ -269,7 +269,7 @@ exports.getSurveys = async (req, res) => {
     console.log('getSurveys - Query parameters:', { status, mode, search, category, page, limit });
 
     // Get current user and their company
-    const currentUser = await User.findById(req.user.id).populate('company');
+    const currentUser = await User.findById(req.user.id).populate('company').populate('assignedSurveys');
     if (!currentUser || !currentUser.company) {
       return res.status(400).json({
         success: false,
@@ -279,6 +279,20 @@ exports.getSurveys = async (req, res) => {
 
     // Build query
     const query = { company: currentUser.company._id };
+    
+    // For quality managers, filter by assigned surveys only
+    if (currentUser.userType === 'quality_manager') {
+      if (currentUser.assignedSurveys && currentUser.assignedSurveys.length > 0) {
+        const assignedSurveyIds = currentUser.assignedSurveys.map(survey => 
+          typeof survey === 'object' && survey._id ? survey._id : survey
+        );
+        query._id = { $in: assignedSurveyIds };
+      } else {
+        // If no assigned surveys, return empty result
+        query._id = { $in: [] };
+      }
+    }
+    
     if (status) query.status = status;
     if (mode) query.mode = mode;
     if (category) query.category = category;
@@ -550,6 +564,21 @@ exports.getSurvey = async (req, res) => {
         success: false,
         message: 'Access denied. You can only view surveys from your company.'
       });
+    }
+
+    // For quality managers, check if survey is in their assigned surveys
+    if (currentUser.userType === 'quality_manager') {
+      const userWithSurveys = await User.findById(currentUser._id).populate('assignedSurveys');
+      const assignedSurveyIds = userWithSurveys.assignedSurveys.map(s => 
+        typeof s === 'object' && s._id ? s._id.toString() : s.toString()
+      );
+      
+      if (!assignedSurveyIds.includes(survey._id.toString())) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. This survey is not assigned to you.'
+        });
+      }
     }
 
     // Special handling for survey 68fd1915d41841da463f0d46: Reorder question 13 for CATI mode

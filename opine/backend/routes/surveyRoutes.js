@@ -32,7 +32,7 @@ const { protect, authorize } = require('../middleware/auth');
 // Survey routes
 router.route('/')
   .post(protect, authorize('company_admin', 'project_manager'), createSurvey)
-  .get(protect, authorize('company_admin', 'project_manager', 'interviewer'), getSurveys);
+  .get(protect, authorize('company_admin', 'project_manager', 'quality_manager', 'interviewer'), getSurveys);
 
 router.route('/stats')
   .get(protect, authorize('company_admin', 'project_manager'), getSurveyStats);
@@ -105,7 +105,7 @@ router.route('/:id/full')
 
 // Generic /:id route must be LAST to avoid matching specific routes like /overall-stats
 router.route('/:id')
-  .get(protect, authorize('company_admin', 'project_manager', 'interviewer'), getSurvey)
+  .get(protect, authorize('company_admin', 'project_manager', 'quality_manager', 'interviewer'), getSurvey)
   .put(protect, authorize('company_admin', 'project_manager'), updateSurvey)
   .delete(protect, authorize('company_admin', 'project_manager'), deleteSurvey);
 
