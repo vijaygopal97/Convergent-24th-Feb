@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-01-23T07:48:57.086Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Joypur, Purulia",
+  "excelFile": "/var/www/Report-Generation/ac241_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 5000,
+  "errors": [],
+  "newContactsAdded": 4996,
+  "queueEntriesCreated": 4993,
+  "duplicateCleanup": {
+    "totalEntries": 675225,
+    "uniquePhones": 674933,
+    "duplicateCount": 292,
+    "deleted": 292
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4704,
+    "totalPending": 602340
+  },
+  "durationSeconds": "23.36"
+}

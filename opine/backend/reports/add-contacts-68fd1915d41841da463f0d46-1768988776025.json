@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-01-21T09:46:16.025Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Gaighata",
+  "excelFile": "/var/www/Report-Generation/ac97_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 5000,
+  "errors": [],
+  "newContactsAdded": 4996,
+  "queueEntriesCreated": 4997,
+  "duplicateCleanup": {
+    "totalEntries": 662356,
+    "uniquePhones": 662070,
+    "duplicateCount": 286,
+    "deleted": 286
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4712,
+    "totalPending": 592526
+  },
+  "durationSeconds": "22.77"
+}

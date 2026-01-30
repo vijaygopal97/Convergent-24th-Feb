@@ -61,22 +61,42 @@ const makeCall = async (req, res) => {
     });
 
     // Ensure agent is registered for providers that require it (CloudTelephony)
+    // OPTIMIZED: Use Redis cache to avoid database query on every call
     if (providerName === 'cloudtelephony') {
-      const agent = await CatiAgent.getOrCreate(userId, cleanFrom);
-      if (!agent.isRegistered('cloudtelephony')) {
-        const agentName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || cleanFrom;
-        try {
-          const regResult = await provider.registerAgent(cleanFrom, agentName);
-          // Mark as registered even if provider says "already exists" (idempotent behavior)
-          agent.markRegistered('cloudtelephony', regResult?.response?.member_id || regResult?.response?.agentId || null);
-          await agent.save();
-        } catch (regErr) {
-          // If registration fails, don't attempt call (provider requires it)
-          return res.status(500).json({
-            success: false,
-            message: 'Failed to register agent for CloudTelephony',
-            error: regErr.message
-          });
+      const { getCachedRegistrationStatus, setCachedRegistrationStatus } = require('../utils/catiAgentCache');
+      
+      // Check cache first (fast path - no database query)
+      const cachedStatus = await getCachedRegistrationStatus(userId, cleanFrom, 'cloudtelephony');
+      
+      if (cachedStatus === true) {
+        // Cache hit - agent is registered, skip database query and registration check
+        console.log(`✅ [Controller] Agent registration confirmed via cache: ${cleanFrom}`);
+      } else {
+        // Cache miss or false - need to check database
+        const agent = await CatiAgent.getOrCreate(userId, cleanFrom);
+        const isRegistered = agent.isRegistered('cloudtelephony');
+        
+        // Update cache with current status
+        await setCachedRegistrationStatus(userId, cleanFrom, 'cloudtelephony', isRegistered);
+        
+        if (!isRegistered) {
+          const agentName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || cleanFrom;
+          try {
+            const regResult = await provider.registerAgent(cleanFrom, agentName);
+            // Mark as registered even if provider says "already exists" (idempotent behavior)
+            agent.markRegistered('cloudtelephony', regResult?.response?.member_id || regResult?.response?.agentId || null);
+            await agent.save();
+            
+            // Update cache with registered status
+            await setCachedRegistrationStatus(userId, cleanFrom, 'cloudtelephony', true);
+          } catch (regErr) {
+            // If registration fails, don't attempt call (provider requires it)
+            return res.status(500).json({
+              success: false,
+              message: 'Failed to register agent for CloudTelephony',
+              error: regErr.message
+            });
+          }
         }
       }
     }
@@ -439,29 +459,90 @@ const receiveCloudTelephonyWebhook = async (req, res) => {
         }
       }
 
-      // Background S3 upload (non-blocking, only if URL exists)
-      if (update.recordingUrl && typeof update.recordingUrl === 'string' && update.recordingUrl.startsWith('http')) {
+      // CRITICAL: Auto-upload to S3 in background (non-blocking) - EXACTLY LIKE DEEPCALL
+      // This ensures Cloud Telephony recordings are preserved and served efficiently from S3
+      // Use callId to find the record after it's saved (more reliable than _id for new records)
+      if (update.recordingUrl && typeof update.recordingUrl === 'string' && update.recordingUrl !== 'null' && update.recordingUrl !== '' && update.recordingUrl.startsWith('http')) {
         const callIdForUpload = callRecord.callId;
         const recordingUrlForUpload = update.recordingUrl;
+        
         setImmediate(async () => {
           try {
-            const callForUpload = await CatiCall.findOne({ callId: callIdForUpload }).select('s3AudioUrl s3AudioUploadStatus').lean();
-            if (callForUpload && (!callForUpload.s3AudioUrl || callForUpload.s3AudioUploadStatus !== 'uploaded')) {
+            // Wait a bit for the record to be saved
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Find the call record (by callId, works for both new and existing)
+            const callForUpload = await CatiCall.findOne({ callId: callIdForUpload });
+            if (!callForUpload) {
+              console.error(`❌ [CloudTelephony] Could not find call record for upload: ${callIdForUpload}`);
+              return;
+            }
+            
+            // Only upload if not already uploaded
+            if (!callForUpload.s3AudioUrl || callForUpload.s3AudioUploadStatus !== 'uploaded') {
+              console.log(`📤 [CloudTelephony] Starting background S3 upload for callId: ${callIdForUpload}`);
               const { downloadAndUploadCatiAudio } = require('../utils/cloudStorage');
-              const uploadResult = await downloadAndUploadCatiAudio(recordingUrlForUpload, callIdForUpload, { source: 'cloudtelephony' });
-              if (uploadResult?.s3Key) {
+              
+              // Mark as pending (same as DeepCall)
                 await CatiCall.updateOne(
-                  { callId: callIdForUpload },
-                  { $set: { s3AudioUrl: uploadResult.s3Key, s3AudioUploadedAt: new Date(), s3AudioUploadStatus: 'uploaded' } }
+                { _id: callForUpload._id },
+                { 
+                  $set: { 
+                    s3AudioUploadStatus: 'pending',
+                    s3AudioUploadError: null
+                  } 
+                }
+              );
+              
+              // Download and upload (same as DeepCall, but with source: 'cloudtelephony')
+              const uploadResult = await downloadAndUploadCatiAudio(
+                recordingUrlForUpload,
+                callIdForUpload,
+                { source: 'cloudtelephony' }
+              );
+              
+              // Update with S3 key (same as DeepCall)
+              await CatiCall.updateOne(
+                { _id: callForUpload._id },
+                { 
+                  $set: { 
+                    s3AudioUrl: uploadResult.s3Key,
+                    s3AudioUploadedAt: new Date(),
+                    s3AudioUploadStatus: 'uploaded',
+                    s3AudioUploadError: null
+                  } 
+                }
+                );
+              
+              console.log(`✅ [CloudTelephony] Successfully uploaded CATI recording to S3: ${uploadResult.s3Key}`);
+            } else {
+              console.log(`ℹ️  [CloudTelephony] Recording already uploaded to S3, skipping: ${callForUpload.s3AudioUrl}`);
+            }
+          } catch (uploadError) {
+            console.error(`❌ [CloudTelephony] Failed to upload CATI recording to S3:`, uploadError);
+            
+            // Mark as failed (but keep Cloud Telephony URL for fallback) - same as DeepCall
+            const errorMessage = uploadError.message === 'RECORDING_DELETED' 
+              ? 'Recording already deleted from Cloud Telephony' 
+              : uploadError.message;
+            
+            // Try to find and update the call record
+            try {
+              const callForUpload = await CatiCall.findOne({ callId: callIdForUpload });
+              if (callForUpload) {
+            await CatiCall.updateOne(
+                  { _id: callForUpload._id },
+                  { 
+                    $set: { 
+                      s3AudioUploadStatus: uploadError.message === 'RECORDING_DELETED' ? 'deleted' : 'failed',
+                      s3AudioUploadError: errorMessage.substring(0, 500) // Limit error message length
+                    } 
+                  }
                 );
               }
+            } catch (updateError) {
+              console.error('❌ [CloudTelephony] Failed to update upload status:', updateError);
             }
-          } catch (e) {
-            console.error('❌ [CloudTelephony] Background S3 upload failed:', e.message);
-            await CatiCall.updateOne(
-              { callId: callIdForUpload },
-              { $set: { s3AudioUploadStatus: 'failed', s3AudioUploadError: e.message, s3AudioUploadedAt: new Date() } }
-            ).catch(() => {});
           }
         });
       }
@@ -1900,12 +1981,15 @@ const getRecording = async (req, res) => {
       // The frontend ensures they can only see responses they're assigned to review
     }
 
-    // CRITICAL: Prefer S3 audio if available (migrated recordings)
-    // This ensures we use our own S3 storage instead of DeepCall URLs that expire
+    // CRITICAL: Prefer S3 audio if available (migrated recordings) - WORKS FOR BOTH DEEPCALL AND CLOUD TELEPHONY
+    // This ensures we use our own S3 storage instead of provider URLs that expire
+    // Cloud Telephony recordings are now uploaded to S3 just like DeepCall recordings
     if (call.s3AudioUrl && call.s3AudioUploadStatus === 'uploaded') {
-      console.log(`🎵 [AUDIO URL LOG] Quality Agent - Using S3 audio for callId: ${callId}`);
+      const providerName = call?.metadata?.provider || 'unknown';
+      console.log(`🎵 [AUDIO URL LOG] Using S3 audio for callId: ${callId}`);
+      console.log(`🎵 [AUDIO URL LOG] Provider: ${providerName}`);
       console.log(`🎵 [AUDIO URL LOG] S3 Key: ${call.s3AudioUrl}`);
-      console.log(`🎵 [AUDIO URL LOG] Source: S3 (migrated)`);
+      console.log(`🎵 [AUDIO URL LOG] Source: S3 (migrated from ${providerName})`);
       console.log(`🎵 [AUDIO URL LOG] ✅ PROXIED - Streaming through server (NO cross-region charges)`);
       console.log(`🎵 [AUDIO URL LOG] Backend will download from S3 and stream to client`);
       const { streamAudioFromS3 } = require('../utils/cloudStorage');
@@ -1914,8 +1998,8 @@ const getRecording = async (req, res) => {
         console.log(`🎵 [AUDIO URL LOG] ✅ Successfully streamed S3 audio to client`);
         return; // Exit early - streamAudioFromS3 handles the response
       } catch (s3Error) {
-        console.error('❌ Error streaming from S3, falling back to DeepCall:', s3Error.message);
-        // Fall through to DeepCall fallback
+        console.error(`❌ Error streaming from S3, falling back to provider (${providerName}):`, s3Error.message);
+        // Fall through to provider fallback
       }
     }
 

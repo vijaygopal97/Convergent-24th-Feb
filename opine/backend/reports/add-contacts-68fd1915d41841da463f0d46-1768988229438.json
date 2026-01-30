@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-01-21T09:37:09.438Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Onda",
+  "excelFile": "/var/www/Report-Generation/ac254_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 4999,
+  "errors": [
+    "Row 2482: Missing name or phone"
+  ],
+  "newContactsAdded": 4998,
+  "queueEntriesCreated": 4994,
+  "duplicateCleanup": {
+    "totalEntries": 657548,
+    "uniquePhones": 657359,
+    "duplicateCount": 189,
+    "deleted": 189
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4808,
+    "totalPending": 587830
+  },
+  "durationSeconds": "23.32"
+}

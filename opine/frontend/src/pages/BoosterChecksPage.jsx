@@ -119,12 +119,16 @@ const BoosterChecksPage = () => {
       
       if (response.success) {
         setResponses(response.responses || []);
-        setPagination(response.pagination || {
-          currentPage: 1,
-          totalPages: 1,
-          totalResponses: 0,
-          hasNext: false,
-          hasPrev: false
+        const p = response.pagination || {};
+        const currentPage = p.currentPage ?? p.page ?? 1;
+        const totalPages = p.totalPages ?? p.pages ?? 1;
+        const totalResponses = p.totalResponses ?? p.total ?? 0;
+        setPagination({
+          currentPage,
+          totalPages,
+          totalResponses,
+          hasNext: p.hasNext ?? (currentPage < totalPages),
+          hasPrev: p.hasPrev ?? (currentPage > 1)
         });
       }
     } catch (error) {
@@ -459,7 +463,7 @@ const BoosterChecksPage = () => {
             <div className="mb-6">
               <div className="bg-white p-4 rounded-lg shadow inline-block max-w-xs">
                 <div className="text-sm text-gray-600">Total Responses</div>
-                <div className="text-2xl font-bold text-gray-900">{pagination.totalResponses.toLocaleString()}</div>
+                <div className="text-2xl font-bold text-gray-900">{(pagination?.totalResponses || 0).toLocaleString()}</div>
               </div>
             </div>
             
@@ -497,7 +501,7 @@ const BoosterChecksPage = () => {
                       </tr>
                     ) : (
                       responses.map((response, index) => {
-                        const serialNumber = (pagination.currentPage - 1) * 20 + index + 1;
+                        const serialNumber = ((pagination?.currentPage || 1) - 1) * 20 + index + 1;
                         const distance = response.distanceFromPollingStation;
                         const gpsCheckPass = response.gpsCheckPass;
                         
@@ -589,9 +593,9 @@ const BoosterChecksPage = () => {
                       <p className="text-sm text-gray-700">
                         Showing <span className="font-medium">{(pagination.currentPage - 1) * 20 + 1}</span> to{' '}
                         <span className="font-medium">
-                          {Math.min(pagination.currentPage * 20, pagination.totalResponses)}
+                          {Math.min((pagination?.currentPage || 1) * 20, pagination?.totalResponses || 0)}
                         </span>{' '}
-                        of <span className="font-medium">{pagination.totalResponses.toLocaleString()}</span> results
+                        of <span className="font-medium">{(pagination?.totalResponses || 0).toLocaleString()}</span> results
                       </p>
                     </div>
                     <div>

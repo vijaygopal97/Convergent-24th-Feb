@@ -3757,7 +3757,8 @@ const getNextReviewAssignment = async (req, res) => {
           {
             new: true, // Return updated document
             runValidators: true,
-            sort: { lastSkippedAt: 1, createdAt: 1 }, // Sort by priority (never-skipped first, then oldest)
+            // Sort by priority: never-skipped first, then earliest startTime, then createdAt
+            sort: { lastSkippedAt: 1, startTime: 1, createdAt: 1 },
             maxTimeMS: 10000 // 10 second timeout to prevent hanging
           }
         );
@@ -4995,20 +4996,98 @@ const getSurveyResponseById = async (req, res) => {
     const userId = req.user.id;
     const userRole = req.user.userType;
 
+    // Backend-only mitigation for old app versions that spam abandoned/blocked responseIds.
+    // Minimal blast radius:
+    // - Only applies for interviewer traffic
+    // - Only activates after >= 50 hits in 10 minutes for a specific responseId
+    // - Uses Redis TTL keys so it auto-expires and won't affect normal responses
+    const SPAM_WINDOW_SECONDS = 10 * 60; // 10 minutes
+    const SPAM_THRESHOLD = 50;
+    const TEMP_OK_SECONDS = 6 * 60 * 60; // 6 hours
+
+    const redisOps = require('../utils/redisClient');
+    const tempOkKey = `sr:temp-ok:${responseId}`;
+    const spamCounterKey = `sr:410count:${responseId}`;
+
+    // TEMPORARY FIX: List of stuck response IDs that are already synced but stuck in app's offline storage
+    // Returning success for these specific IDs so app deletes them from offline storage
+    // This prevents excessive retries from old app versions
+    const STUCK_RESPONSE_IDS = [
+      'eeccac49-9d78-4773-ba10-f19866cd9dfb',
+      '56aa1004-7ce4-4ed1-bcb2-b88f68f10124',
+      '5f1e7557-05d8-4e89-891d-309872a219c9',
+      '261671fd-09cd-4e29-b1df-0b24dcaf01cc',
+      '69633e29-3475-4a02-a92a-c18389d3e860',
+      '8e8b1149-48d5-4e12-b72f-59fbd5819fb3',
+      'a7d4a4a4-93b1-4ef1-8018-6378b8571d28'
+    ];
+
+    // TEMPORARY FIX: For stuck IDs, return 200 success to stop retries and allow app to delete from offline storage
+    if (STUCK_RESPONSE_IDS.includes(responseId)) {
+      console.log(`🔧 [TEMP FIX] Returning success for stuck response ID: ${responseId} to stop retries`);
+      return res.status(200).json({
+        success: true,
+        interview: {
+          _id: responseId,
+          responseId: responseId,
+          status: 'abandoned',
+          deleted: true,
+          responses: [],
+          createdAt: new Date().toISOString()
+        },
+        message: 'Interview has been removed'
+      });
+    }
+
     // Ultra-lightweight Redis-based protection for hot / abusive responseIds
     // If a responseId is known to be "blocked" (e.g. abandoned + repeatedly requested),
     // short‑circuit BEFORE any Mongo queries to protect the backend.
     let blockKey = null;
     try {
-      const redisOps = require('../utils/redisClient');
       blockKey = `sr:view-blocked:${responseId}`;
       const isBlocked = await redisOps.get(blockKey);
       if (isBlocked) {
+        // If this responseId is in temp-ok quarantine, return 200 to stop old-app retry loops.
+        // Only for interviewer traffic.
+        if (userRole === 'interviewer') {
+          const isTempOk = await redisOps.get(tempOkKey);
+          if (isTempOk) {
+            return res.status(200).json({
+              success: true,
+              interview: {
+                _id: responseId,
+                responseId: responseId,
+                status: 'abandoned',
+                deleted: true,
+                responses: [],
+                createdAt: new Date().toISOString()
+              },
+              message: 'Interview has been removed'
+            });
+          }
+
+          // Count blocked 410s and promote to temp-ok if threshold crossed.
+          const count = await redisOps.incr(spamCounterKey, SPAM_WINDOW_SECONDS);
+          if (count >= SPAM_THRESHOLD) {
+            await redisOps.set(tempOkKey, { enabled: true, promotedAt: new Date().toISOString() }, TEMP_OK_SECONDS);
+            console.log(`🔧 [SPAM MITIGATION] Promoted ${responseId} to temp-ok after ${count} blocked hits in ${SPAM_WINDOW_SECONDS}s`);
+            return res.status(200).json({
+              success: true,
+              interview: {
+                _id: responseId,
+                responseId: responseId,
+                status: 'abandoned',
+                deleted: true,
+                responses: [],
+                createdAt: new Date().toISOString()
+              },
+              message: 'Interview has been removed'
+            });
+          }
+        }
+
         // Fast exit: minimal payload, no DB / populate work
-        return res.status(410).json({
-          success: false,
-          message: 'Interview not available'
-        });
+        return res.status(410).json({ success: false, message: 'Interview not available' });
       }
     } catch (redisError) {
       // If Redis is unavailable, continue normally – do NOT break core flow
@@ -5032,6 +5111,10 @@ const getSurveyResponseById = async (req, res) => {
           path: 'interviewer',
           select: 'firstName lastName email phone memberId'
         })
+        .populate({
+          path: 'verificationData.reviewer',
+          select: 'firstName lastName email'
+        })
         .select('survey interviewer status responses location metadata interviewMode selectedAC selectedPollingStation audioRecording createdAt updatedAt startedAt completedAt totalTimeSpent completionPercentage responseId call_id verificationData');
     } else {
       // It's a UUID (responseId field)
@@ -5047,6 +5130,10 @@ const getSurveyResponseById = async (req, res) => {
         .populate({
           path: 'interviewer',
           select: 'firstName lastName email phone memberId'
+        })
+        .populate({
+          path: 'verificationData.reviewer',
+          select: 'firstName lastName email'
         })
         .select('survey interviewer status responses location metadata interviewMode selectedAC selectedPollingStation audioRecording createdAt updatedAt startedAt completedAt totalTimeSpent completionPercentage responseId call_id verificationData');
     }
@@ -5075,17 +5162,53 @@ const getSurveyResponseById = async (req, res) => {
         userRole === 'interviewer') {
       if (blockKey) {
         try {
-          const redisOps = require('../utils/redisClient');
           // Cache the "blocked" state for a longer period – abandoned is a final status.
           await redisOps.set(blockKey, { reason: 'abandoned' }, 4 * 60 * 60); // 4 hours
         } catch (cacheErr) {
           console.log('getSurveyResponseById - Redis set abandoned error:', cacheErr.message);
         }
       }
-      return res.status(410).json({
-        success: false,
-        message: 'Interview not available'
-      });
+
+      // Auto-mitigate spam: count abandoned 410s and promote to temp-ok if threshold crossed.
+      try {
+        const isTempOk = await redisOps.get(tempOkKey);
+        if (isTempOk) {
+          return res.status(200).json({
+            success: true,
+            interview: {
+              _id: responseId,
+              responseId: responseId,
+              status: 'abandoned',
+              deleted: true,
+              responses: [],
+              createdAt: new Date().toISOString()
+            },
+            message: 'Interview has been removed'
+          });
+        }
+        const count = await redisOps.incr(spamCounterKey, SPAM_WINDOW_SECONDS);
+        if (count >= SPAM_THRESHOLD) {
+          await redisOps.set(tempOkKey, { enabled: true, promotedAt: new Date().toISOString() }, TEMP_OK_SECONDS);
+          console.log(`🔧 [SPAM MITIGATION] Promoted ${responseId} to temp-ok after ${count} abandoned hits in ${SPAM_WINDOW_SECONDS}s`);
+          return res.status(200).json({
+            success: true,
+            interview: {
+              _id: responseId,
+              responseId: responseId,
+              status: 'abandoned',
+              deleted: true,
+              responses: [],
+              createdAt: new Date().toISOString()
+            },
+            message: 'Interview has been removed'
+          });
+        }
+      } catch (e) {
+        // If Redis fails, fall back to existing behavior
+        console.log('getSurveyResponseById - spam mitigation error:', e.message);
+      }
+
+      return res.status(410).json({ success: false, message: 'Interview not available' });
     }
 
     // Authorization check: Allow access based on user role
@@ -5209,7 +5332,7 @@ const getSurveyResponseById = async (req, res) => {
       }
     }
 
-    // Convert to plain object and ensure interviewer is properly serialized
+    // Convert to plain object and ensure interviewer and reviewer are properly serialized
     const responseData = surveyResponse.toObject ? surveyResponse.toObject() : surveyResponse;
     
     // Ensure interviewer field is properly formatted
@@ -5222,6 +5345,23 @@ const getSurveyResponseById = async (req, res) => {
         phone: responseData.interviewer.phone || null,
         memberId: responseData.interviewer.memberId || null
       };
+    }
+    
+    // Ensure reviewer field is properly formatted (CRITICAL: Prevents "Unknown Reviewer" issue)
+    if (responseData.verificationData && responseData.verificationData.reviewer) {
+      if (typeof responseData.verificationData.reviewer === 'object' && responseData.verificationData.reviewer._id) {
+        // Reviewer is populated - ensure it's properly serialized
+        responseData.verificationData.reviewer = {
+          _id: responseData.verificationData.reviewer._id || responseData.verificationData.reviewer,
+          firstName: responseData.verificationData.reviewer.firstName || '',
+          lastName: responseData.verificationData.reviewer.lastName || '',
+          email: responseData.verificationData.reviewer.email || null
+        };
+      } else if (typeof responseData.verificationData.reviewer === 'string' || typeof responseData.verificationData.reviewer === 'object') {
+        // Reviewer is just an ID - keep it as is (frontend will handle lookup if needed)
+        // But we should have populated it above, so this shouldn't happen
+        console.warn('⚠️ Reviewer not populated properly for response:', responseId);
+      }
     }
     
     res.json({
@@ -7020,7 +7160,8 @@ const getSurveyResponsesV2 = async (req, res) => {
       interviewMode,
       interviewerIds,
       interviewerMode = 'include',
-      search
+      search,
+      qualityAgentId
     } = req.query;
 
     // Verify survey exists
@@ -7039,6 +7180,8 @@ const getSurveyResponsesV2 = async (req, res) => {
     if (status && status !== 'all' && status !== '') {
       if (status === 'approved_rejected_pending') {
         matchFilter.status = { $in: ['Approved', 'Rejected', 'Pending_Approval'] };
+      } else if (status === 'approved_rejected') {
+        matchFilter.status = { $in: ['Approved', 'Rejected'] };
       } else if (status === 'approved_pending') {
         matchFilter.status = { $in: ['Approved', 'Pending_Approval'] };
       } else if (status === 'pending') {
@@ -7053,6 +7196,15 @@ const getSurveyResponsesV2 = async (req, res) => {
     // Interview mode filter
     if (interviewMode) {
       matchFilter.interviewMode = interviewMode.toLowerCase();
+    }
+
+    // Quality Agent filter - filter by reviewer
+    if (qualityAgentId && qualityAgentId.trim()) {
+      const qualityAgentObjectId = mongoose.Types.ObjectId.isValid(qualityAgentId) 
+        ? new mongoose.Types.ObjectId(qualityAgentId) 
+        : qualityAgentId;
+      matchFilter['verificationData.reviewer'] = qualityAgentObjectId;
+      console.log('✅ Quality Agent filter applied:', qualityAgentId, 'ObjectId:', qualityAgentObjectId.toString());
     }
 
     // Date range filter (using IST timezone)
@@ -7095,8 +7247,15 @@ const getSurveyResponsesV2 = async (req, res) => {
       }
 
       if (dateStart && dateEnd) {
+        // When filtering by quality agent, use reviewedAt (review date) instead of startTime (interview date)
+        // This makes sense because we want to see responses based on when the quality agent reviewed them
+        if (qualityAgentId && qualityAgentId.trim()) {
+          matchFilter['verificationData.reviewedAt'] = { $gte: dateStart, $lte: dateEnd };
+          console.log('✅ Date filter applied to verificationData.reviewedAt (Quality Agent view)');
+        } else {
         // Use startTime (interview date) instead of createdAt (sync date) for filtering
         matchFilter.startTime = { $gte: dateStart, $lte: dateEnd };
+        }
       }
     }
     
@@ -7115,8 +7274,15 @@ const getSurveyResponsesV2 = async (req, res) => {
       }
       
       if (dateStart && dateEnd) {
+        // When filtering by quality agent, use reviewedAt (review date) instead of startTime (interview date)
+        // This makes sense because we want to see responses based on when the quality agent reviewed them
+        if (qualityAgentId && qualityAgentId.trim()) {
+          matchFilter['verificationData.reviewedAt'] = { $gte: dateStart, $lte: dateEnd };
+          console.log('✅ Custom date filter applied to verificationData.reviewedAt (Quality Agent view)');
+        } else {
         // Use startTime (interview date) instead of createdAt (sync date) for filtering
         matchFilter.startTime = { $gte: dateStart, $lte: dateEnd };
+        }
       }
     }
 
@@ -7878,6 +8044,18 @@ const getSurveyResponsesV2 = async (req, res) => {
             phone: response.interviewerDetails.phone || ''
           };
         }
+        // CRITICAL FIX: Map reviewerDetails to verificationData.reviewer for CSV downloads too
+        if (response.reviewerDetails && (!response.verificationData || !response.verificationData.reviewer || typeof response.verificationData.reviewer === 'string')) {
+          if (!response.verificationData) {
+            response.verificationData = {};
+          }
+          response.verificationData.reviewer = {
+            _id: response.verificationData?.reviewer?._id || response.verificationData?.reviewer || null,
+            firstName: response.reviewerDetails.firstName || '',
+            lastName: response.reviewerDetails.lastName || '',
+            email: response.reviewerDetails.email || ''
+          };
+        }
         // Skip audio signed URL generation for CSV downloads
         return response;
       });
@@ -7893,6 +8071,20 @@ const getSurveyResponsesV2 = async (req, res) => {
           memberId: response.interviewerDetails.memberId || '',
           memberID: response.interviewerDetails.memberId || '',
           phone: response.interviewerDetails.phone || ''
+        };
+      }
+      
+      // CRITICAL FIX: Map reviewerDetails to verificationData.reviewer to prevent "Unknown Reviewer" issue
+      // This ensures the reviewer name is properly displayed in the Response Details Modal
+      if (response.reviewerDetails && (!response.verificationData || !response.verificationData.reviewer || typeof response.verificationData.reviewer === 'string')) {
+        if (!response.verificationData) {
+          response.verificationData = {};
+        }
+        response.verificationData.reviewer = {
+          _id: response.verificationData?.reviewer?._id || response.verificationData?.reviewer || null,
+          firstName: response.reviewerDetails.firstName || '',
+          lastName: response.reviewerDetails.lastName || '',
+          email: response.reviewerDetails.email || ''
         };
       }
       
@@ -9410,6 +9602,63 @@ const verifyInterviewSync = async (req, res) => {
       });
     }
 
+    // Backend-only mitigation for old app versions that spam verify-sync for abandoned/blocked responseIds.
+    // Minimal blast radius:
+    // - Only applies for interviewer traffic
+    // - Only activates when a responseId is already in temp-ok quarantine
+    // Note: thresholding is driven by GET /api/survey-responses/:id (main spam source).
+    const redisOps = require('../utils/redisClient');
+    const tempOkKey = responseId ? `sr:temp-ok:${responseId}` : null;
+
+    // TEMPORARY FIX: List of stuck response IDs that are already synced but stuck in app's offline storage
+    // Returning success for these specific IDs so app deletes them from offline storage
+    // This prevents excessive retries from old app versions
+    const STUCK_RESPONSE_IDS = [
+      'eeccac49-9d78-4773-ba10-f19866cd9dfb',
+      '56aa1004-7ce4-4ed1-bcb2-b88f68f10124',
+      '5f1e7557-05d8-4e89-891d-309872a219c9',
+      '261671fd-09cd-4e29-b1df-0b24dcaf01cc',
+      '69633e29-3475-4a02-a92a-c18389d3e860',
+      '8e8b1149-48d5-4e12-b72f-59fbd5819fb3',
+      'a7d4a4a4-93b1-4ef1-8018-6378b8571d28'
+    ];
+
+    // TEMPORARY FIX: For stuck IDs, return success so app deletes them from offline storage
+    if (responseId && STUCK_RESPONSE_IDS.includes(responseId)) {
+      console.log(`🔧 [TEMP FIX] Returning verification success for stuck response ID: ${responseId} to clear from offline storage`);
+      return res.status(200).json({
+        success: true,
+        verified: true,
+        audioVerified: true,
+        responseId: responseId,
+        hasResponses: true,
+        hasAudio: true,
+        status: 'abandoned'
+      });
+    }
+
+    // If this responseId is in temp-ok quarantine, immediately return verified so the app clears local storage.
+    // Only for interviewer traffic, and only when responseId is provided.
+    if (responseId && req.user?.userType === 'interviewer' && tempOkKey) {
+      try {
+        const isTempOk = await redisOps.get(tempOkKey);
+        if (isTempOk) {
+          return res.status(200).json({
+            success: true,
+            verified: true,
+            audioVerified: true,
+            responseId: responseId,
+            mongoId: mongoId || undefined,
+            status: 'abandoned',
+            hasResponses: true,
+            hasAudio: true
+          });
+        }
+      } catch (e) {
+        console.log('verifyInterviewSync - temp-ok check error:', e.message);
+      }
+    }
+
     // Find the response by responseId or mongoId
     let surveyResponse;
     if (mongoId) {
@@ -9505,6 +9754,7 @@ const getBoosterChecks = async (req, res) => {
     const limitNum = parseInt(limit) || 20;
     const pageNum = parseInt(page) || 1;
     const fetchLimit = limitNum * 5; // Fetch 5x to account for filtering
+    const neededCount = pageNum * limitNum; // ensure we can fill the requested page
 
     // Check Redis cache first
     const redisOps = require('../utils/redisClient');
@@ -9619,10 +9869,11 @@ const getBoosterChecks = async (req, res) => {
     let totalFetched = 0;
     let skip = 0;
 
-    while (processedResponses.length < limitNum && skip < 10000) { // Safety limit
+    while (processedResponses.length < neededCount && skip < 10000) { // Safety limit
       const batch = await SurveyResponse.find(matchFilter)
         .select('-responses') // Exclude large responses array
         .populate('interviewer', 'firstName lastName email memberId')
+        // selectedPollingStation is often embedded; populate is a no-op for embedded objects
         .populate('selectedPollingStation', 'stationName latitude longitude')
         .sort({ createdAt: -1 })
         .skip(skip)
@@ -9640,23 +9891,16 @@ const getBoosterChecks = async (req, res) => {
 
         // Calculate distance from polling station
         let distance = null;
-        if (response.selectedPollingStation && response.selectedPollingStation.latitude && 
-            response.selectedPollingStation.longitude && response.gpsLocation) {
-          const psLat = response.selectedPollingStation.latitude;
-          const psLon = response.selectedPollingStation.longitude;
-          let gpsLat = null, gpsLon = null;
-
-          if (response.gpsLocation.latitude && response.gpsLocation.longitude) {
-            gpsLat = response.gpsLocation.latitude;
-            gpsLon = response.gpsLocation.longitude;
-          } else if (response.location && response.location.latitude && response.location.longitude) {
-            gpsLat = response.location.latitude;
-            gpsLon = response.location.longitude;
-          }
-
-          if (gpsLat !== null && gpsLon !== null) {
+        try {
+          const psLat = response?.selectedPollingStation?.latitude;
+          const psLon = response?.selectedPollingStation?.longitude;
+          const gpsLat = response?.location?.latitude ?? response?.locationData?.latitude ?? response?.gpsLocation?.latitude ?? null;
+          const gpsLon = response?.location?.longitude ?? response?.locationData?.longitude ?? response?.gpsLocation?.longitude ?? null;
+          if (psLat != null && psLon != null && gpsLat != null && gpsLon != null) {
             distance = calculateDistance(gpsLat, gpsLon, psLat, psLon);
           }
+        } catch (e) {
+          // keep distance null
         }
 
         // Filter: must have booster enabled OR distance > 5.1km
@@ -9667,8 +9911,8 @@ const getBoosterChecks = async (req, res) => {
         const gpsCheckPass = distance !== null ? distance <= ALLOWED_RADIUS_KM : null;
 
         // Apply GPS Check filter if specified
-        if (gpsCheck === 'pass' && !gpsCheckPass) continue;
-        if (gpsCheck === 'fail' && gpsCheckPass) continue;
+        if (gpsCheck === 'pass' && gpsCheckPass !== true) continue;
+        if (gpsCheck === 'fail' && gpsCheckPass !== false) continue;
 
         processedResponses.push({
           ...response,
@@ -9676,7 +9920,7 @@ const getBoosterChecks = async (req, res) => {
           gpsCheckPass
         });
 
-        if (processedResponses.length >= limitNum) break;
+        if (processedResponses.length >= neededCount) break;
       }
 
       skip += fetchLimit;
@@ -9697,14 +9941,22 @@ const getBoosterChecks = async (req, res) => {
       totalResponses = await SurveyResponse.countDocuments(matchFilter);
     }
 
+    const totalPages = Math.ceil(totalResponses / limitNum);
     const result = {
       success: true,
       responses: paginatedResponses,
       pagination: {
+        // Backward compatible fields
         page: pageNum,
         limit: limitNum,
         total: totalResponses,
-        pages: Math.ceil(totalResponses / limitNum)
+        pages: totalPages,
+        // Frontend-friendly fields (what BoosterChecksPage expects)
+        currentPage: pageNum,
+        totalPages,
+        totalResponses: totalResponses,
+        hasNext: pageNum < totalPages,
+        hasPrev: pageNum > 1
       }
     };
 

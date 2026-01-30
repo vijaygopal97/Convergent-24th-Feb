@@ -199,7 +199,8 @@ const interviewersToAdd = [
   { name: 'Sushana lepcha', phone: '9382562737' },
   { name: 'SAJINA TAMANG', phone: '7047021843' },
   { name: 'Sanjana lepcha', phone: '8597061003' },
-  { name: 'Samina', phone: '9883738613' }
+  { name: 'Samina', phone: '9883738613' },
+  { name: 'Arjun Pradhan', phone: '6901331745' }
 ];
 
 // ============================================================================

@@ -16,6 +16,7 @@ const CatiRespondentQueue = require('../models/CatiRespondentQueue');
 const Survey = require('../models/Survey'); // CRITICAL: Import Survey model to prevent "Schema hasn't been registered" error
 const User = require('../models/User'); // Needed for company ID and agent registration
 const CatiAgent = require('../models/CatiAgent'); // Needed for CloudTelephony agent registration
+const { getCachedRegistrationStatus, setCachedRegistrationStatus } = require('../utils/catiAgentCache');
 const ProviderFactory = require('../services/catiProviders/providerFactory'); // Use ProviderFactory instead of hardcoded DeepCall
 const redisOps = require('../utils/redisClient');
 const WEBHOOK_BASE_URL = process.env.WEBHOOK_BASE_URL || 'https://opine.exypnossolutions.com';
@@ -90,28 +91,49 @@ const initiateCall = async (companyId, interviewerId, fromNumber, toNumber, from
     console.log(`📞 [Worker] Making CATI call via provider=${providerName}: ${fromNumber} -> ${toNumber}`);
 
     // Ensure agent is registered for providers that require it (CloudTelephony)
+    // OPTIMIZED: Use Redis cache to avoid database query on every call
     if (providerName === 'cloudtelephony') {
-      const agent = await CatiAgent.getOrCreate(interviewerId, cleanFrom);
-      if (!agent.isRegistered('cloudtelephony')) {
-        const interviewer = await User.findById(interviewerId).select('firstName lastName').lean();
-        const agentName = `${interviewer?.firstName || ''} ${interviewer?.lastName || ''}`.trim() || cleanFrom;
-        try {
-          const regResult = await provider.registerAgent(cleanFrom, agentName);
-          // Mark as registered even if provider says "already exists" (idempotent behavior)
-          agent.markRegistered('cloudtelephony', regResult?.response?.member_id || regResult?.response?.agentId || null);
-          await agent.save();
-          console.log(`✅ [Worker] Agent registered for CloudTelephony: ${cleanFrom}`);
-        } catch (regErr) {
-          // If registration fails, don't attempt call (provider requires it)
-          console.error(`❌ [Worker] Failed to register agent for CloudTelephony: ${regErr.message}`);
-          return {
-            success: false,
-            message: 'Failed to register agent for CloudTelephony',
-            error: {
-              message: regErr.message,
-              details: regErr.response?.data || regErr.message
-            }
-          };
+      // Check cache first (fast path - no database query)
+      const { getCachedRegistrationStatus } = require('../utils/catiAgentCache');
+      const cachedStatus = await getCachedRegistrationStatus(interviewerId, cleanFrom, 'cloudtelephony');
+      
+      if (cachedStatus === true) {
+        // Cache hit - agent is registered, skip database query and registration check
+        console.log(`✅ [Worker] Agent registration confirmed via cache: ${cleanFrom}`);
+      } else {
+        // Cache miss or false - need to check database
+        const agent = await CatiAgent.getOrCreate(interviewerId, cleanFrom);
+        const isRegistered = agent.isRegistered('cloudtelephony');
+        
+        // Update cache with current status
+        await setCachedRegistrationStatus(interviewerId, cleanFrom, 'cloudtelephony', isRegistered);
+        
+        if (!isRegistered) {
+          // Agent not registered - register now
+          const interviewer = await User.findById(interviewerId).select('firstName lastName').lean();
+          const agentName = `${interviewer?.firstName || ''} ${interviewer?.lastName || ''}`.trim() || cleanFrom;
+          try {
+            const regResult = await provider.registerAgent(cleanFrom, agentName);
+            // Mark as registered even if provider says "already exists" (idempotent behavior)
+            agent.markRegistered('cloudtelephony', regResult?.response?.member_id || regResult?.response?.agentId || null);
+            await agent.save();
+            
+            // Update cache with registered status
+            await setCachedRegistrationStatus(interviewerId, cleanFrom, 'cloudtelephony', true);
+            
+            console.log(`✅ [Worker] Agent registered for CloudTelephony: ${cleanFrom}`);
+          } catch (regErr) {
+            // If registration fails, don't attempt call (provider requires it)
+            console.error(`❌ [Worker] Failed to register agent for CloudTelephony: ${regErr.message}`);
+            return {
+              success: false,
+              message: 'Failed to register agent for CloudTelephony',
+              error: {
+                message: regErr.message,
+                details: regErr.response?.data || regErr.message
+              }
+            };
+          }
         }
       }
     }

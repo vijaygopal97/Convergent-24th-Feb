@@ -70,44 +70,27 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
             if (callResponse.success && callResponse.data) {
               setCatiCallDetails(callResponse.data);
               
-              // Fetch recording if available
-              const recordingUrl = callResponse.data.recordingUrl || 
-                                   callResponse.data.webhookData?.recordingUrl ||
-                                   callResponse.data.webhookData?.recording_url;
-              
-              if (recordingUrl && !signal.aborted) {
-                try {
-                  const recordingId = callResponse.data._id || callResponse.data.id;
+              // CRITICAL FIX: Use streaming URL directly instead of downloading entire blob
+              // This allows progressive streaming like CAPI recordings, preventing infinite loading
+              // Modern approach: Let the browser handle streaming via audio element
+              const callData = callResponse.data;
+              const recordingId = callData._id || callData.id;
                   
-                  const recordingResponse = await api.get(
-                    `/api/cati/recording/${recordingId}`,
-                    { 
-                      responseType: 'blob',
-                      signal // Add AbortController signal
-                    }
-                  );
-                  
-                  // Check if aborted before processing
-                  if (signal.aborted) {
-                    // Cleanup blob if request was aborted
-                    if (recordingResponse.data) {
-                      URL.revokeObjectURL(URL.createObjectURL(recordingResponse.data));
-                    }
-                    return;
-                  }
-                  
-                  if (recordingResponse.data) {
-                    const blob = new Blob([recordingResponse.data], { type: 'audio/mpeg' });
-                    const blobUrl = URL.createObjectURL(blob);
-                    setCatiRecordingBlobUrl(blobUrl);
-                  }
-                } catch (recordingError) {
-                  // Ignore aborted requests
-                  if (recordingError.name === 'AbortError' || recordingError.code === 'ERR_CANCELED') {
-                    return;
-                  }
-                  console.error('❌ Error fetching CATI recording:', recordingError);
-                }
+              // Check if S3 audio is available (preferred - fast and reliable)
+              if (callData.s3AudioUrl && callData.s3AudioUploadStatus === 'uploaded') {
+                // Use S3 proxy URL for streaming (same as CAPI recordings)
+                const isProduction = window.location.protocol === 'https:' || window.location.hostname !== 'localhost';
+                const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (isProduction ? '' : 'http://localhost:5000');
+                const s3ProxyUrl = `${API_BASE_URL}/api/survey-responses/audio/${encodeURIComponent(callData.s3AudioUrl)}`;
+                setCatiRecordingBlobUrl(s3ProxyUrl);
+                console.log('✅ Using S3 audio URL for streaming:', s3ProxyUrl);
+              } else if (recordingId) {
+                // Fallback: Use recording endpoint URL for streaming (will stream from provider or S3)
+                const isProduction = window.location.protocol === 'https:' || window.location.hostname !== 'localhost';
+                const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (isProduction ? '' : 'http://localhost:5000');
+                const recordingStreamUrl = `${API_BASE_URL}/api/cati/recording/${recordingId}`;
+                setCatiRecordingBlobUrl(recordingStreamUrl);
+                console.log('✅ Using recording endpoint URL for streaming:', recordingStreamUrl);
               }
             }
           } catch (error) {
@@ -122,12 +105,10 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
       }
     }
     
-    // Cleanup: Abort requests and revoke blob URLs on unmount or response change
+    // Cleanup: Abort requests on unmount or response change
+    // Note: No need to revoke blob URLs anymore since we're using streaming URLs
     return () => {
       abortController.abort(); // Cancel any pending requests
-      if (catiRecordingBlobUrl) {
-        URL.revokeObjectURL(catiRecordingBlobUrl);
-      }
     };
   }, [currentResponse?._id, currentResponse?.interviewMode, currentResponse?.call_id]);
 
@@ -1873,7 +1854,7 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
             )}
 
             {/* Audio Recording / Call Recording */}
-            {currentResponse.interviewMode === 'cati' && catiCallDetails?.recordingUrl ? (
+            {currentResponse.interviewMode === 'cati' && (catiCallDetails?.recordingUrl || catiCallDetails?.s3AudioUrl) ? (
               <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                   <Headphones className="w-5 h-5 mr-2" />
@@ -1893,8 +1874,13 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
                         onEnded={() => setAudioPlaying(false)}
                         onPause={() => setAudioPlaying(false)}
                         onPlay={() => setAudioPlaying(true)}
+                        onError={(e) => {
+                          console.error('❌ Error playing CATI recording:', e);
+                          showError('Failed to load recording. Please try again.');
+                        }}
                         className="w-full"
                         controls
+                        preload="metadata"
                       />
                       <a
                         href={catiRecordingBlobUrl}
@@ -1910,7 +1896,7 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
                   )}
                 </div>
               </div>
-            ) : currentResponse.interviewMode === 'cati' && !catiCallDetails?.recordingUrl ? (
+            ) : currentResponse.interviewMode === 'cati' && catiCallDetails && !catiCallDetails?.recordingUrl && !catiCallDetails?.s3AudioUrl ? (
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                   <PhoneCall className="w-5 h-5 mr-2" />
@@ -2014,7 +2000,7 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
             )}
 
             {/* Survey Responses - Hide for project managers */}
-            {!hideSurveyResponses && (
+            {!hideSurveyResponses && !isProjectManager && (
             <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Survey Responses</h3>
@@ -2309,8 +2295,9 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
               <div className="bg-gray-50 border-t border-gray-200 p-4 mt-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Change Response Status</h3>
                 <div className="flex items-center justify-end space-x-3 flex-wrap gap-2">
-                  {/* Set to Pending Approval - Show if Approved or Rejected */}
-                  {(currentResponse.status === 'Approved' || currentResponse.status === 'Rejected') && (
+                  {/* Set to Pending Approval - Show if Approved or Rejected, but ONLY for Company Admins */}
+                  {/* CRITICAL: Project managers should NOT see this button */}
+                  {!isProjectManager && (currentResponse.status === 'Approved' || currentResponse.status === 'Rejected') && (
                     <button
                       onClick={handleSetPendingApproval}
                       disabled={isSubmitting}
@@ -2334,8 +2321,9 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
                     </button>
                   )}
                   
-                  {/* Reject - Show if Pending_Approval or Approved */}
-                  {(currentResponse.status === 'Pending_Approval' || currentResponse.status === 'Approved') && (
+                  {/* Reject - Show if Pending_Approval or Approved, but ONLY for Company Admins */}
+                  {/* CRITICAL: Project managers should NOT see this button */}
+                  {!isProjectManager && (currentResponse.status === 'Pending_Approval' || currentResponse.status === 'Approved') && (
                     <button
                       onClick={() => setShowRejectForm(true)}
                       disabled={isSubmitting}

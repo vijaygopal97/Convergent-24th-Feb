@@ -158,10 +158,18 @@ async function updateAvailableAssignments() {
       const interviewerId = response.interviewer?.toString() || response.interviewer;
       const selectedAC = response.selectedAC || null;
       const interviewMode = response.interviewMode || 'capi';
+    const startTime = response.startTime || response.startedAt || response.createdAt || new Date();
+    const nowYear = new Date().getFullYear();
+    const windowStart = new Date(`${nowYear}-01-01T00:00:00Z`);
+    const windowEnd = new Date(`${nowYear}-01-15T23:59:59Z`);
       
       // Priority: lower number = higher priority
-      // Never skipped = priority 1, recently skipped = priority 2, etc.
-      const priority = response.lastSkippedAt ? 2 : 1;
+    // Base: never skipped = 1, recently skipped = 2.
+    // NEW: CAPI with startTime between Jan 1 and Jan 15 (oldest first) = priority 0 (highest).
+    let priority = response.lastSkippedAt ? 2 : 1;
+    if (interviewMode === 'capi' && startTime >= windowStart && startTime <= windowEnd) {
+      priority = 0;
+    }
       
       bulkOps.push({
         updateOne: {
@@ -176,7 +184,7 @@ async function updateAvailableAssignments() {
               selectedAC: selectedAC,
               priority: priority,
               lastSkippedAt: response.lastSkippedAt || null,
-              createdAt: response.createdAt || new Date(),
+            createdAt: startTime || response.createdAt || new Date(),
               updatedAt: new Date()
             }
           },

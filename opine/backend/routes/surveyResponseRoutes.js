@@ -44,7 +44,11 @@ const {
   createCSVJob,
   getCSVJobProgress,
   downloadCSVFromJob,
-  verifyInterviewSync
+  verifyInterviewSync,
+  getBoosterChecks,
+  bulkApproveBoosterChecks,
+  bulkRejectBoosterChecks,
+  bulkSetPendingBoosterChecks
 } = require('../controllers/surveyResponseController');
 const { protect, authorize } = require('../middleware/auth');
 
@@ -223,13 +227,16 @@ router.get('/survey/:surveyId/ac-performance', getACPerformanceStats);
 router.get('/survey/:surveyId/interviewer-performance', getInterviewerPerformanceStats);
 
 // Approve survey response (must come after skip-review to avoid conflicts)
-router.patch('/:responseId/approve', approveSurveyResponse);
+// CRITICAL: Only company admins can approve responses (project managers cannot)
+router.patch('/:responseId/approve', authorize('company_admin'), approveSurveyResponse);
 
 // Reject survey response (must come after skip-review to avoid conflicts)
-router.patch('/:responseId/reject', rejectSurveyResponse);
+// CRITICAL: Only company admins can reject responses (project managers cannot)
+router.patch('/:responseId/reject', authorize('company_admin'), rejectSurveyResponse);
 
 // Set response to Pending Approval (must come after skip-review to avoid conflicts)
-router.patch('/:responseId/set-pending', setPendingApproval);
+// CRITICAL: Only company admins can set responses to pending (project managers cannot)
+router.patch('/:responseId/set-pending', authorize('company_admin'), setPendingApproval);
 
 // Offline interview reporting routes
 const {
@@ -244,6 +251,12 @@ router.get('/offline-interviews/summary', authorize('company_admin', 'super_admi
 
 // Verify interview sync (two-phase commit verification)
 router.post('/verify-sync', protect, verifyInterviewSync);
+
+// Booster checks
+router.get('/survey/:surveyId/booster-checks', protect, authorize('company_admin', 'project_manager', 'quality_agent'), getBoosterChecks);
+router.post('/booster-checks/bulk-approve', protect, authorize('company_admin', 'project_manager', 'quality_agent'), bulkApproveBoosterChecks);
+router.post('/booster-checks/bulk-reject', protect, authorize('company_admin', 'project_manager', 'quality_agent'), bulkRejectBoosterChecks);
+router.post('/booster-checks/bulk-pending', protect, authorize('company_admin', 'project_manager', 'quality_agent'), bulkSetPendingBoosterChecks);
 
 // Get survey response details by ID (must be last to avoid conflicts with other routes)
 router.get('/:responseId', getSurveyResponseById);

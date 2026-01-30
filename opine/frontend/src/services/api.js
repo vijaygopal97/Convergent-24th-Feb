@@ -1668,7 +1668,7 @@ export const performanceAPI = {
 
 // QC Batch API
 export const qcBatchAPI = {
-  // Get all batches for a survey
+  // Get all batches for a survey (V1 - Legacy, kept for backward compatibility)
   getBatchesBySurvey: async (surveyId) => {
     try {
       const response = await api.get(`/api/qc-batches/survey/${surveyId}`);
@@ -1678,10 +1678,42 @@ export const qcBatchAPI = {
     }
   },
 
-  // Get a single batch by ID
+  // Get all batches for a survey (V2 - Optimized with pagination)
+  getBatchesBySurveyV2: async (surveyId, options = {}) => {
+    try {
+      const { page = 1, limit = 20, status, interviewerId } = options;
+      const params = new URLSearchParams();
+      if (page) params.append('page', page);
+      if (limit) params.append('limit', limit);
+      if (status) params.append('status', status);
+      if (interviewerId) params.append('interviewerId', interviewerId);
+      
+      const response = await api.get(`/api/qc-batches-v2/survey/${surveyId}?${params.toString()}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Get a single batch by ID (V1 - Legacy)
   getBatchById: async (batchId) => {
     try {
       const response = await api.get(`/api/qc-batches/${batchId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Get a single batch by ID (V2 - Optimized with pagination)
+  getBatchByIdV2: async (batchId, options = {}) => {
+    try {
+      const { responsePage = 1, responseLimit = 50 } = options;
+      const params = new URLSearchParams();
+      if (responsePage) params.append('responsePage', responsePage);
+      if (responseLimit) params.append('responseLimit', responseLimit);
+      
+      const response = await api.get(`/api/qc-batches-v2/${batchId}?${params.toString()}`);
       return response.data;
     } catch (error) {
       throw error;

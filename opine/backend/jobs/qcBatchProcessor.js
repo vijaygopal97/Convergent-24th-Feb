@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const QCBatch = require('../models/QCBatch');
 const QCBatchConfig = require('../models/QCBatchConfig');
 const SurveyResponse = require('../models/SurveyResponse');
+const qcBatchCache = require('../utils/qcBatchCache');
 
 // Helper to convert ObjectId strings to ObjectIds
 const toObjectId = (id) => {
@@ -126,6 +127,10 @@ const processBatch = async (batch, config) => {
     };
     
     await batch.save();
+    
+    // Invalidate cache after batch update
+    await qcBatchCache.invalidateBatchDetailsCache(batch._id.toString());
+    await qcBatchCache.invalidateBatchListCache(batch.survey.toString());
     
     console.log(`   ✅ Batch ${batch._id} processed successfully`);
     console.log(`   📊 ${sampleSize} responses sent to QC queue`);
@@ -331,6 +336,10 @@ const makeDecisionOnRemaining = async (batch) => {
     
     batch.processingCompletedAt = new Date();
     await batch.save();
+    
+    // Invalidate cache after batch decision update
+    await qcBatchCache.invalidateBatchDetailsCache(batch._id.toString());
+    await qcBatchCache.invalidateBatchListCache(batch.survey.toString());
     
   } catch (error) {
     console.error(`   ❌ Error making decision for batch ${batch._id}:`, error);

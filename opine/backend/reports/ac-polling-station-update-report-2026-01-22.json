@@ -1,0 +1,12 @@
+{
+  "generatedAt": "2026-01-22T03:35:38.516Z",
+  "sourceReport": "/var/www/opine/backend/reports/missing-ac-polling-station-report-2026-01-22.json",
+  "summary": {
+    "total": 10,
+    "updated": 10,
+    "failed": 0,
+    "skipped": 0,
+    "errors": []
+  },
+  "errors": []
+}

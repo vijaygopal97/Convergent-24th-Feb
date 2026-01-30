@@ -1,0 +1,339 @@
+{
+  "generatedAt": "2026-01-22T03:35:30.838Z",
+  "totalResponses": 10,
+  "dateWiseStatistics": {
+    "2026-01-21": 10
+  },
+  "responses": [
+    {
+      "responseId": "0bcad2ba-2340-480d-910c-3daca14962fb",
+      "createdAt": "2026-01-21T07:49:12.346Z",
+      "createdDate": "2026-01-21",
+      "interviewer": {
+        "memberId": "CAPI1113",
+        "name": "Akriti Rai",
+        "email": "capicapi1113@gmail.com"
+      },
+      "gpsCoordinates": {
+        "latitude": 26.9243309,
+        "longitude": 88.2102763,
+        "accuracy": 30
+      },
+      "currentStatus": {
+        "selectedAC": null,
+        "selectedPollingStation": null,
+        "status": "Pending_Approval"
+      },
+      "nearestPollingStation": {
+        "name": "315 - Nagri Farm T.E Primary School",
+        "latitude": 26.926645293058442,
+        "longitude": 88.20633501442597,
+        "distanceKm": 0.47,
+        "state": "West Bengal",
+        "acNo": "23",
+        "acName": "Darjeeling",
+        "pcNo": 4,
+        "pcName": "DARJEELING",
+        "district": "DARJEELING",
+        "group": "Group 7"
+      }
+    },
+    {
+      "responseId": "2346741a-615e-4f12-a758-99e407a2898d",
+      "createdAt": "2026-01-21T08:08:57.579Z",
+      "createdDate": "2026-01-21",
+      "interviewer": {
+        "memberId": "CAPI1113",
+        "name": "Akriti Rai",
+        "email": "capicapi1113@gmail.com"
+      },
+      "gpsCoordinates": {
+        "latitude": 26.9472382,
+        "longitude": 88.2305138,
+        "accuracy": 303.7300109863281
+      },
+      "currentStatus": {
+        "selectedAC": null,
+        "selectedPollingStation": null,
+        "status": "Pending_Approval"
+      },
+      "nearestPollingStation": {
+        "name": "334 - Lower Toong T.E Primary School, Unit 2",
+        "latitude": 26.95164539519697,
+        "longitude": 88.221328537959,
+        "distanceKm": 1.03,
+        "state": "West Bengal",
+        "acNo": "23",
+        "acName": "Darjeeling",
+        "pcNo": 4,
+        "pcName": "DARJEELING",
+        "district": "DARJEELING",
+        "group": "Group 7"
+      }
+    },
+    {
+      "responseId": "97e55637-07f2-43f0-83f7-868bb795eaf9",
+      "createdAt": "2026-01-21T08:25:57.111Z",
+      "createdDate": "2026-01-21",
+      "interviewer": {
+        "memberId": "CAPI1113",
+        "name": "Akriti Rai",
+        "email": "capicapi1113@gmail.com"
+      },
+      "gpsCoordinates": {
+        "latitude": 26.9231907,
+        "longitude": 88.2104449,
+        "accuracy": 87.5999984741211
+      },
+      "currentStatus": {
+        "selectedAC": null,
+        "selectedPollingStation": null,
+        "status": "Pending_Approval"
+      },
+      "nearestPollingStation": {
+        "name": "315 - Nagri Farm T.E Primary School",
+        "latitude": 26.926645293058442,
+        "longitude": 88.20633501442597,
+        "distanceKm": 0.56,
+        "state": "West Bengal",
+        "acNo": "23",
+        "acName": "Darjeeling",
+        "pcNo": 4,
+        "pcName": "DARJEELING",
+        "district": "DARJEELING",
+        "group": "Group 7"
+      }
+    },
+    {
+      "responseId": "ff8ccc41-c44d-4cf7-b4c7-c5b59419f3fb",
+      "createdAt": "2026-01-21T08:30:18.402Z",
+      "createdDate": "2026-01-21",
+      "interviewer": {
+        "memberId": "CAPI1113",
+        "name": "Akriti Rai",
+        "email": "capicapi1113@gmail.com"
+      },
+      "gpsCoordinates": {
+        "latitude": 26.9231937,
+        "longitude": 88.2104454,
+        "accuracy": 92.9000015258789
+      },
+      "currentStatus": {
+        "selectedAC": null,
+        "selectedPollingStation": null,
+        "status": "Pending_Approval"
+      },
+      "nearestPollingStation": {
+        "name": "315 - Nagri Farm T.E Primary School",
+        "latitude": 26.926645293058442,
+        "longitude": 88.20633501442597,
+        "distanceKm": 0.56,
+        "state": "West Bengal",
+        "acNo": "23",
+        "acName": "Darjeeling",
+        "pcNo": 4,
+        "pcName": "DARJEELING",
+        "district": "DARJEELING",
+        "group": "Group 7"
+      }
+    },
+    {
+      "responseId": "d1a8764a-0cf7-4d06-9073-09c2aca59103",
+      "createdAt": "2026-01-21T08:38:08.004Z",
+      "createdDate": "2026-01-21",
+      "interviewer": {
+        "memberId": "CAPI1113",
+        "name": "Akriti Rai",
+        "email": "capicapi1113@gmail.com"
+      },
+      "gpsCoordinates": {
+        "latitude": 26.9231907,
+        "longitude": 88.2104449,
+        "accuracy": 87.5999984741211
+      },
+      "currentStatus": {
+        "selectedAC": null,
+        "selectedPollingStation": null,
+        "status": "Pending_Approval"
+      },
+      "nearestPollingStation": {
+        "name": "315 - Nagri Farm T.E Primary School",
+        "latitude": 26.926645293058442,
+        "longitude": 88.20633501442597,
+        "distanceKm": 0.56,
+        "state": "West Bengal",
+        "acNo": "23",
+        "acName": "Darjeeling",
+        "pcNo": 4,
+        "pcName": "DARJEELING",
+        "district": "DARJEELING",
+        "group": "Group 7"
+      }
+    },
+    {
+      "responseId": "28210f3f-6ed4-497e-9c36-9f52eb49b638",
+      "createdAt": "2026-01-21T08:50:05.175Z",
+      "createdDate": "2026-01-21",
+      "interviewer": {
+        "memberId": "CAPI1113",
+        "name": "Akriti Rai",
+        "email": "capicapi1113@gmail.com"
+      },
+      "gpsCoordinates": {
+        "latitude": 26.9231919,
+        "longitude": 88.2104443,
+        "accuracy": 87.5999984741211
+      },
+      "currentStatus": {
+        "selectedAC": null,
+        "selectedPollingStation": null,
+        "status": "Pending_Approval"
+      },
+      "nearestPollingStation": {
+        "name": "315 - Nagri Farm T.E Primary School",
+        "latitude": 26.926645293058442,
+        "longitude": 88.20633501442597,
+        "distanceKm": 0.56,
+        "state": "West Bengal",
+        "acNo": "23",
+        "acName": "Darjeeling",
+        "pcNo": 4,
+        "pcName": "DARJEELING",
+        "district": "DARJEELING",
+        "group": "Group 7"
+      }
+    },
+    {
+      "responseId": "e81a4428-855a-47cc-a6e9-211b62f09dbd",
+      "createdAt": "2026-01-21T09:07:18.330Z",
+      "createdDate": "2026-01-21",
+      "interviewer": {
+        "memberId": "CAPI1113",
+        "name": "Akriti Rai",
+        "email": "capicapi1113@gmail.com"
+      },
+      "gpsCoordinates": {
+        "latitude": 26.924177,
+        "longitude": 88.207369,
+        "accuracy": 72.9000015258789
+      },
+      "currentStatus": {
+        "selectedAC": null,
+        "selectedPollingStation": null,
+        "status": "Pending_Approval"
+      },
+      "nearestPollingStation": {
+        "name": "315 - Nagri Farm T.E Primary School",
+        "latitude": 26.926645293058442,
+        "longitude": 88.20633501442597,
+        "distanceKm": 0.29,
+        "state": "West Bengal",
+        "acNo": "23",
+        "acName": "Darjeeling",
+        "pcNo": 4,
+        "pcName": "DARJEELING",
+        "district": "DARJEELING",
+        "group": "Group 7"
+      }
+    },
+    {
+      "responseId": "e971db52-218f-4c40-92aa-bdbdb54f3225",
+      "createdAt": "2026-01-21T09:21:34.906Z",
+      "createdDate": "2026-01-21",
+      "interviewer": {
+        "memberId": "CAPI1113",
+        "name": "Akriti Rai",
+        "email": "capicapi1113@gmail.com"
+      },
+      "gpsCoordinates": {
+        "latitude": 26.924177,
+        "longitude": 88.207369,
+        "accuracy": 72.9000015258789
+      },
+      "currentStatus": {
+        "selectedAC": null,
+        "selectedPollingStation": null,
+        "status": "Pending_Approval"
+      },
+      "nearestPollingStation": {
+        "name": "315 - Nagri Farm T.E Primary School",
+        "latitude": 26.926645293058442,
+        "longitude": 88.20633501442597,
+        "distanceKm": 0.29,
+        "state": "West Bengal",
+        "acNo": "23",
+        "acName": "Darjeeling",
+        "pcNo": 4,
+        "pcName": "DARJEELING",
+        "district": "DARJEELING",
+        "group": "Group 7"
+      }
+    },
+    {
+      "responseId": "8bcf59f6-19cc-4467-b72e-574cf4d86702",
+      "createdAt": "2026-01-21T09:31:20.478Z",
+      "createdDate": "2026-01-21",
+      "interviewer": {
+        "memberId": "CAPI1113",
+        "name": "Akriti Rai",
+        "email": "capicapi1113@gmail.com"
+      },
+      "gpsCoordinates": {
+        "latitude": 26.9231285,
+        "longitude": 88.2103843,
+        "accuracy": 45.599998474121094
+      },
+      "currentStatus": {
+        "selectedAC": null,
+        "selectedPollingStation": null,
+        "status": "Pending_Approval"
+      },
+      "nearestPollingStation": {
+        "name": "315 - Nagri Farm T.E Primary School",
+        "latitude": 26.926645293058442,
+        "longitude": 88.20633501442597,
+        "distanceKm": 0.56,
+        "state": "West Bengal",
+        "acNo": "23",
+        "acName": "Darjeeling",
+        "pcNo": 4,
+        "pcName": "DARJEELING",
+        "district": "DARJEELING",
+        "group": "Group 7"
+      }
+    },
+    {
+      "responseId": "51a9461f-c606-4704-b60f-41c77905c7e2",
+      "createdAt": "2026-01-21T09:39:36.611Z",
+      "createdDate": "2026-01-21",
+      "interviewer": {
+        "memberId": "CAPI1113",
+        "name": "Akriti Rai",
+        "email": "capicapi1113@gmail.com"
+      },
+      "gpsCoordinates": {
+        "latitude": 26.9231451,
+        "longitude": 88.2104009,
+        "accuracy": 36.900001525878906
+      },
+      "currentStatus": {
+        "selectedAC": null,
+        "selectedPollingStation": null,
+        "status": "Pending_Approval"
+      },
+      "nearestPollingStation": {
+        "name": "315 - Nagri Farm T.E Primary School",
+        "latitude": 26.926645293058442,
+        "longitude": 88.20633501442597,
+        "distanceKm": 0.56,
+        "state": "West Bengal",
+        "acNo": "23",
+        "acName": "Darjeeling",
+        "pcNo": 4,
+        "pcName": "DARJEELING",
+        "district": "DARJEELING",
+        "group": "Group 7"
+      }
+    }
+  ]
+}

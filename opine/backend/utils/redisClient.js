@@ -99,6 +99,35 @@ const redisOps = {
     }
   },
 
+  // Atomic counter with TTL (used for lightweight rate limiting / spam detection)
+  // Returns the incremented value.
+  async incr(key, expirySeconds = null) {
+    if (useInMemory || !redisClient) {
+      const current = Number(inMemoryStore.get(key) || 0) + 1;
+      inMemoryStore.set(key, current);
+      if (expirySeconds && current === 1) {
+        setTimeout(() => inMemoryStore.delete(key), expirySeconds * 1000);
+      }
+      return current;
+    }
+    try {
+      const value = await redisClient.incr(key);
+      if (expirySeconds && value === 1) {
+        // Set TTL only on first increment to avoid extending the window
+        await redisClient.expire(key, expirySeconds);
+      }
+      return value;
+    } catch (error) {
+      console.warn('Redis incr error, using in-memory:', error.message);
+      const current = Number(inMemoryStore.get(key) || 0) + 1;
+      inMemoryStore.set(key, current);
+      if (expirySeconds && current === 1) {
+        setTimeout(() => inMemoryStore.delete(key), expirySeconds * 1000);
+      }
+      return current;
+    }
+  },
+
   async del(key) {
     if (useInMemory || !redisClient) {
       inMemoryStore.delete(key);

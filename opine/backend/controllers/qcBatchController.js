@@ -3,6 +3,7 @@ const SurveyResponse = require('../models/SurveyResponse');
 const Survey = require('../models/Survey');
 const QCBatchConfig = require('../models/QCBatchConfig');
 const { processQCBatches, processBatch } = require('../jobs/qcBatchProcessor');
+const qcBatchCache = require('../utils/qcBatchCache');
 
 /**
  * @desc    Get all QC batches for a survey
@@ -145,6 +146,9 @@ const getBatchById = async (req, res) => {
     if (batch.status !== 'collecting') {
       try {
         await batch.updateQCStats();
+        // Invalidate cache after stats update
+        await qcBatchCache.invalidateBatchDetailsCache(batchId);
+        await qcBatchCache.invalidateBatchListCache(surveyId);
       } catch (error) {
         console.error('Error updating batch stats (non-critical):', error);
         // Continue even if stats update fails
@@ -201,6 +205,10 @@ const triggerBatchProcessing = async (req, res) => {
     
     // Process batches
     await processQCBatches();
+    
+    // Invalidate all batch caches after processing
+    // Note: In production, you'd invalidate specific survey caches
+    // For now, we rely on TTL expiration
     
     res.json({
       success: true,
@@ -278,6 +286,10 @@ const sendBatchToQC = async (req, res) => {
     
     // Process the batch
     await processBatch(batch, config);
+    
+    // Invalidate cache after batch processing
+    await qcBatchCache.invalidateBatchDetailsCache(batchId);
+    await qcBatchCache.invalidateBatchListCache(batch.survey._id || batch.survey);
     
     // Refresh batch to get updated status
     await batch.populate('interviewer', 'firstName lastName email');
