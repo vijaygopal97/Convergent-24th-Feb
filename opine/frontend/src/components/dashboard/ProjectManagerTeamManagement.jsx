@@ -28,11 +28,19 @@ import { useToast } from '../../contexts/ToastContext';
 import { useAuth } from '../../contexts/AuthContext';
 import AddProjectManagerInterviewer from './AddProjectManagerInterviewer';
 import EditProjectManagerInterviewer from './EditProjectManagerInterviewer';
+import AddCompanyUser from './AddCompanyUser';
 
 const ProjectManagerTeamManagement = () => {
   const { showSuccess, showError } = useToast();
   const { user: currentUser } = useAuth();
+  
+  // Check if user is state manager
+  const isStateManager = currentUser?.userType === 'state_manager';
+  const stateManagerTypes = currentUser?.stateManagerTypes || [];
+  
   const [interviewers, setInterviewers] = useState([]);
+  const [projectManagers, setProjectManagers] = useState([]);
+  const [activeTab, setActiveTab] = useState('interviewers'); // 'interviewers' or 'projectManagers'
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({});
@@ -46,56 +54,273 @@ const ProjectManagerTeamManagement = () => {
   
   // UI states
   const [showAddInterviewer, setShowAddInterviewer] = useState(false);
+  const [showAddTeamMember, setShowAddTeamMember] = useState(false);
   const [showEditInterviewer, setShowEditInterviewer] = useState(false);
   const [selectedInterviewer, setSelectedInterviewer] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Load assigned interviewers for the project manager
+  // Load team members (interviewers and project managers)
   const loadInterviewers = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Fetch current user with populated assignedTeamMembers
-      const userResponse = await authAPI.getMe();
+      let interviewers = []; // Declare outside if/else for proper scope
       
-      if (!userResponse.success || !userResponse.data?.assignedTeamMembers) {
-        setInterviewers([]);
-        setPagination({ totalUsers: 0, current: 1, pages: 1 });
-        return;
-      }
+      if (isStateManager) {
+        // For state managers: fetch all interviewers and project managers from company
+        const userResponse = await authAPI.getMe();
+        if (!userResponse.success || !userResponse.data?.company) {
+          setInterviewers([]);
+          setProjectManagers([]);
+          setPagination({ totalUsers: 0, current: 1, pages: 1 });
+          return;
+        }
 
-      const assignedTeamMembers = userResponse.data.assignedTeamMembers;
-      
-      // Extract interviewer data directly from assignedTeamMembers
-      let interviewers = assignedTeamMembers
-        .filter(member => member.userType === 'interviewer' && member.user)
-        .map(member => {
-          const user = member.user;
-          return {
-            _id: user._id || user,
+        // Fetch all interviewers from company (filtered by stateManagerTypes)
+        const interviewerParams = {
+          page: 1,
+          limit: 10000, // Get all
+          userType: 'interviewer',
+          status: selectedStatus || ''
+        };
+        
+        const interviewerResponse = await authAPI.getCompanyUsers(interviewerParams);
+        let allInterviewers = [];
+        
+        if (interviewerResponse.success && interviewerResponse.data?.users) {
+          allInterviewers = interviewerResponse.data.users
+            .filter(user => {
+              // Filter by stateManagerTypes
+              if (stateManagerTypes.includes('CAPI') && stateManagerTypes.includes('CATI')) {
+                // Show all interviewers
+                return true;
+              } else if (stateManagerTypes.includes('CAPI')) {
+                // Show only CAPI interviewers
+                const modes = user.interviewModes || '';
+                return modes.includes('CAPI') || modes.includes('Face To Face') || modes.includes('Both');
+              } else if (stateManagerTypes.includes('CATI')) {
+                // Show only CATI interviewers
+                const modes = user.interviewModes || '';
+                return modes.includes('CATI') || modes.includes('Telephonic') || modes.includes('Both');
+              }
+              return false;
+            })
+            .map(user => ({
+              _id: user._id,
+              firstName: user.firstName || '',
+              lastName: user.lastName || '',
+              email: user.email || '',
+              phone: user.phone || '',
+              memberId: user.memberId || '',
+              userType: user.userType || 'interviewer',
+              interviewModes: user.interviewModes || null,
+              status: user.status || 'active',
+              preferences: user.preferences ? {
+                ...user.preferences,
+                locationControlBooster: user.preferences.locationControlBooster || false
+              } : {
+                locationControlBooster: false
+              },
+              createdAt: user.createdAt || new Date()
+            }));
+        }
+
+        // Fetch all project managers from company
+        const projectManagerParams = {
+          page: 1,
+          limit: 10000, // Get all
+          userType: 'project_manager',
+          status: selectedStatus || ''
+        };
+        
+        const projectManagerResponse = await authAPI.getCompanyUsers(projectManagerParams);
+        let allProjectManagers = [];
+        
+        if (projectManagerResponse.success && projectManagerResponse.data?.users) {
+          allProjectManagers = projectManagerResponse.data.users.map(user => ({
+            _id: user._id,
             firstName: user.firstName || '',
             lastName: user.lastName || '',
             email: user.email || '',
             phone: user.phone || '',
-            memberId: user.memberId || '',
-            userType: user.userType || 'interviewer',
-            interviewModes: user.interviewModes || null,
+            userType: user.userType || 'project_manager',
             status: user.status || 'active',
-            preferences: user.preferences ? {
-              ...user.preferences,
-              locationControlBooster: user.preferences.locationControlBooster || false
-            } : {
-              locationControlBooster: false
-            },
-            createdAt: user.createdAt || new Date()
-          };
-        });
+            createdAt: user.createdAt || new Date(),
+            assignedTeamMembers: user.assignedTeamMembers || []
+          }));
+        }
 
-      if (interviewers.length === 0) {
-        setInterviewers([]);
-        setPagination({ totalUsers: 0, current: 1, pages: 1 });
+        // Store full lists for filtering
+        const fullInterviewers = allInterviewers;
+        const fullProjectManagers = allProjectManagers;
+        
+        // Apply filters and pagination
+        let filteredInterviewers = fullInterviewers;
+        let filteredProjectManagers = fullProjectManagers;
+        
+        // Apply search filter
+        if (searchTerm) {
+          const searchLower = searchTerm.toLowerCase();
+          filteredInterviewers = filteredInterviewers.filter(user => 
+            (user.firstName && user.firstName.toLowerCase().includes(searchLower)) ||
+            (user.lastName && user.lastName.toLowerCase().includes(searchLower)) ||
+            (user.email && user.email.toLowerCase().includes(searchLower)) ||
+            (user.phone && user.phone.includes(searchTerm)) ||
+            (user.memberId && user.memberId.toLowerCase().includes(searchLower))
+          );
+          
+          filteredProjectManagers = filteredProjectManagers.filter(user =>
+            (user.firstName && user.firstName.toLowerCase().includes(searchLower)) ||
+            (user.lastName && user.lastName.toLowerCase().includes(searchLower)) ||
+            (user.email && user.email.toLowerCase().includes(searchLower)) ||
+            (user.phone && user.phone.includes(searchTerm))
+          );
+        }
+
+        // Apply interviewer type filter
+        if (selectedInterviewerType) {
+          filteredInterviewers = filteredInterviewers.filter(user => {
+            const modes = user.interviewModes || '';
+            if (selectedInterviewerType === 'CAPI') {
+              return modes.includes('CAPI') || modes.includes('Face To Face');
+            } else if (selectedInterviewerType === 'CATI') {
+              return modes.includes('CATI') || modes.includes('Telephonic');
+            } else if (selectedInterviewerType === 'Both') {
+              return (modes.includes('CAPI') || modes.includes('Face To Face')) &&
+                     (modes.includes('CATI') || modes.includes('Telephonic'));
+            }
+            return true;
+          });
+        }
+
+        // Apply pagination
+        const currentList = activeTab === 'interviewers' ? filteredInterviewers : filteredProjectManagers;
+        const totalUsers = currentList.length;
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const paginatedUsers = currentList.slice(startIndex, endIndex);
+        
+        if (activeTab === 'interviewers') {
+          setInterviewers(paginatedUsers);
+          setProjectManagers(fullProjectManagers); // Keep full list for tab count
+        } else {
+          setProjectManagers(paginatedUsers);
+          setInterviewers(filteredInterviewers); // Keep full list for tab count
+        }
+        
+        setPagination({
+          current: currentPage,
+          pages: Math.ceil(totalUsers / pageSize),
+          totalUsers: totalUsers,
+          hasNext: endIndex < totalUsers,
+          hasPrev: currentPage > 1
+        });
         return;
+      } else {
+        // For project managers: use existing logic
+        const userResponse = await authAPI.getMe();
+        
+        if (!userResponse.success) {
+          console.error('Failed to fetch user data:', userResponse);
+          setInterviewers([]);
+          setPagination({ totalUsers: 0, current: 1, pages: 1 });
+          setLoading(false);
+          return;
+        }
+
+        const assignedTeamMembers = userResponse.data?.assignedTeamMembers || [];
+        
+        console.log('Project Manager assignedTeamMembers:', {
+          count: assignedTeamMembers.length,
+          members: assignedTeamMembers.map(m => ({
+            userType: m.userType,
+            hasUser: !!m.user,
+            userIsObject: m.user && typeof m.user === 'object',
+            userHasId: m.user && m.user._id,
+            userFirstName: m.user?.firstName
+          }))
+        });
+        
+        if (!Array.isArray(assignedTeamMembers) || assignedTeamMembers.length === 0) {
+          console.log('No assigned team members found for project manager');
+          setInterviewers([]);
+          setPagination({ totalUsers: 0, current: 1, pages: 1 });
+          setLoading(false);
+          return;
+        }
+
+        // Extract interviewer data directly from assignedTeamMembers
+        // Handle both populated user objects and ObjectIds
+        interviewers = assignedTeamMembers
+          .filter(member => {
+            // Check if member has userType and user
+            if (!member.userType || !member.user) {
+              console.log('Skipping member - missing userType or user:', { userType: member.userType, hasUser: !!member.user });
+              return false;
+            }
+            // Only include interviewers
+            const isInterviewer = member.userType === 'interviewer';
+            if (!isInterviewer) {
+              console.log('Skipping member - not an interviewer:', member.userType);
+            }
+            return isInterviewer;
+          })
+          .map(member => {
+            const user = member.user;
+            
+            // Check if user is populated (has properties like firstName, _id, etc.)
+            // If user is just an ObjectId string or ObjectId object, it's not populated
+            const isPopulated = user && typeof user === 'object' && (user.firstName !== undefined || user._id !== undefined || user.email !== undefined);
+            
+            if (!isPopulated) {
+              console.warn('User not populated in assignedTeamMembers, skipping:', {
+                memberUserType: member.userType,
+                userType: typeof user,
+                userValue: user
+              });
+              return null;
+            }
+            
+            // User should be populated object with fields
+            const interviewerData = {
+              _id: user._id || user,
+              firstName: user.firstName || '',
+              lastName: user.lastName || '',
+              email: user.email || '',
+              phone: user.phone || '',
+              memberId: user.memberId || '',
+              userType: user.userType || 'interviewer',
+              interviewModes: user.interviewModes || null,
+              status: user.status || 'active',
+              preferences: user.preferences ? {
+                ...user.preferences,
+                locationControlBooster: user.preferences.locationControlBooster || false
+              } : {
+                locationControlBooster: false
+              },
+              createdAt: user.createdAt || new Date()
+            };
+            
+            console.log('Mapped interviewer:', { 
+              name: `${interviewerData.firstName} ${interviewerData.lastName}`,
+              email: interviewerData.email,
+              memberId: interviewerData.memberId
+            });
+            
+            return interviewerData;
+          })
+          .filter(interviewer => interviewer !== null); // Remove any null entries
+
+        console.log('Final interviewers count:', interviewers.length);
+
+        if (interviewers.length === 0) {
+          console.log('No valid interviewers found after filtering');
+          setInterviewers([]);
+          setPagination({ totalUsers: 0, current: 1, pages: 1 });
+          setLoading(false);
+          return;
+        }
       }
 
       // Apply search filter
@@ -156,7 +381,7 @@ const ProjectManagerTeamManagement = () => {
 
   useEffect(() => {
     loadInterviewers();
-  }, [currentPage, pageSize, searchTerm, selectedStatus, selectedInterviewerType]);
+  }, [currentPage, pageSize, searchTerm, selectedStatus, selectedInterviewerType, activeTab]);
 
   // Handle search
   const handleSearch = (e) => {
@@ -333,7 +558,7 @@ const ProjectManagerTeamManagement = () => {
     return <span className="text-xs text-gray-500">N/A</span>;
   };
 
-  if (showAddInterviewer) {
+  if (showAddInterviewer && !isStateManager) {
     return (
       <div>
         <div className="mb-6 flex items-center justify-between">
@@ -348,6 +573,29 @@ const ProjectManagerTeamManagement = () => {
         <AddProjectManagerInterviewer 
           onInterviewerCreated={() => {
             setShowAddInterviewer(false);
+            loadInterviewers();
+          }} 
+        />
+      </div>
+    );
+  }
+
+  if (showAddTeamMember && isStateManager) {
+    return (
+      <div>
+        <div className="mb-6 flex items-center justify-between">
+          <button
+            onClick={() => setShowAddTeamMember(false)}
+            className="flex items-center text-gray-600 hover:text-gray-800"
+          >
+            <ChevronLeft className="w-5 h-5 mr-2" />
+            Back to Team Management
+          </button>
+        </div>
+        <AddCompanyUser 
+          initialUserType="project_manager"
+          onUserCreated={() => {
+            setShowAddTeamMember(false);
             loadInterviewers();
           }} 
         />
@@ -388,16 +636,62 @@ const ProjectManagerTeamManagement = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Team Management</h1>
-          <p className="text-gray-600 mt-1">Manage your assigned interviewers</p>
+          <p className="text-gray-600 mt-1">
+            {isStateManager ? 'Manage all interviewers and project managers in your company' : 'Manage your assigned interviewers'}
+          </p>
         </div>
-        <button
-          onClick={() => setShowAddInterviewer(true)}
-          className="flex items-center px-4 py-2 bg-[#001D48] text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Interviewer
-        </button>
+        {isStateManager ? (
+          <button
+            onClick={() => setShowAddTeamMember(true)}
+            className="flex items-center px-4 py-2 bg-[#001D48] text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Team Member
+          </button>
+        ) : (
+          <button
+            onClick={() => setShowAddInterviewer(true)}
+            className="flex items-center px-4 py-2 bg-[#001D48] text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Interviewer
+          </button>
+        )}
       </div>
+
+      {/* Tabs for State Managers */}
+      {isStateManager && (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1">
+          <div className="flex space-x-1">
+            <button
+              onClick={() => {
+                setActiveTab('interviewers');
+                setCurrentPage(1);
+              }}
+              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                activeTab === 'interviewers'
+                  ? 'bg-[#001D48] text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              Interviewers
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab('projectManagers');
+                setCurrentPage(1);
+              }}
+              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                activeTab === 'projectManagers'
+                  ? 'bg-[#001D48] text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              Project Managers
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Search and Filters */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
@@ -478,7 +772,7 @@ const ProjectManagerTeamManagement = () => {
       {/* Results Summary */}
       <div className="flex items-center justify-between text-sm text-gray-600">
         <div>
-          Showing {interviewers.length} of {pagination.totalUsers || interviewers.length} interviewers
+          Showing {activeTab === 'interviewers' ? interviewers.length : projectManagers.length} of {pagination.totalUsers || (activeTab === 'interviewers' ? interviewers.length : projectManagers.length)} {activeTab === 'interviewers' ? 'interviewers' : 'project managers'}
         </div>
         <div className="flex items-center space-x-2">
           <span>Per page:</span>
@@ -494,23 +788,94 @@ const ProjectManagerTeamManagement = () => {
         </div>
       </div>
 
-      {/* Interviewers Table */}
+      {/* Team Members Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <Loader className="w-6 h-6 animate-spin text-[#373177]" />
-            <span className="ml-2 text-gray-600">Loading interviewers...</span>
+            <span className="ml-2 text-gray-600">Loading {activeTab === 'interviewers' ? 'interviewers' : 'project managers'}...</span>
           </div>
         ) : error ? (
           <div className="flex items-center justify-center py-12 text-red-600">
             <AlertCircle className="w-6 h-6 mr-2" />
             {error}
           </div>
-        ) : interviewers.length === 0 ? (
+        ) : (activeTab === 'interviewers' ? interviewers.length === 0 : projectManagers.length === 0) ? (
           <div className="flex flex-col items-center justify-center py-12 text-gray-500">
             <Users className="w-12 h-12 mb-4 text-gray-400" />
-            <p className="text-lg font-medium mb-2">No interviewers found</p>
-            <p className="text-sm">Add your first interviewer to get started</p>
+            <p className="text-lg font-medium mb-2">No {activeTab === 'interviewers' ? 'interviewers' : 'project managers'} found</p>
+            <p className="text-sm">{isStateManager && activeTab === 'projectManagers' ? 'Add your first project manager to get started' : 'Add your first interviewer to get started'}</p>
+          </div>
+        ) : activeTab === 'projectManagers' ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Project Manager
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Team Members
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Joined
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {projectManagers.map((pm) => (
+                  <tr key={pm._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="w-10 h-10 bg-gradient-to-r from-[#373177] to-[#373177] rounded-full flex items-center justify-center text-white font-medium">
+                          {pm.firstName?.charAt(0) || 'P'}{pm.lastName?.charAt(0) || 'M'}
+                        </div>
+                        <div className="ml-4">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-gray-900">
+                              {pm.firstName} {pm.lastName}
+                            </span>
+                          </div>
+                          <div className="text-sm text-gray-500">{pm.email}</div>
+                          {pm.phone && (
+                            <div className="text-xs text-gray-400">{pm.phone}</div>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getStatusBadge(pm.status)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {pm.assignedTeamMembers?.length || 0} members
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDate(pm.createdAt)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center justify-end space-x-2">
+                        <button
+                          onClick={() => {
+                            // TODO: Add edit project manager functionality
+                            showError('Edit Project Manager', 'Feature coming soon');
+                          }}
+                          className="text-[#373177] hover:text-[#001D48] transition-colors"
+                          title="Edit Project Manager"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : (
           <div className="overflow-x-auto">

@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-02-03T04:01:17.968Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Raninagar",
+  "excelFile": "/var/www/Report-Generation/ac63_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 5000,
+  "errors": [],
+  "newContactsAdded": 0,
+  "queueEntriesCreated": 5000,
+  "duplicateCleanup": {
+    "totalEntries": 773606,
+    "uniquePhones": 773351,
+    "duplicateCount": 255,
+    "deleted": 255
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4745,
+    "totalPending": 682869
+  },
+  "durationSeconds": "34.12"
+}

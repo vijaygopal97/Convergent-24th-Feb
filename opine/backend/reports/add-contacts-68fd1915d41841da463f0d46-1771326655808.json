@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-02-17T11:10:55.808Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Kharagpur",
+  "excelFile": "/var/www/Report-Generation/ac228_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 4999,
+  "errors": [
+    "Row 1875: Invalid phone number format. Phone must be 10-15 digits (got 7 digits)"
+  ],
+  "newContactsAdded": 4991,
+  "queueEntriesCreated": 4999,
+  "duplicateCleanup": {
+    "totalEntries": 845408,
+    "uniquePhones": 845100,
+    "duplicateCount": 308,
+    "deleted": 308
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4698,
+    "totalPending": 798784
+  },
+  "durationSeconds": "37.30"
+}

@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-02-03T03:28:44.970Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Saptagram",
+  "excelFile": "/var/www/Report-Generation/ac193_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 5000,
+  "errors": [],
+  "newContactsAdded": 4987,
+  "queueEntriesCreated": 4983,
+  "duplicateCleanup": {
+    "totalEntries": 716241,
+    "uniquePhones": 716018,
+    "duplicateCount": 223,
+    "deleted": 223
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4775,
+    "totalPending": 625566
+  },
+  "durationSeconds": "25.98"
+}

@@ -74,6 +74,20 @@ recovery-*/
 Report-Generation/*.xlsx
 Report-Generation/**/*.xlsx
 
+# Generated CSVs and large data (exceed GitHub limit)
+opine/backend/generated-csvs/
+
+# Large reports and backups
+opine/reports/
+backups/
+
+# Large APK/build artifacts
+**/android-backups/
+**/*.apk
+
+# Report-Generation large CSVs
+Report-Generation/newcontacts/
+
 # Node modules in subdirectories (already covered but explicit)
 **/node_modules/
 

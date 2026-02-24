@@ -21,20 +21,26 @@ const CACHE_TTL = 86400; // 24 hours in seconds
  */
 async function getCachedRegistrationStatus(interviewerId, phoneNumber, providerName) {
   try {
-    const redisClient = redisOps.getClient();
-    if (!redisClient) {
-      return null; // Redis not available, fallback to database
-    }
-
     const cacheKey = `${CACHE_PREFIX}:${interviewerId}:${phoneNumber}:${providerName}`;
-    const cached = await redisClient.get(cacheKey);
     
-    if (cached === null) {
+    // Use redisOps.get() which handles both Redis and in-memory fallback
+    // redisOps.get() automatically JSON.parses the value
+    const cached = await redisOps.get(cacheKey);
+    
+    if (cached === null || cached === undefined) {
       return null; // Not cached
     }
     
-    // Parse cached value (stored as 'true' or 'false')
-    return cached === 'true';
+    // redisOps stores values as JSON, so boolean true/false will be returned as boolean
+    // Handle both boolean and string (for backward compatibility with old cache entries)
+    if (typeof cached === 'boolean') {
+      return cached;
+    }
+    if (typeof cached === 'string') {
+      return cached === 'true' || cached === '"true"';
+    }
+    
+    return null;
   } catch (error) {
     console.warn('⚠️ [AgentCache] Error reading from cache:', error.message);
     return null; // On error, fallback to database
@@ -51,13 +57,11 @@ async function getCachedRegistrationStatus(interviewerId, phoneNumber, providerN
  */
 async function setCachedRegistrationStatus(interviewerId, phoneNumber, providerName, isRegistered) {
   try {
-    const redisClient = redisOps.getClient();
-    if (!redisClient) {
-      return; // Redis not available, skip caching
-    }
-
     const cacheKey = `${CACHE_PREFIX}:${interviewerId}:${phoneNumber}:${providerName}`;
-    await redisClient.setex(cacheKey, CACHE_TTL, isRegistered ? 'true' : 'false');
+    
+    // Use redisOps.set() which handles both Redis and in-memory fallback
+    // Store as boolean (redisOps will JSON.stringify it automatically)
+    await redisOps.set(cacheKey, isRegistered, CACHE_TTL);
     
     console.log(`✅ [AgentCache] Cached registration status: ${cacheKey} = ${isRegistered}`);
   } catch (error) {
@@ -75,13 +79,10 @@ async function setCachedRegistrationStatus(interviewerId, phoneNumber, providerN
  */
 async function invalidateCachedRegistrationStatus(interviewerId, phoneNumber, providerName) {
   try {
-    const redisClient = redisOps.getClient();
-    if (!redisClient) {
-      return; // Redis not available, skip
-    }
-
     const cacheKey = `${CACHE_PREFIX}:${interviewerId}:${phoneNumber}:${providerName}`;
-    await redisClient.del(cacheKey);
+    
+    // Use redisOps.del() which handles both Redis and in-memory fallback
+    await redisOps.del(cacheKey);
     
     console.log(`🗑️ [AgentCache] Invalidated cache: ${cacheKey}`);
   } catch (error) {

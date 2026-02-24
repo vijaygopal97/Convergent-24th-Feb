@@ -13,6 +13,13 @@ export interface LocationResult {
 }
 
 export class LocationService {
+  // Background GPS tracking for pre-warming (CAPI interviewers)
+  private static watchSubscription: Location.LocationSubscription | null = null;
+  private static latestLocation: LocationResult | null = null;
+  private static isTrackingActive: boolean = false;
+  private static readonly LOCATION_FRESHNESS_THRESHOLD_MS = 5000; // 5 seconds - considered fresh (updated to match GPS interval)
+  private static readonly LOCATION_STALE_THRESHOLD_MS = 10000; // 10 seconds - considered stale (updated proportionally)
+
   static async requestPermissions(): Promise<boolean> {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -20,6 +27,165 @@ export class LocationService {
     } catch (error) {
       console.error('Permission request error:', error);
       return false;
+    }
+  }
+
+  /**
+   * Start background GPS tracking for pre-warming (battery-efficient)
+   * Uses Balanced accuracy for background tracking, upgrades to High when needed
+   */
+  static async startBackgroundTracking(): Promise<void> {
+    try {
+      // Check if already tracking
+      if (this.isTrackingActive && this.watchSubscription) {
+        console.log('📍 Background GPS tracking already active');
+        return;
+      }
+
+      // Request permissions first
+      const hasPermission = await this.requestPermissions();
+      if (!hasPermission) {
+        console.warn('⚠️ Location permission not granted - background tracking skipped');
+        return;
+      }
+
+      console.log('📍 Starting background GPS tracking (pre-warming for CAPI interviews)...');
+
+      // Start watching position with Balanced accuracy (battery-efficient)
+      // CRITICAL FIX: Increased interval from 2s to 5s to prevent timing conflicts with navigation
+      // 2-second updates were interfering with navigation transitions in production APK builds
+      this.watchSubscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.Balanced,
+          timeInterval: 5000, // Update every 5 seconds (increased from 2s to prevent navigation conflicts)
+          distanceInterval: 10, // Update every 10 meters
+        },
+        async (location) => {
+          try {
+            // Update cached location (without geocoding for speed)
+            // Geocoding will be done when snapshot is requested
+            this.latestLocation = {
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+              accuracy: location.coords.accuracy || 0,
+              address: '', // Will be filled when snapshot is requested
+              city: '',
+              state: '',
+              country: '',
+              timestamp: new Date().toISOString(),
+              source: location.coords.accuracy && location.coords.accuracy < 100 ? 'gps' : 'wifi_triangulation',
+            };
+
+            // Log first successful location (then silent)
+            if (!this.isTrackingActive) {
+              console.log('✅ Background GPS tracking active - location cached');
+            }
+            this.isTrackingActive = true;
+          } catch (error) {
+            console.warn('⚠️ Error updating cached location:', error);
+          }
+        }
+      );
+
+      this.isTrackingActive = true;
+      console.log('✅ Background GPS tracking started successfully');
+    } catch (error) {
+      console.error('❌ Failed to start background GPS tracking:', error);
+      this.isTrackingActive = false;
+    }
+  }
+
+  /**
+   * Stop background GPS tracking (saves battery)
+   */
+  static stopBackgroundTracking(): void {
+    try {
+      if (this.watchSubscription) {
+        this.watchSubscription.remove();
+        this.watchSubscription = null;
+        this.isTrackingActive = false;
+        console.log('📍 Background GPS tracking stopped');
+      }
+    } catch (error) {
+      console.error('❌ Error stopping background GPS tracking:', error);
+    }
+  }
+
+  /**
+   * Get latest cached location (if available)
+   */
+  static getLatestLocation(): LocationResult | null {
+    return this.latestLocation;
+  }
+
+  /**
+   * Get location snapshot - uses cached if fresh, otherwise gets fresh location
+   * This is the main method to use when starting an interview
+   */
+  static async getLocationSnapshot(skipOnlineGeocoding: boolean = false): Promise<LocationResult> {
+    try {
+      const now = Date.now();
+      const cachedLocation = this.latestLocation;
+
+      // Check if cached location exists and is fresh (< 5 seconds old, updated to match GPS interval)
+      if (cachedLocation && cachedLocation.timestamp) {
+        const locationAge = now - new Date(cachedLocation.timestamp).getTime();
+        
+        if (locationAge < this.LOCATION_FRESHNESS_THRESHOLD_MS) {
+          console.log(`⚡ Using cached location (${locationAge}ms old) - instant!`);
+          
+          // If geocoding is needed and not already done, do it now
+          if (!skipOnlineGeocoding && (!cachedLocation.address || cachedLocation.address === '')) {
+            const address = await this.reverseGeocode(
+              cachedLocation.latitude,
+              cachedLocation.longitude,
+              skipOnlineGeocoding
+            );
+            return {
+              ...cachedLocation,
+              address: address.formatted,
+              city: address.city,
+              state: address.state,
+              country: address.country,
+            };
+          }
+          
+          return cachedLocation;
+        }
+
+        // If cached location is stale (> 10 seconds), get fresh one
+        // But GPS is already warmed, so it should be faster
+        if (locationAge > this.LOCATION_STALE_THRESHOLD_MS) {
+          console.log(`📍 Cached location stale (${locationAge}ms old) - getting fresh location (GPS warmed, should be fast)`);
+        } else {
+          console.log(`📍 Using cached location (${locationAge}ms old) - still acceptable`);
+          // Still use cached if it's between 5-10 seconds old
+          if (!skipOnlineGeocoding && (!cachedLocation.address || cachedLocation.address === '')) {
+            const address = await this.reverseGeocode(
+              cachedLocation.latitude,
+              cachedLocation.longitude,
+              skipOnlineGeocoding
+            );
+            return {
+              ...cachedLocation,
+              address: address.formatted,
+              city: address.city,
+              state: address.state,
+              country: address.country,
+            };
+          }
+          return cachedLocation;
+        }
+      }
+
+      // No cached location or too stale - get fresh location
+      // GPS should already be warmed from background tracking, so this should be faster
+      console.log('📍 Getting fresh location snapshot (GPS pre-warmed)...');
+      return await this.getCurrentLocation(skipOnlineGeocoding);
+    } catch (error: any) {
+      console.error('❌ Error getting location snapshot:', error);
+      // Fallback to regular getCurrentLocation
+      return await this.getCurrentLocation(skipOnlineGeocoding);
     }
   }
 

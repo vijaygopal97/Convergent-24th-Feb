@@ -32,7 +32,7 @@ const { protect, authorize } = require('../middleware/auth');
 // Survey routes
 router.route('/')
   .post(protect, authorize('company_admin', 'project_manager'), createSurvey)
-  .get(protect, authorize('company_admin', 'project_manager', 'quality_manager', 'interviewer'), getSurveys);
+  .get(protect, authorize('company_admin', 'project_manager', 'state_manager', 'interviewer'), getSurveys);
 
 router.route('/stats')
   .get(protect, authorize('company_admin', 'project_manager'), getSurveyStats);
@@ -76,23 +76,23 @@ router.route('/:id/analytics')
 
 // Analytics V2 route (optimized for big data)
 router.route('/:id/analytics-v2')
-  .get(protect, authorize('company_admin', 'project_manager'), getSurveyAnalyticsV2);
+  .get(protect, authorize('company_admin', 'project_manager', 'state_manager'), getSurveyAnalyticsV2);
 
 // AC-wise stats V2 route (optimized for big data)
 router.route('/:id/ac-wise-stats-v2')
-  .get(protect, authorize('company_admin', 'project_manager'), getACWiseStatsV2);
+  .get(protect, authorize('company_admin', 'project_manager', 'state_manager'), getACWiseStatsV2);
 
 // Interviewer-wise stats V2 route (optimized for big data)
 router.route('/:id/interviewer-wise-stats-v2')
-  .get(protect, authorize('company_admin', 'project_manager'), getInterviewerWiseStatsV2);
+  .get(protect, authorize('company_admin', 'project_manager', 'state_manager'), getInterviewerWiseStatsV2);
 
 // Chart data V2 route (optimized for big data)
 router.route('/:id/chart-data-v2')
-  .get(protect, authorize('company_admin', 'project_manager'), getChartDataV2);
+  .get(protect, authorize('company_admin', 'project_manager', 'state_manager'), getChartDataV2);
 
 // CATI stats route (must come before /:id route)
 router.route('/:id/cati-stats')
-  .get(protect, authorize('company_admin', 'project_manager'), getCatiStats);
+  .get(protect, authorize('company_admin', 'project_manager', 'state_manager'), getCatiStats);
 
 // Respondent contacts route (must come before /:id route)
 router.route('/:id/respondent-contacts')
@@ -105,7 +105,7 @@ router.route('/:id/full')
 
 // Generic /:id route must be LAST to avoid matching specific routes like /overall-stats
 router.route('/:id')
-  .get(protect, authorize('company_admin', 'project_manager', 'quality_manager', 'interviewer'), getSurvey)
+  .get(protect, authorize('company_admin', 'project_manager', 'state_manager', 'interviewer'), getSurvey)
   .put(protect, authorize('company_admin', 'project_manager'), updateSurvey)
   .delete(protect, authorize('company_admin', 'project_manager'), deleteSurvey);
 

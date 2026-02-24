@@ -65,16 +65,16 @@ router.get('/quality-agent/trends', authorize('quality_agent'), getQualityAgentT
 // @access  Private (Quality Agent)
 router.get('/quality-agent/reviews', authorize('quality_agent'), getQualityAgentReviews);
 
-// QC Performance Routes (for Company Admin and Project Manager)
+// QC Performance Routes (for Company Admin, Project Manager, and State Manager)
 // @route   GET /api/performance/qc-performance/survey/:surveyId
 // @desc    Get QC performance for a specific survey (all quality agents)
-// @access  Private (Company Admin, Project Manager)
-router.get('/qc-performance/survey/:surveyId', authorize('company_admin', 'project_manager', 'quality_manager'), getQCPerformanceBySurvey);
+// @access  Private (Company Admin, Project Manager, State Manager)
+router.get('/qc-performance/survey/:surveyId', authorize('company_admin', 'project_manager', 'state_manager'), getQCPerformanceBySurvey);
 
 // @route   GET /api/performance/qc-performance/survey/:surveyId/trends
 // @desc    Get QC performance trends for a specific survey (daily breakdown)
-// @access  Private (Company Admin, Project Manager)
-router.get('/qc-performance/survey/:surveyId/trends', authorize('company_admin', 'project_manager', 'quality_manager'), getQCPerformanceTrends);
+// @access  Private (Company Admin, Project Manager, State Manager)
+router.get('/qc-performance/survey/:surveyId/trends', authorize('company_admin', 'project_manager', 'state_manager'), getQCPerformanceTrends);
 
 // @route   GET /api/performance/qc-performance/survey/:surveyId/quality-agent/:qualityAgentId/responses
 // @desc    Get responses reviewed by a specific quality agent

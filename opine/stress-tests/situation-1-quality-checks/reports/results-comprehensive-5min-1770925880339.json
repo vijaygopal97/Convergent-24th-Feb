@@ -1,0 +1,59 @@
+{
+  "testId": "comprehensive-5min-1770925880339",
+  "timestamp": "2026-02-12T19:56:51.115Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "testDuration": 300,
+  "cleanup": {
+    "deletedResponses": 103,
+    "revertedQualityChecks": 1388
+  },
+  "finalStats": {
+    "qualityAgents": {
+      "totalRequests": 3700,
+      "totalSuccesses": 1787,
+      "totalFailures": 1913,
+      "totalTime": 6283199,
+      "successRate": "48.30",
+      "avgResponseTime": "1698.16"
+    },
+    "catiInterviewers": {
+      "totalRequests": 2300,
+      "totalSuccesses": 1478,
+      "totalFailures": 822,
+      "totalTime": 7959787,
+      "successRate": "64.26",
+      "avgResponseTime": "3460.78"
+    },
+    "capiInterviewers": {
+      "totalRequests": 3500,
+      "totalSuccesses": 3500,
+      "totalFailures": 0,
+      "totalTime": 10731173,
+      "successRate": "100.00",
+      "avgResponseTime": "3066.05"
+    },
+    "projectManagers": {
+      "totalRequests": 1070,
+      "totalSuccesses": 1070,
+      "totalFailures": 0,
+      "totalTime": 1869771,
+      "successRate": "100.00",
+      "avgResponseTime": "1747.45"
+    },
+    "companyAdmins": {
+      "totalRequests": 306,
+      "totalSuccesses": 306,
+      "totalFailures": 0,
+      "totalTime": 479080,
+      "successRate": "100.00",
+      "avgResponseTime": "1565.62"
+    }
+  },
+  "metrics": {
+    "totalCalls": 10000,
+    "duration": 321149,
+    "avgResponseTime": 2453.2874,
+    "minResponseTime": 107,
+    "maxResponseTime": 10021
+  }
+}

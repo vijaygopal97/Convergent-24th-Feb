@@ -129,11 +129,11 @@ exports.getCatiStatsOptimized = async (params) => {
   // Stage 1: Match CATI responses
   const responsePipeline = [
     { $match: responseMatchFilter },
-    // Stage 2: Add computed fields for call status extraction
+    // Stage 2: Add computed fields for call status extraction and normalization
     {
       $addFields: {
         // Extract call status (priority: knownCallStatus > metadata.callStatus > responses array)
-        computedCallStatus: {
+        rawCallStatus: {
           $cond: {
             if: { $ne: ['$knownCallStatus', null] },
             then: { $toLower: { $trim: { input: '$knownCallStatus' } } },
@@ -171,6 +171,44 @@ exports.getCatiStatsOptimized = async (params) => {
                     }
                   }
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    // Stage 2.5: Normalize call status to handle all variations
+    {
+      $addFields: {
+        computedCallStatus: {
+          $switch: {
+            branches: [
+              // Connected variations
+              { case: { $in: ['$rawCallStatus', ['call_connected', 'success', 'connected', 'call connected', 'call-connected']] }, then: 'call_connected' },
+              // Busy variations
+              { case: { $in: ['$rawCallStatus', ['busy', 'busy.', 'busy ', 'respondent busy', 'respondent_busy']] }, then: 'busy' },
+              // Switched off variations
+              { case: { $in: ['$rawCallStatus', ['switched_off', 'switched off', 'switched-off', 'switch off', 'switch_off']] }, then: 'switched_off' },
+              // Not reachable variations
+              { case: { $in: ['$rawCallStatus', ['not_reachable', 'not reachable', 'not-reachable', 'notreachable']] }, then: 'not_reachable' },
+              // Number does not exist variations
+              { case: { $in: ['$rawCallStatus', ['number_does_not_exist', 'number does not exist', 'number-does-not-exist', 'does not exist', 'does_not_exist', 'number not exist']] }, then: 'number_does_not_exist' },
+              // Did not pick up variations
+              { case: { $in: ['$rawCallStatus', ['did_not_pick_up', 'did not pick up', 'did-not-pick-up', 'did_not_pickup', 'did not pickup', 'no-answer', 'no_answer', 'no answer', 'not answered', 'not_answered']] }, then: 'did_not_pick_up' },
+              // Didn't get call variations
+              { case: { $in: ['$rawCallStatus', ['didnt_get_call', "didn't_get_call", 'did not get call', 'did-not-get-call', 'didnt get call']] }, then: 'didnt_get_call' }
+            ],
+            default: {
+              $cond: {
+                if: {
+                  $or: [
+                    { $eq: ['$rawCallStatus', null] },
+                    { $eq: ['$rawCallStatus', ''] },
+                    { $eq: ['$rawCallStatus', 'unknown'] }
+                  ]
+                },
+                then: 'unknown',
+                else: '$rawCallStatus'
               }
             }
           }
@@ -275,6 +313,41 @@ exports.getCatiStatsOptimized = async (params) => {
           $sum: {
             $cond: {
               if: { $eq: ['$computedCallStatus', 'number_does_not_exist'] },
+              then: 1,
+              else: 0
+            }
+          }
+        },
+        didNotPickUp: {
+          $sum: {
+            $cond: {
+              if: {
+                $in: ['$computedCallStatus', ['did_not_pick_up', 'did_not_pickup', 'no-answer', 'no_answer']]
+              },
+              then: 1,
+              else: 0
+            }
+          }
+        },
+        busy: {
+          $sum: {
+            $cond: {
+              if: { $eq: ['$computedCallStatus', 'busy'] },
+              then: 1,
+              else: 0
+            }
+          }
+        },
+        unknownStatus: {
+          $sum: {
+            $cond: {
+              if: {
+                $or: [
+                  { $eq: ['$computedCallStatus', 'unknown'] },
+                  { $eq: ['$computedCallStatus', null] },
+                  { $eq: ['$computedCallStatus', ''] }
+                ]
+              },
               then: 1,
               else: 0
             }
@@ -391,6 +464,9 @@ exports.getCatiStatsOptimized = async (params) => {
         switchOff: 1,
         numberNotReachable: 1,
         numberDoesNotExist: 1,
+        didNotPickUp: 1,
+        busy: 1,
+        unknownStatus: 1,
         qcBatchIds: 1
       }
     }
@@ -563,6 +639,9 @@ exports.getCatiStatsOptimized = async (params) => {
   const totalSwitchOff = interviewerStats.reduce((sum, stat) => sum + (stat.switchOff || 0), 0);
   const totalNumberNotReachable = interviewerStats.reduce((sum, stat) => sum + (stat.numberNotReachable || 0), 0);
   const totalNumberDoesNotExist = interviewerStats.reduce((sum, stat) => sum + (stat.numberDoesNotExist || 0), 0);
+  const totalDidNotPickUp = interviewerStats.reduce((sum, stat) => sum + (stat.didNotPickUp || 0), 0);
+  const totalBusy = interviewerStats.reduce((sum, stat) => sum + (stat.busy || 0), 0);
+  const totalUnknownStatus = interviewerStats.reduce((sum, stat) => sum + (stat.unknownStatus || 0), 0);
   const totalTalkDurationFromResponses = interviewerStats.reduce((sum, stat) => sum + (stat.totalTimeSpent || 0), 0);
 
   // Combine interviewer stats with QC status
@@ -591,6 +670,9 @@ exports.getCatiStatsOptimized = async (params) => {
       switchOff: stat.switchOff || 0,
       numberNotReachable: stat.numberNotReachable || 0,
       numberDoesNotExist: stat.numberDoesNotExist || 0,
+      didNotPickUp: stat.didNotPickUp || 0,
+      busy: stat.busy || 0,
+      unknownStatus: stat.unknownStatus || 0,
       noResponseByTelecaller: 0 // Calculate from call records if needed
     };
   });

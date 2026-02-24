@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-02-04T11:36:32.232Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Naihati",
+  "excelFile": "/var/www/Report-Generation/ac104_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 4999,
+  "errors": [
+    "Row 1506: Invalid phone number format. Phone must be 10-15 digits (got 9 digits)"
+  ],
+  "newContactsAdded": 4993,
+  "queueEntriesCreated": 4999,
+  "duplicateCleanup": {
+    "totalEntries": 792820,
+    "uniquePhones": 792483,
+    "duplicateCount": 337,
+    "deleted": 337
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4669,
+    "totalPending": 698751
+  },
+  "durationSeconds": "26.53"
+}

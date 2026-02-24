@@ -291,12 +291,32 @@ async function createQueueEntries(surveyId, contacts) {
   console.log(`\n📊 Creating queue entries...`);
   
   // Check for duplicate phones in queue
+  // Use aggregation instead of distinct to avoid 16MB limit
+  let existingQueuePhonesSet = new Set();
+  try {
   const existingQueuePhones = await CatiRespondentQueue.distinct(
     'respondentContact.phone',
     { survey: surveyId }
   );
-  const existingQueuePhonesSet = new Set(existingQueuePhones.filter(Boolean));
+    existingQueuePhonesSet = new Set(existingQueuePhones.filter(Boolean));
   console.log(`📊 Found ${existingQueuePhonesSet.size} existing phone numbers in queue`);
+  } catch (error) {
+    if (error.code === 31299 || error.codeName === 'Location31299' || error.message.includes('distinct too big')) {
+      console.log(`⚠️  Distinct operation too large, using aggregation pipeline instead...`);
+      // Use aggregation pipeline to get unique phones in batches
+      const aggregationResult = await CatiRespondentQueue.aggregate([
+        { $match: { survey: surveyId, 'respondentContact.phone': { $exists: true, $ne: '' } } },
+        { $group: { _id: '$respondentContact.phone' } },
+        { $project: { _id: 0, phone: '$_id' } }
+      ]).allowDiskUse(true).exec();
+      
+      const phones = aggregationResult.map(r => r.phone).filter(Boolean);
+      existingQueuePhonesSet = new Set(phones);
+      console.log(`📊 Found ${existingQueuePhonesSet.size} existing phone numbers in queue (via aggregation)`);
+    } else {
+      throw error;
+    }
+  }
   
   // Filter contacts that need to be added to queue
   const contactsForQueue = contacts.filter(contact => {

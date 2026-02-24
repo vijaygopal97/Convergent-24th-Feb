@@ -15,12 +15,11 @@ import {
   Search,
   X
 } from 'lucide-react';
-import { authAPI, surveyAPI } from '../../services/api';
+import { authAPI } from '../../services/api';
 import { useToast } from '../../contexts/ToastContext';
 
 const userTypes = [
   { value: 'project_manager', label: 'Project Manager', icon: <BarChart3 className="w-6 h-6" />, description: 'Creates and manages surveys, assigns interviewers.' },
-  { value: 'quality_manager', label: 'Quality Manager', icon: <ShieldCheck className="w-6 h-6" />, description: 'Manages quality agents and monitors QC performance.' },
   { value: 'interviewer', label: 'Interviewer', icon: <User className="w-6 h-6" />, description: 'Conducts field interviews and collects data.' },
   { value: 'quality_agent', label: 'Quality Agent', icon: <Users className="w-6 h-6" />, description: 'Verifies data quality and ensures authenticity.' },
   { value: 'Data_Analyst', label: 'Data Analyst', icon: <Brain className="w-6 h-6" />, description: 'Analyzes survey data and creates professional reports.' },
@@ -33,7 +32,7 @@ const userStatuses = [
   { value: 'suspended', label: 'Suspended', description: 'User account is temporarily suspended' }
 ];
 
-const AddCompanyUser = ({ onUserCreated }) => {
+const AddCompanyUser = ({ onUserCreated, initialUserType }) => {
   const { showSuccess, showError } = useToast();
   const [formData, setFormData] = useState({
     firstName: '',
@@ -42,7 +41,7 @@ const AddCompanyUser = ({ onUserCreated }) => {
     phone: '',
     password: '',
     confirmPassword: '',
-    userType: 'interviewer',
+    userType: initialUserType || 'interviewer',
     status: 'active', // Default to active for Company Admin created users
     gig_enabled: false, // Default to false for company users
     // Interview Mode Settings (for Interviewer and Quality Agent users)
@@ -50,8 +49,6 @@ const AddCompanyUser = ({ onUserCreated }) => {
     canSelectMode: false,
     // Assigned Team Members (for Project Managers)
     assignedTeamMembers: [],
-    // Assigned Surveys (for Quality Managers)
-    assignedSurveys: [],
   });
 
   const [formStatus, setFormStatus] = useState({
@@ -75,12 +72,6 @@ const AddCompanyUser = ({ onUserCreated }) => {
   const [interviewerSearch, setInterviewerSearch] = useState('');
   const [qualityAgentSearch, setQualityAgentSearch] = useState('');
 
-  // Survey selection states (for Quality Managers)
-  const [availableSurveys, setAvailableSurveys] = useState([]);
-  const [loadingSurveys, setLoadingSurveys] = useState(false);
-  const [selectedSurveys, setSelectedSurveys] = useState([]);
-  const [surveySearch, setSurveySearch] = useState('');
-
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -93,48 +84,16 @@ const AddCompanyUser = ({ onUserCreated }) => {
     setFormData(prev => ({
       ...prev,
       userType,
-      assignedTeamMembers: [], // Reset team members when changing user type
-      assignedSurveys: [] // Reset assigned surveys when changing user type
+      assignedTeamMembers: [] // Reset team members when changing user type
     }));
     setSelectedInterviewers([]);
     setSelectedQualityAgents([]);
-    setSelectedSurveys([]);
     setInterviewerSearch('');
     setQualityAgentSearch('');
-    setSurveySearch('');
     
     // Load team members if project manager is selected
     if (userType === 'project_manager') {
       loadTeamMembers();
-    }
-    
-    // Load surveys if quality manager is selected
-    if (userType === 'quality_manager') {
-      loadSurveys();
-    }
-  };
-
-  // Load available surveys from company
-  const loadSurveys = async () => {
-    try {
-      setLoadingSurveys(true);
-      const response = await surveyAPI.getSurveys({
-        page: 1,
-        limit: 1000 // Get all surveys
-      });
-      
-      if (response.success) {
-        const surveys = response.data?.surveys || [];
-        setAvailableSurveys(surveys);
-      } else {
-        setAvailableSurveys([]);
-      }
-    } catch (error) {
-      console.error('Error loading surveys:', error);
-      showError('Failed to load surveys', error.response?.data?.message || error.message || 'Please try again');
-      setAvailableSurveys([]);
-    } finally {
-      setLoadingSurveys(false);
     }
   };
 
@@ -291,9 +250,6 @@ const AddCompanyUser = ({ onUserCreated }) => {
           }))
         ];
         registrationData.assignedTeamMembers = assignedTeamMembers;
-      } else if (formData.userType === 'quality_manager') {
-        // Add assigned surveys for quality managers
-        registrationData.assignedSurveys = selectedSurveys;
       }
 
       const response = await authAPI.registerCompanyUser(registrationData);
@@ -319,7 +275,6 @@ const AddCompanyUser = ({ onUserCreated }) => {
         });
         setSelectedInterviewers([]);
         setSelectedQualityAgents([]);
-        setSelectedSurveys([]);
         
         // Call callback if provided
         if (onUserCreated) {
@@ -647,112 +602,6 @@ const AddCompanyUser = ({ onUserCreated }) => {
               </div>
             </div>
           </div>
-
-          {/* Survey Assignment (for Quality Managers) */}
-          {formData.userType === 'quality_manager' && (
-            <div className="space-y-6 border-t border-gray-200 pt-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Assign Surveys</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Select surveys that this quality manager will have access to.
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Surveys {selectedSurveys.length > 0 && (
-                    <span className="text-[#001D48] font-normal">({selectedSurveys.length} selected)</span>
-                  )}
-                </label>
-                {loadingSurveys ? (
-                  <div className="text-sm text-gray-500">Loading surveys...</div>
-                ) : (
-                  <div className="space-y-2">
-                    {/* Search Input */}
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                      <input
-                        type="text"
-                        placeholder="Search surveys by name..."
-                        value={surveySearch}
-                        onChange={(e) => setSurveySearch(e.target.value)}
-                        className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      {surveySearch && (
-                        <button
-                          onClick={() => setSurveySearch('')}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                    
-                    {/* Filtered Surveys List */}
-                    <div className="border border-gray-300 rounded-lg p-3 max-h-64 overflow-y-auto bg-gray-50">
-                      {availableSurveys.length === 0 ? (
-                        <p className="text-sm text-gray-500">No surveys available in your company</p>
-                      ) : (() => {
-                        const filtered = availableSurveys.filter(survey => {
-                          if (!surveySearch) return true;
-                          const searchLower = surveySearch.toLowerCase();
-                          const surveyName = (survey.surveyName || survey.title || '').toLowerCase();
-                          return surveyName.includes(searchLower);
-                        });
-                        
-                        if (filtered.length === 0) {
-                          return <p className="text-sm text-gray-500">No surveys found matching your search</p>;
-                        }
-                        
-                        return filtered.map((survey) => {
-                          const isSelected = selectedSurveys.includes(survey._id);
-                          return (
-                            <label
-                              key={survey._id}
-                              className="flex items-center space-x-3 p-2 hover:bg-white rounded cursor-pointer transition-colors"
-                            >
-                              <input
-                                type="checkbox"
-                                checked={isSelected}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setSelectedSurveys([...selectedSurveys, survey._id]);
-                                  } else {
-                                    setSelectedSurveys(selectedSurveys.filter(id => id !== survey._id));
-                                  }
-                                }}
-                                className="w-4 h-4 text-[#001D48] border-gray-300 rounded focus:ring-blue-500"
-                              />
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-gray-900">
-                                    {survey.surveyName || survey.title || 'Untitled Survey'}
-                                  </span>
-                                  {survey.status && (
-                                    <span className={`text-xs px-2 py-0.5 rounded ${
-                                      survey.status === 'active' ? 'bg-green-100 text-green-700' :
-                                      survey.status === 'draft' ? 'bg-gray-100 text-gray-700' :
-                                      survey.status === 'completed' ? 'bg-blue-100 text-blue-700' :
-                                      'bg-yellow-100 text-yellow-700'
-                                    }`}>
-                                      {survey.status}
-                                    </span>
-                                  )}
-                                </div>
-                                {survey.description && (
-                                  <span className="text-xs text-gray-500 truncate block">{survey.description}</span>
-                                )}
-                              </div>
-                            </label>
-                          );
-                        });
-                      })()}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
 
           {/* Team Member Assignment (for Project Managers) */}
           {formData.userType === 'project_manager' && (

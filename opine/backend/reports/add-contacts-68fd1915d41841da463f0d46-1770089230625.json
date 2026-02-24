@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-02-03T03:27:10.624Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Dhupguri",
+  "excelFile": "/var/www/Report-Generation/ac15_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 5000,
+  "errors": [],
+  "newContactsAdded": 5000,
+  "queueEntriesCreated": 4995,
+  "duplicateCleanup": {
+    "totalEntries": 706676,
+    "uniquePhones": 706510,
+    "duplicateCount": 166,
+    "deleted": 166
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4832,
+    "totalPending": 616058
+  },
+  "durationSeconds": "36.03"
+}

@@ -83,6 +83,7 @@ export default function ResponseDetailsModal({
   const [catiIsSeeking, setCatiIsSeeking] = useState(false);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [catiAudioError, setCatiAudioError] = useState<string | null>(null);
   const [responsesSectionExpanded, setResponsesSectionExpanded] = useState(false);
   
   // Use ref to store audio sound to avoid dependency cycles
@@ -218,6 +219,7 @@ export default function ResponseDetailsModal({
     setCatiAudioDuration(0);
     setCatiPlaybackRate(1.0);
     setLoadingCatiRecording(false);
+    setCatiAudioError(null); // Clear error on cleanup
     // Note: We preserve catiRecordingUri and catiCallDetails for restoration
   }, []);
 
@@ -376,38 +378,25 @@ export default function ResponseDetailsModal({
     if (interview.interviewMode === 'cati' && interview.call_id) {
       // Defer CATI details fetch to avoid blocking modal opening
       setTimeout(async () => {
-        // First, check if we already have a local file for this call (from previous session)
-        // This handles the case where the user locked screen and came back
-        if (catiRecordingUri && catiRecordingUriCallIdRef.current === interview.call_id) {
+        // OPTIMIZED: With streaming, check if audio is already loaded instead of checking local files
+        if (catiRecordingUri && catiRecordingUriCallIdRef.current === interview.call_id && catiAudioSound) {
           try {
-            const fileInfo = await FileSystem.getInfoAsync(catiRecordingUri);
-            if (fileInfo.exists) {
-              console.log('🔄 Found existing local CATI audio file for same call, restoring:', catiRecordingUri);
-              // Restore audio from local file if not already loaded
-              if (!catiAudioSound) {
-                await loadCatiAudio(catiRecordingUri);
-              }
-              // Always fetch call details for metadata (even if we have URI) to ensure UI shows properly
-              // This is important because catiCallDetails might have been reset on re-render
+            const status = await catiAudioSound.getStatusAsync();
+            if (status.isLoaded) {
+              console.log('✅ CATI audio already loaded for this call');
+              // Always fetch call details for metadata to ensure UI shows properly
               if (!catiCallDetails) {
                 console.log('📋 Fetching call details to restore UI state');
                 fetchCatiCallDetails(interview.call_id);
               }
               return;
-            } else {
-              console.log('⚠️ Previous local file no longer exists, will fetch fresh');
-              setCatiRecordingUri(null);
-              catiRecordingUriCallIdRef.current = null;
             }
           } catch (error) {
-            console.error('Error checking existing local file:', error);
-            setCatiRecordingUri(null);
-            catiRecordingUriCallIdRef.current = null;
+            console.log('Audio status check failed, will reload:', error);
           }
         }
-        // Fetch call details (will trigger audio download if needed)
-        // Always fetch if we don't have call details, even if we have a URI
-        // This ensures the UI can display properly
+        // Fetch call details (will trigger audio streaming if needed)
+        // Always fetch if we don't have call details
         if (!catiCallDetails) {
           fetchCatiCallDetails(interview.call_id);
         }
@@ -557,8 +546,8 @@ export default function ResponseDetailsModal({
         // App is coming back to foreground - restore audio if it was previously loaded
         console.log('✅ App coming back to foreground - checking for audio restoration');
         
-        // Restore CATI audio if we have a local file URI and modal is still visible
-        // Also verify the URI is for the current call_id
+        // OPTIMIZED: Restore CATI audio if we have a streaming URL and modal is still visible
+        // With streaming, we don't need to check local files - just reload from URL
         if (visible && interview?.interviewMode === 'cati' && catiRecordingUri && 
             catiRecordingUriCallIdRef.current === interview?.call_id) {
           console.log('🔍 AppState restoration check:', {
@@ -569,21 +558,20 @@ export default function ResponseDetailsModal({
             hasUri: !!catiRecordingUri
           });
           try {
-            // Check if the local file still exists
-            const fileInfo = await FileSystem.getInfoAsync(catiRecordingUri);
-            if (fileInfo.exists) {
-              console.log('🔄 Restoring CATI audio from local file:', catiRecordingUri);
-              // Reload audio from the local file (no re-download needed)
-              await loadCatiAudio(catiRecordingUri);
-            } else {
-              console.log('⚠️ Local CATI audio file no longer exists, will need to re-download');
-              // File was deleted, clear the URI so it can be re-downloaded
-              setCatiRecordingUri(null);
-              catiRecordingUriCallIdRef.current = null;
+            // Check if audio is still loaded
+            if (catiAudioSoundRef.current) {
+              const status = await catiAudioSoundRef.current.getStatusAsync();
+              if (status.isLoaded) {
+                console.log('✅ CATI audio still loaded, no action needed');
+                return;
+              }
             }
+            // Audio was unloaded, reload from streaming URL (no re-download needed)
+            console.log('🔄 Restoring CATI audio from streaming URL:', catiRecordingUri);
+            await loadCatiAudio(catiRecordingUri);
           } catch (error) {
-            console.error('Error checking/restoring CATI audio file:', error);
-            // If there's an error, clear the URI so it can be re-downloaded
+            console.error('Error checking/restoring CATI audio:', error);
+            // If there's an error, clear the URI so it can be re-loaded
             setCatiRecordingUri(null);
             catiRecordingUriCallIdRef.current = null;
           }
@@ -667,40 +655,27 @@ export default function ResponseDetailsModal({
               ? 'DeepCall (fallback)' 
               : 'NONE');
         
-        // CRITICAL: Check if we already have a local file for this call before downloading
-        // This prevents re-downloading when app comes back from background
-        if (catiRecordingUri && catiRecordingUriCallIdRef.current === callId) {
+        // OPTIMIZED: Check if we already have audio loaded for this call
+        // With streaming, we don't need to check for local files - just check if audio is loaded
+        if (catiRecordingUri && catiRecordingUriCallIdRef.current === callId && catiAudioSound) {
           try {
-            const fileInfo = await FileSystem.getInfoAsync(catiRecordingUri);
-            if (fileInfo.exists) {
-              console.log('✅ Already have local CATI audio file, skipping download:', catiRecordingUri);
-              // Only load audio if not already loaded
-              if (!catiAudioSound) {
-                console.log('🔄 Loading audio from existing local file');
-                await loadCatiAudio(catiRecordingUri);
-              } else {
-                console.log('✅ Audio already loaded, no action needed');
-              }
-              return; // Don't download again
-            } else {
-              console.log('⚠️ Local file no longer exists, will download');
-              setCatiRecordingUri(null);
-              catiRecordingUriCallIdRef.current = null;
+            const status = await catiAudioSound.getStatusAsync();
+            if (status.isLoaded) {
+              console.log('✅ CATI audio already loaded for this call, no action needed');
+              return; // Already loaded, no need to reload
             }
           } catch (error) {
-            console.error('Error checking local file:', error);
-            setCatiRecordingUri(null);
-            catiRecordingUriCallIdRef.current = null;
+            console.log('Audio status check failed, will reload:', error);
           }
         }
         
-        // Only fetch recording if recordingUrl is explicitly available AND we don't have local file
-        // Don't fetch just based on _id to avoid unnecessary 404 errors
-        if ((callData.recordingUrl || callData.s3AudioUrl) && !catiRecordingUri) {
-          console.log('📥 No local file found, downloading recording...');
+        // Only fetch recording if recordingUrl is explicitly available
+        // With streaming, we load directly without downloading
+        if (callData.recordingUrl || callData.s3AudioUrl) {
+          console.log('📥 Streaming CATI recording directly (no download)...');
           await fetchCatiRecording(callData._id || callId);
-        } else if (catiRecordingUri) {
-          console.log('✅ Using existing local file, skipping download');
+        } else {
+          console.log('⚠️ No recording URL available for this call');
         }
       }
     } catch (error) {
@@ -710,37 +685,8 @@ export default function ResponseDetailsModal({
 
   const fetchCatiRecording = async (callId: string) => {
     try {
-      // CRITICAL: Check if we already have a local file for this call before downloading
-      // This prevents re-downloading when app comes back from background or when play is clicked
-      if (catiRecordingUri && catiRecordingUriCallIdRef.current === callId) {
-        try {
-          const fileInfo = await FileSystem.getInfoAsync(catiRecordingUri);
-          if (fileInfo.exists) {
-            console.log('✅ Already have local CATI audio file, using it instead of downloading:', catiRecordingUri);
-            // Only load audio if not already loaded
-            if (!catiAudioSound) {
-              console.log('🔄 Loading audio from existing local file');
-              await loadCatiAudio(catiRecordingUri);
-            } else {
-              console.log('✅ Audio already loaded, no action needed');
-            }
-            return; // Don't download again
-          } else {
-            console.log('⚠️ Local file no longer exists, will download');
-            setCatiRecordingUri(null);
-            catiRecordingUriCallIdRef.current = null;
-          }
-        } catch (error) {
-          console.error('Error checking local file:', error);
-          setCatiRecordingUri(null);
-          catiRecordingUriCallIdRef.current = null;
-        }
-      }
-      
       setLoadingCatiRecording(true);
       
-      // Use expo-file-system to download the recording directly
-      // This is better for React Native than handling blobs
       const token = await AsyncStorage.getItem('authToken');
       if (!token) {
         console.error('No auth token available');
@@ -751,69 +697,25 @@ export default function ResponseDetailsModal({
       const API_BASE_URL = 'https://convo.convergentview.com';
       const recordingUrl = `${API_BASE_URL}/api/cati/recording/${callId}`;
       
-      // LOG: Show the API endpoint being called
-      console.log('🎵 [AUDIO URL LOG] Quality Agent - Fetching CATI Recording:');
-      console.log('🎵 [AUDIO URL LOG] API Endpoint:', recordingUrl);
-      console.log('🎵 [AUDIO URL LOG] Note: Backend will prioritize S3 if available, fallback to DeepCall');
+      // OPTIMIZED: Use direct streaming like CAPI instead of downloading entire file
+      // Backend already streams the audio, so we can use it directly with expo-av
+      // This eliminates the delay from downloading the entire file before playback
+      console.log('🎵 [AUDIO URL LOG] Quality Agent - Streaming CATI Recording (direct):');
+      console.log('🎵 [AUDIO URL LOG] Streaming URL:', recordingUrl);
+      console.log('🎵 [AUDIO URL LOG] Note: Using direct streaming like CAPI for instant playback');
       
-      // Download to a temporary file using legacy API
-      const fileUri = `${FileSystem.cacheDirectory}cati_recording_${callId}_${Date.now()}.mp3`;
+      // Store the streaming URL for this call (for restoration after app state changes)
+      catiRecordingUriCallIdRef.current = callId;
+      setCatiRecordingUri(recordingUrl); // Store URL instead of local file path
       
-      try {
-        const downloadResult = await FileSystem.downloadAsync(
-          recordingUrl,
-          fileUri,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (downloadResult.status === 200) {
-          // LOG: Show successful download
-          console.log('🎵 [AUDIO URL LOG] Quality Agent - Recording downloaded successfully');
-          console.log('🎵 [AUDIO URL LOG] Local File URI:', downloadResult.uri);
-          // Load the audio from the downloaded file
-          await loadCatiAudio(downloadResult.uri);
-        } else {
-          console.error('Failed to download recording:', downloadResult.status);
-          setLoadingCatiRecording(false);
-        }
-      } catch (downloadError: any) {
-        // If legacy API fails, try using fetch as fallback
-        console.log('Legacy downloadAsync failed, trying fetch approach...', downloadError);
-        
-        const response = await fetch(recordingUrl, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          if (response.status === 404) {
-            setLoadingCatiRecording(false);
-            return;
-          }
-          throw new Error(`Failed to download: ${response.status}`);
-        }
-
-        // Get the arrayBuffer and convert to base64 using base64-js (React Native compatible)
-        const arrayBuffer = await response.arrayBuffer();
-        const uint8Array = new Uint8Array(arrayBuffer);
-        // Convert Uint8Array to base64 string using base64-js
-        const base64 = fromByteArray(uint8Array);
-        
-        await FileSystem.writeAsStringAsync(fileUri, base64, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-        
-        // LOG: Show successful download via fetch fallback
-        console.log('🎵 [AUDIO URL LOG] Quality Agent - Recording downloaded via fetch fallback');
-        console.log('🎵 [AUDIO URL LOG] Local File URI:', fileUri);
-        
-        await loadCatiAudio(fileUri);
-      }
+      // Load audio directly from streaming URL (expo-av handles streaming internally)
+      // Add auth token to URL as query param since expo-av doesn't support custom headers
+      // Note: Backend should accept token in query param or we need to use a different approach
+      // For now, we'll construct a URL with token (backend needs to support this)
+      const streamingUrlWithAuth = `${recordingUrl}?token=${encodeURIComponent(token)}`;
+      
+      // Load audio directly from streaming URL
+      await loadCatiAudio(streamingUrlWithAuth);
     } catch (error: any) {
       // Silently handle 404 errors (recording not available) - this is expected
       if (error?.response?.status === 404 || error?.status === 404 || error?.message?.includes('404')) {
@@ -877,9 +779,13 @@ export default function ResponseDetailsModal({
       });
 
       setLoadingCatiRecording(false);
-    } catch (error) {
+      setCatiAudioError(null); // Clear any previous errors on success
+    } catch (error: any) {
       console.error('Error loading CATI audio:', error);
       setLoadingCatiRecording(false);
+      // Store error message as string (not error object) to avoid rendering issues
+      const errorMessage = error?.message || error?.toString() || 'Failed to load audio';
+      setCatiAudioError(errorMessage);
     }
   }, [catiPlaybackRate, catiIsSeeking]);
 
@@ -914,31 +820,48 @@ export default function ResponseDetailsModal({
         }
       }
       
-      // If audio is not loaded but we have a local file, load it first
+      // OPTIMIZED: If audio is not loaded but we have a streaming URL, load it first
+      // With streaming, we don't need to check for local files - just load from URL
       if (catiRecordingUri && interview?.call_id && catiRecordingUriCallIdRef.current === interview.call_id) {
-        try {
-          const fileInfo = await FileSystem.getInfoAsync(catiRecordingUri);
-          if (fileInfo.exists) {
-            console.log('🔄 Loading audio from local file before playing:', catiRecordingUri);
-            await loadCatiAudio(catiRecordingUri);
-            // After loading, play it
-            if (catiAudioSoundRef.current) {
-              await catiAudioSoundRef.current.playAsync();
-              // CRITICAL: Verify play actually worked
-              const verifyStatus = await catiAudioSoundRef.current.getStatusAsync();
-              setIsPlayingCatiAudio(verifyStatus.isPlaying || false);
-              console.log('✅ CATI audio loaded and playing successfully');
+        // Check if it's a streaming URL (http/https) or local file
+        if (catiRecordingUri.startsWith('http://') || catiRecordingUri.startsWith('https://')) {
+          // Streaming URL - load directly
+          console.log('🔄 Loading audio from streaming URL before playing:', catiRecordingUri);
+          await loadCatiAudio(catiRecordingUri);
+          // After loading, play it
+          if (catiAudioSoundRef.current) {
+            await catiAudioSoundRef.current.playAsync();
+            // CRITICAL: Verify play actually worked
+            const verifyStatus = await catiAudioSoundRef.current.getStatusAsync();
+            setIsPlayingCatiAudio(verifyStatus.isPlaying || false);
+            console.log('✅ CATI audio loaded and playing successfully');
+          }
+        } else {
+          // Legacy local file path (for backward compatibility)
+          try {
+            const fileInfo = await FileSystem.getInfoAsync(catiRecordingUri);
+            if (fileInfo.exists) {
+              console.log('🔄 Loading audio from local file before playing:', catiRecordingUri);
+              await loadCatiAudio(catiRecordingUri);
+              // After loading, play it
+              if (catiAudioSoundRef.current) {
+                await catiAudioSoundRef.current.playAsync();
+                const verifyStatus = await catiAudioSoundRef.current.getStatusAsync();
+                setIsPlayingCatiAudio(verifyStatus.isPlaying || false);
+                console.log('✅ CATI audio loaded and playing successfully');
+              }
+              return;
+            } else {
+              // File doesn't exist
+              console.log('⚠️ Local file no longer exists, will need to download');
+              setCatiRecordingUri(null);
+              catiRecordingUriCallIdRef.current = null;
             }
-            return;
-          } else {
-            console.log('⚠️ Local file no longer exists, will need to download');
+          } catch (error) {
+            console.error('Error checking local file:', error);
             setCatiRecordingUri(null);
             catiRecordingUriCallIdRef.current = null;
           }
-        } catch (error) {
-          console.error('Error checking local file:', error);
-          setCatiRecordingUri(null);
-          catiRecordingUriCallIdRef.current = null;
         }
       }
       
@@ -3082,6 +3005,23 @@ export default function ResponseDetailsModal({
                       {loadingCatiRecording ? 'Loading...' : 'Load Recording'}
                     </Button>
                   </View>
+                ) : catiAudioError ? (
+                  <View style={styles.audioControls}>
+                    <Text style={[styles.noDataText, { color: '#dc2626' }]}>Error loading recording</Text>
+                    <Button
+                      mode="outlined"
+                      onPress={() => {
+                        setCatiAudioError(null);
+                        if (interview?.call_id) {
+                          fetchCatiRecording(interview.call_id);
+                        }
+                      }}
+                      style={{ marginTop: 8 }}
+                      compact
+                    >
+                      Retry
+                    </Button>
+                  </View>
                 ) : (
                   <Text style={styles.noDataText}>No Recording Available</Text>
                 )}
@@ -3774,7 +3714,7 @@ export default function ResponseDetailsModal({
           duration={3000}
           style={styles.snackbar}
         >
-          {snackbarMessage}
+          <Text style={{ color: '#FFFFFF' }}>{snackbarMessage}</Text>
         </Snackbar>
       </View>
     </Modal>

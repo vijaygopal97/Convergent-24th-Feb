@@ -22,6 +22,12 @@ exports.protect = async (req, res, next) => {
       token = req.cookies.token;
     }
 
+    // OPTIMIZED: Check for token in query param (for streaming endpoints like CATI recording)
+    // expo-av can't send custom headers, so we support token in query param
+    if (!token && req.query.token) {
+      token = req.query.token;
+    }
+
     // CRITICAL: Skip authentication for audio proxy routes (browser <audio> elements don't send auth headers)
     // Check if this is an audio proxy request - check multiple path variations
     // req.path might be relative to router mount point, req.originalUrl is full path
@@ -65,8 +71,9 @@ exports.protect = async (req, res, next) => {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
       
-      // Get user from token
-      const user = await User.findById(decoded.userId).select('-password');
+      // Get user from token (support both userId and id fields)
+      const userId = decoded.userId || decoded.id;
+      const user = await User.findById(userId).select('-password');
       
       if (!user) {
         console.error('❌ AUTH FAILED: User not found in database', {

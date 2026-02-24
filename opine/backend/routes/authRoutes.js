@@ -30,7 +30,6 @@ const {
   resetPassword,
   checkMemberIdAvailability,
   addInterviewerByProjectManager,
-  addQualityAgentByQualityManager,
   updateInterviewerPreferencesByPM,
   getInterviewerSurveys,
   updateInterviewerByPM,
@@ -82,23 +81,20 @@ router.delete('/manage-companies/:id', protect, authorize('super_admin'), delete
 router.post('/manage-companies/:id/admins', protect, authorize('super_admin'), addCompanyAdmin);
 router.delete('/manage-companies/:id/admins/:adminId', protect, authorize('super_admin'), removeCompanyAdmin);
 
-// Company Admin routes - User Management
-router.get('/company/users', protect, authorize('company_admin'), getCompanyUsers);
-router.post('/company/register-user', protect, authorize('company_admin'), registerCompanyUser);
+// Company Admin and State Manager routes - User Management
+router.get('/company/users', protect, authorize('company_admin', 'state_manager'), getCompanyUsers);
+router.post('/company/register-user', protect, authorize('company_admin', 'state_manager'), registerCompanyUser);
 router.put('/company/users/:id', protect, authorize('company_admin'), updateCompanyUser);
 router.delete('/company/users/:id', protect, authorize('company_admin'), deleteCompanyUser);
 
 // Project Manager routes - Team Management
-router.get('/check-member-id/:memberId', protect, authorize('project_manager', 'company_admin', 'quality_manager'), checkMemberIdAvailability);
+router.get('/check-member-id/:memberId', protect, authorize('project_manager', 'company_admin'), checkMemberIdAvailability);
 router.post('/project-manager/add-interviewer', protect, authorize('project_manager'), addInterviewerByProjectManager);
 router.put('/project-manager/interviewer/:id/preferences', protect, authorize('project_manager'), updateInterviewerPreferencesByPM);
 router.get('/project-manager/interviewer/:id/surveys', protect, authorize('project_manager'), getInterviewerSurveys);
 
-// Quality Manager routes - Team Management
-router.post('/quality-manager/add-quality-agent', protect, authorize('quality_manager'), addQualityAgentByQualityManager);
-
 // Search interviewer by memberId (for Reports V2)
-router.get('/search-interviewer', protect, authorize('company_admin', 'project_manager'), searchInterviewerByMemberId);
+router.get('/search-interviewer', protect, authorize('company_admin', 'project_manager', 'state_manager'), searchInterviewerByMemberId);
 router.put('/project-manager/interviewer/:id', protect, authorize('project_manager'), updateInterviewerByPM);
 
 module.exports = router;

@@ -1,0 +1,188 @@
+{
+  "generatedAt": "2026-02-03T04:03:54.180Z",
+  "totalFiles": 22,
+  "successful": 22,
+  "failed": 0,
+  "durationSeconds": "1055.29",
+  "defaultSurveyId": "68fd1915d41841da463f0d46",
+  "maxRowsPerFile": 5000,
+  "processedACs": [
+    {
+      "acCode": 131,
+      "acCodeFormatted": "WB131",
+      "acName": "Kakdwip",
+      "csvFile": "ac131.csv",
+      "excelFile": "ac131_output.xlsx",
+      "processedAt": "2026-02-03T03:47:01.085Z"
+    },
+    {
+      "acCode": 132,
+      "acCodeFormatted": "WB132",
+      "acName": "Sagar",
+      "csvFile": "ac132.csv",
+      "excelFile": "ac132_output.xlsx",
+      "processedAt": "2026-02-03T03:47:45.044Z"
+    },
+    {
+      "acCode": 133,
+      "acCodeFormatted": "WB133",
+      "acName": "Kulpi",
+      "csvFile": "ac133.csv",
+      "excelFile": "ac133_output.xlsx",
+      "processedAt": "2026-02-03T03:48:36.499Z"
+    },
+    {
+      "acCode": 135,
+      "acCodeFormatted": "WB135",
+      "acName": "Mandirbazar",
+      "csvFile": "ac135.csv",
+      "excelFile": "ac135_output.xlsx",
+      "processedAt": "2026-02-03T03:49:10.504Z"
+    },
+    {
+      "acCode": 15,
+      "acCodeFormatted": "WB015",
+      "acName": "Dhupguri",
+      "csvFile": "ac15.csv",
+      "excelFile": "ac15_output.xlsx",
+      "processedAt": "2026-02-03T03:49:54.399Z"
+    },
+    {
+      "acCode": 150,
+      "acCodeFormatted": "WB150",
+      "acName": "Jadavpur",
+      "csvFile": "ac150.csv",
+      "excelFile": "ac150_output.xlsx",
+      "processedAt": "2026-02-03T03:50:46.888Z"
+    },
+    {
+      "acCode": 193,
+      "acCodeFormatted": "WB193",
+      "acName": "Saptagram",
+      "csvFile": "ac193.csv",
+      "excelFile": "ac193_output.xlsx",
+      "processedAt": "2026-02-03T03:51:31.201Z"
+    },
+    {
+      "acCode": 203,
+      "acCodeFormatted": "WB203",
+      "acName": "Tamluk",
+      "csvFile": "ac203.csv",
+      "excelFile": "ac203_output.xlsx",
+      "processedAt": "2026-02-03T03:52:18.208Z"
+    },
+    {
+      "acCode": 207,
+      "acCodeFormatted": "WB207",
+      "acName": "Nandakumar",
+      "csvFile": "ac207.csv",
+      "excelFile": "ac207_output.xlsx",
+      "processedAt": "2026-02-03T03:53:11.256Z"
+    },
+    {
+      "acCode": 233,
+      "acCodeFormatted": "WB233",
+      "acName": "Garbeta",
+      "csvFile": "ac233.csv",
+      "excelFile": "ac233_output.xlsx",
+      "processedAt": "2026-02-03T03:54:03.884Z"
+    },
+    {
+      "acCode": 235,
+      "acCodeFormatted": "WB235",
+      "acName": "Keshpur",
+      "csvFile": "ac235.csv",
+      "excelFile": "ac235_output.xlsx",
+      "processedAt": "2026-02-03T03:54:57.653Z"
+    },
+    {
+      "acCode": 255,
+      "acCodeFormatted": "WB255",
+      "acName": "Bishnupur, Bankura",
+      "csvFile": "ac255.csv",
+      "excelFile": "ac255_output.xlsx",
+      "processedAt": "2026-02-03T03:55:54.222Z"
+    },
+    {
+      "acCode": 261,
+      "acCodeFormatted": "WB261",
+      "acName": "Raina",
+      "csvFile": "ac261.csv",
+      "excelFile": "ac261_output.xlsx",
+      "processedAt": "2026-02-03T03:56:35.689Z"
+    },
+    {
+      "acCode": 290,
+      "acCodeFormatted": "WB290",
+      "acName": "Mayureswar",
+      "csvFile": "ac290.csv",
+      "excelFile": "ac290_output.xlsx",
+      "processedAt": "2026-02-03T03:57:17.808Z"
+    },
+    {
+      "acCode": 291,
+      "acCodeFormatted": "WB291",
+      "acName": "Rampurhat",
+      "csvFile": "ac291.csv",
+      "excelFile": "ac291_output.xlsx",
+      "processedAt": "2026-02-03T03:58:06.607Z"
+    },
+    {
+      "acCode": 45,
+      "acCodeFormatted": "WB045",
+      "acName": "Chanchal",
+      "csvFile": "ac45.csv",
+      "excelFile": "ac45_output.xlsx",
+      "processedAt": "2026-02-03T03:58:47.272Z"
+    },
+    {
+      "acCode": 47,
+      "acCodeFormatted": "WB047",
+      "acName": "Malatipur",
+      "csvFile": "ac47.csv",
+      "excelFile": "ac47_output.xlsx",
+      "processedAt": "2026-02-03T03:59:31.758Z"
+    },
+    {
+      "acCode": 54,
+      "acCodeFormatted": "WB054",
+      "acName": "Baisnabnagar",
+      "csvFile": "ac54.csv",
+      "excelFile": "ac54_output.xlsx",
+      "processedAt": "2026-02-03T04:00:25.517Z"
+    },
+    {
+      "acCode": 63,
+      "acCodeFormatted": "WB063",
+      "acName": "Raninagar",
+      "csvFile": "ac63.csv",
+      "excelFile": "ac63_output.xlsx",
+      "processedAt": "2026-02-03T04:01:18.083Z"
+    },
+    {
+      "acCode": 70,
+      "acCodeFormatted": "WB070",
+      "acName": "Rejinagar",
+      "csvFile": "ac70.csv",
+      "excelFile": "ac70_output.xlsx",
+      "processedAt": "2026-02-03T04:02:07.784Z"
+    },
+    {
+      "acCode": 80,
+      "acCodeFormatted": "WB080",
+      "acName": "Kaliganj",
+      "csvFile": "ac80.csv",
+      "excelFile": "ac80_output.xlsx",
+      "processedAt": "2026-02-03T04:03:00.996Z"
+    },
+    {
+      "acCode": 93,
+      "acCodeFormatted": "WB093",
+      "acName": "Haringhata",
+      "csvFile": "ac93.csv",
+      "excelFile": "ac93_output.xlsx",
+      "processedAt": "2026-02-03T04:03:54.180Z"
+    }
+  ],
+  "failedFiles": []
+}

@@ -19,8 +19,8 @@ import { useToast } from '../../contexts/ToastContext';
 const userTypes = [
   { value: 'super_admin', label: 'Super Admin', icon: <ShieldCheck className="w-6 h-6" />, description: 'Platform owner with full control.' },
   { value: 'company_admin', label: 'Company Admin', icon: <Building2 className="w-6 h-6" />, description: 'Manages company operations, users, and finances.' },
+  { value: 'state_manager', label: 'State Manager', icon: <BarChart3 className="w-6 h-6" />, description: 'Manages project managers and views company-wide analytics by type.' },
   { value: 'project_manager', label: 'Project Manager', icon: <BarChart3 className="w-6 h-6" />, description: 'Creates and manages surveys, assigns interviewers.' },
-  { value: 'quality_manager', label: 'Quality Manager', icon: <Users className="w-6 h-6" />, description: 'Manages quality agents and monitors QC performance.' },
   { value: 'interviewer', label: 'Interviewer', icon: <User className="w-6 h-6" />, description: 'Conducts field interviews and collects data.' },
   { value: 'quality_agent', label: 'Quality Agent', icon: <Users className="w-6 h-6" />, description: 'Verifies data quality and ensures authenticity.' },
   { value: 'Data_Analyst', label: 'Data Analyst', icon: <Brain className="w-6 h-6" />, description: 'Analyzes survey data and creates professional reports.' },
@@ -59,6 +59,8 @@ const AddUser = ({ onUserCreated }) => {
     companyEmail: '',
     companyPhone: '',
     companyWebsite: '',
+    // State Manager specific fields
+    stateManagerTypes: [],
   });
 
   const [formStatus, setFormStatus] = useState({
@@ -73,7 +75,7 @@ const AddUser = ({ onUserCreated }) => {
 
   useEffect(() => {
     const fetchCompanies = async () => {
-      if (formData.userType !== 'super_admin' && formData.userType !== 'company_admin') {
+      if (formData.userType !== 'super_admin' && formData.userType !== 'company_admin' && formData.userType !== 'state_manager') {
         try {
           const response = await authAPI.getCompanies();
           if (response.success) {
@@ -166,7 +168,7 @@ const AddUser = ({ onUserCreated }) => {
     // Company code is required for company_admin and project_manager
     // Optional for interviewer, quality_agent, and Data_Analyst (independent workers)
     if (formData.userType !== 'super_admin') {
-      const requiresCompanyCode = ['company_admin', 'project_manager'].includes(formData.userType);
+      const requiresCompanyCode = ['company_admin', 'project_manager', 'state_manager'].includes(formData.userType);
       
       if (requiresCompanyCode && !formData.companyCode.trim()) {
         errors.push('Company code is required');
@@ -283,6 +285,16 @@ const AddUser = ({ onUserCreated }) => {
         }
       }
 
+      // Add state manager types for state manager
+      if (formData.userType === 'state_manager') {
+        if (formData.stateManagerTypes.length === 0) {
+          showError('Validation Error', 'Please select at least one management type for State Manager');
+          setFormStatus({ loading: false, success: false, error: 'Please select at least one management type' });
+          return;
+        }
+        registrationData.stateManagerTypes = formData.stateManagerTypes;
+      }
+
       const response = await authAPI.register(registrationData);
 
       if (response.success) {
@@ -310,6 +322,7 @@ const AddUser = ({ onUserCreated }) => {
           companyEmail: '',
           companyPhone: '',
           companyWebsite: '',
+          stateManagerTypes: [],
         });
         
         // Call callback if provided
@@ -757,8 +770,53 @@ const AddUser = ({ onUserCreated }) => {
             </div>
           )}
 
+          {/* State Manager Fields */}
+          {formData.userType === 'state_manager' && (
+            <div className="border-t border-gray-200 pt-6 mt-6 space-y-6">
+              <h3 className="text-xl font-bold text-gray-800">State Manager Configuration</h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Management Types <span className="text-red-500">*</span>
+                </label>
+                <p className="text-sm text-gray-600 mb-4">
+                  Select the types of users this state manager will oversee. State managers can view all users in their company of the selected types without needing assignments.
+                </p>
+                <div className="space-y-3">
+                  {['CAPI', 'CATI', 'QC'].map((type) => (
+                    <label key={type} className="flex items-center space-x-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.stateManagerTypes.includes(type)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setFormData(prev => ({
+                              ...prev,
+                              stateManagerTypes: [...prev.stateManagerTypes, type]
+                            }));
+                          } else {
+                            setFormData(prev => ({
+                              ...prev,
+                              stateManagerTypes: prev.stateManagerTypes.filter(t => t !== type)
+                            }));
+                          }
+                        }}
+                        className="w-4 h-4 text-[#373177] border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-sm font-medium text-gray-700">
+                        {type === 'CAPI' ? 'CAPI (Face To Face)' : type === 'CATI' ? 'CATI (Telephonic)' : 'QC (Quality Control)'}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                {formData.stateManagerTypes.length === 0 && (
+                  <p className="text-sm text-red-600 mt-2">Please select at least one management type</p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Company Code for other users (not Super Admin or Company Admin) */}
-          {formData.userType !== 'super_admin' && formData.userType !== 'company_admin' && (
+          {formData.userType !== 'super_admin' && formData.userType !== 'company_admin' && formData.userType !== 'state_manager' && (
             <div className="border-t border-gray-200 pt-6 mt-6 space-y-6">
               <h3 className="text-xl font-bold text-gray-800">Company Affiliation</h3>
               <div>

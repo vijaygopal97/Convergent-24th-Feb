@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-02-20T06:29:10.177Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Mandirbazar",
+  "excelFile": "/var/www/Report-Generation/ac135_output.xlsx",
+  "totalRowsInExcel": 3067,
+  "validContacts": 3067,
+  "errors": [],
+  "newContactsAdded": 0,
+  "queueEntriesCreated": 3067,
+  "duplicateCleanup": {
+    "totalEntries": 848167,
+    "uniquePhones": 845100,
+    "duplicateCount": 3067,
+    "deleted": 3067
+  },
+  "finalStatus": {
+    "pendingTargetAC": 2861,
+    "totalPending": 786036
+  },
+  "durationSeconds": "34.27"
+}

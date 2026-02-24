@@ -26,6 +26,7 @@ import {
 } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
+import Constants from 'expo-constants';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiService } from '../services/api';
 import { User, Survey } from '../types';
@@ -39,6 +40,7 @@ import { appLoggingService } from '../services/appLoggingService';
 import { appUpdateService, UpdateInfo } from '../services/appUpdateService';
 import { AppUpdateModal } from '../components/AppUpdateModal';
 import { analyticsService } from '../services/analyticsService';
+import { LocationService } from '../utils/location';
 
 const { width } = Dimensions.get('window');
 
@@ -71,44 +73,91 @@ export default function InterviewerDashboard({ navigation, user, onLogout }: Das
   const [myInterviews, setMyInterviews] = useState<any[]>([]);
   const [offlineInterviews, setOfflineInterviews] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   // Determine if interviewer is CAPI (needs offline mode toggle)
   // CATI interviewers don't need offline mode - they always require internet
+  // CRITICAL FIX: Use user's interviewModes property as primary source of truth
+  // Prevents race condition where toggle appears briefly for CATI interviewers during data reload
   const isCapiInterviewer = useMemo(() => {
-    // If there are offline interviews, definitely a CAPI interviewer
-    if (offlineInterviews.length > 0) {
-      return true;
+    // GUARD 1: Don't show toggle during loading or refreshing (prevents flicker)
+    // This ensures UI stability during state transitions
+    if (isLoading || isRefreshing) {
+      return false;
     }
     
-    // Check if any available survey is CAPI mode
-    const hasCapiSurvey = availableSurveys.some((survey: Survey) => {
-      // Direct CAPI mode
-      if (survey.mode === 'capi') {
+    // PRIMARY CHECK: Use user's interviewModes property (most reliable source of truth)
+    // This is set by backend and doesn't change during data reload
+    if (user?.interviewModes) {
+      const interviewModes = user.interviewModes;
+      
+      // CATI-only interviewers: Never show toggle (they always require internet)
+      if (interviewModes === 'CATI (Telephonic interview)') {
+        return false;
+      }
+      
+      // CAPI-only or Both: Show toggle (they can work offline)
+      if (interviewModes === 'CAPI (Face To Face)' || interviewModes === 'Both') {
         return true;
       }
-      // Multi-mode with CAPI assignment
-      if (survey.mode === 'multi_mode' && survey.assignedMode === 'capi') {
-        return true;
-      }
-      // Check if user is assigned as CAPI interviewer
-      if (survey.mode === 'multi_mode' && survey.capiInterviewers) {
-        const userId = user?._id || user?.id;
-        const isAssigned = survey.capiInterviewers.some((assignment: any) => {
-          const assignedUserId = assignment?.interviewer?._id || 
-                                assignment?.interviewer?.id || 
-                                assignment?.interviewer?.toString() ||
-                                assignment?.interviewerId?.toString();
-          return assignedUserId === userId && 
-                 (assignment.status === 'assigned' || assignment.status === 'accepted');
-        });
-        if (isAssigned) return true;
-      }
-      return false;
-    });
+    }
     
-    return hasCapiSurvey;
-  }, [availableSurveys, offlineInterviews.length, user?._id, user?.id]);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+    // FALLBACK CHECK: Only if user.interviewModes is unavailable
+    // Check if any available survey is CAPI mode
+    // This handles edge cases where user property might be missing
+    if (availableSurveys.length > 0) {
+      const hasCapiSurvey = availableSurveys.some((survey: Survey) => {
+        // Direct CAPI mode
+        if (survey.mode === 'capi') {
+          return true;
+        }
+        // Multi-mode with CAPI assignment
+        if (survey.mode === 'multi_mode' && survey.assignedMode === 'capi') {
+          return true;
+        }
+        // Check if user is assigned as CAPI interviewer
+        if (survey.mode === 'multi_mode' && survey.capiInterviewers) {
+          const userId = user?._id || user?.id;
+          const isAssigned = survey.capiInterviewers.some((assignment: any) => {
+            const assignedUserId = assignment?.interviewer?._id || 
+                                  assignment?.interviewer?.id || 
+                                  assignment?.interviewer?.toString() ||
+                                  assignment?.interviewerId?.toString();
+            return assignedUserId === userId && 
+                   (assignment.status === 'assigned' || assignment.status === 'accepted');
+          });
+          if (isAssigned) return true;
+        }
+        return false;
+      });
+      
+      if (hasCapiSurvey) {
+        return true;
+      }
+    }
+    
+    // LAST RESORT: Check offline interviews (only if no other data available)
+    // NOTE: This is checked last to prevent race conditions during data reload
+    // Offline interviews can temporarily exist during state transitions
+    if (offlineInterviews.length > 0) {
+      // Additional safety: Only trust offline interviews if we have stable data
+      // and user property is unavailable (prevents false positives during reload)
+      if (!user?.interviewModes && availableSurveys.length === 0) {
+        return true;
+      }
+    }
+    
+    // Default: Don't show toggle if we can't determine (safer default)
+    return false;
+  }, [
+    isLoading, 
+    isRefreshing, 
+    user?.interviewModes, 
+    user?._id, 
+    user?.id, 
+    availableSurveys, 
+    offlineInterviews.length
+  ]);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarType, setSnackbarType] = useState<'success' | 'error' | 'info'>('info');
@@ -303,6 +352,8 @@ export default function InterviewerDashboard({ navigation, user, onLogout }: Das
     }
   }, [isLoading]);
 
+  // CRITICAL FIX: Separate initial data loading from GPS tracking to prevent infinite loops
+  // Initial data loading - runs only once on mount (empty dependency array)
   useEffect(() => {
     loadDashboardData();
     loadPendingInterviewsCount();
@@ -337,12 +388,34 @@ export default function InterviewerDashboard({ navigation, user, onLogout }: Das
     
     // Run check after a short delay to not block initial load
     setTimeout(checkPollingStationsUpdate, 2000);
-  }, []);
+  }, []); // Empty dependency array - runs only once on mount
+
+  // Separate useEffect for GPS tracking - depends on isCapiInterviewer but doesn't trigger data reload
+  // This prevents infinite loops when isCapiInterviewer changes due to loading state
+  useEffect(() => {
+    // PERFORMANCE: Start background GPS tracking for CAPI interviewers (pre-warming)
+    // This ensures GPS is ready when interview starts, eliminating delay
+    if (isCapiInterviewer) {
+      console.log('📍 CAPI Interviewer detected - starting background GPS tracking (pre-warming)...');
+      LocationService.startBackgroundTracking().catch((error) => {
+        console.warn('⚠️ Failed to start background GPS tracking (non-critical):', error);
+      });
+    } else {
+      // Stop GPS tracking if user is not a CAPI interviewer
+      LocationService.stopBackgroundTracking();
+    }
+    
+    // Cleanup: Stop GPS tracking when component unmounts or isCapiInterviewer changes
+    return () => {
+      LocationService.stopBackgroundTracking();
+    };
+  }, [isCapiInterviewer]); // Only depends on isCapiInterviewer - doesn't trigger data reload
 
   // Refresh stats, pending count and offline interviews when screen comes into focus
-  // BUT: Only reload if it's been more than 2 seconds since last reload to prevent excessive reloads
+  // BUT: Only reload if it's been more than 3 seconds since last reload to prevent excessive reloads
+  // CRITICAL FIX: Increased from 2s to 3s to avoid timing conflicts with GPS updates (5s interval)
   const lastFocusReloadRef = useRef<number>(0);
-  const FOCUS_RELOAD_COOLDOWN_MS = 2000; // 2 seconds cooldown between focus reloads
+  const FOCUS_RELOAD_COOLDOWN_MS = 3000; // 3 seconds cooldown between focus reloads (increased from 2s)
   
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
@@ -353,6 +426,16 @@ export default function InterviewerDashboard({ navigation, user, onLogout }: Das
       // This prevents excessive reloads when navigating back and forth
       if (timeSinceLastReload < FOCUS_RELOAD_COOLDOWN_MS) {
         console.log(`⏭️ Skipping dashboard reload - too soon since last reload (${Math.round(timeSinceLastReload)}ms ago)`);
+        return;
+      }
+      
+      // CRITICAL FIX: Add small delay to ensure navigation has completed
+      // This prevents focus listener from interfering with navigation transitions in production APK builds
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Double-check that screen is still focused after delay (navigation might have completed)
+      if (!navigation.isFocused()) {
+        console.log('⏭️ Skipping dashboard reload - screen no longer focused (navigation completed)');
         return;
       }
       
@@ -670,13 +753,38 @@ export default function InterviewerDashboard({ navigation, user, onLogout }: Das
       if (nextAppState === 'active') {
         console.log('📱 App came to foreground - triggering background sync');
         performBackgroundSync('app_foreground');
+        
+        // CRITICAL FIX: Add delay before restarting GPS to avoid timing conflicts
+        // Restart GPS tracking if CAPI interviewer and app came to foreground
+        if (isCapiInterviewer) {
+          // Small delay to ensure navigation/transitions have completed
+          setTimeout(() => {
+            // Double-check app is still active before restarting GPS
+            if (AppState.currentState === 'active') {
+              console.log('📍 App foregrounded - restarting background GPS tracking...');
+              LocationService.startBackgroundTracking().catch((error) => {
+                console.warn('⚠️ Failed to restart GPS tracking (non-critical):', error);
+              });
+            }
+          }, 500); // 500ms delay to avoid conflicts
+        }
+      } else if (nextAppState === 'background' || nextAppState === 'inactive') {
+        // Stop GPS tracking when app goes to background (saves battery)
+        if (isCapiInterviewer) {
+          console.log('📍 App backgrounded - stopping GPS tracking to save battery...');
+          LocationService.stopBackgroundTracking();
+        }
       }
     });
 
     return () => {
       subscription.remove();
+      // Stop GPS tracking on unmount
+      if (isCapiInterviewer) {
+        LocationService.stopBackgroundTracking();
+      }
     };
-  }, []);
+  }, [isCapiInterviewer]);
 
   const loadPendingInterviewsCount = async () => {
     try {
@@ -1654,6 +1762,13 @@ export default function InterviewerDashboard({ navigation, user, onLogout }: Das
       location: 'Interviewer Dashboard',
     });
     
+    // CRITICAL FIX: Stop GPS tracking before navigation to prevent timing conflicts
+    // GPS updates every 2 seconds can interfere with navigation in production APK builds
+    if (isCapiInterviewer) {
+      console.log('📍 Stopping GPS tracking before navigation to prevent conflicts...');
+      LocationService.stopBackgroundTracking();
+    }
+    
     if (isCatiMode) {
       // Check if offline - CATI interviews require internet connection
       const isOnline = await apiService.isOnline();
@@ -1663,6 +1778,10 @@ export default function InterviewerDashboard({ navigation, user, onLogout }: Das
           'CATI (Computer-Assisted Telephonic Interviewing) interviews require an active internet connection. Please connect to the internet and try again.',
           [{ text: 'OK' }]
         );
+        // Restart GPS tracking if navigation was cancelled
+        if (isCapiInterviewer) {
+          LocationService.startBackgroundTracking().catch(() => {});
+        }
         return;
       }
       
@@ -1674,6 +1793,12 @@ export default function InterviewerDashboard({ navigation, user, onLogout }: Das
           {
             text: 'Cancel',
             style: 'cancel',
+            onPress: () => {
+              // Restart GPS tracking if navigation was cancelled
+              if (isCapiInterviewer) {
+                LocationService.startBackgroundTracking().catch(() => {});
+              }
+            },
           },
           {
             text: 'Start',
@@ -1692,6 +1817,12 @@ export default function InterviewerDashboard({ navigation, user, onLogout }: Das
           {
             text: 'Cancel',
             style: 'cancel',
+            onPress: () => {
+              // Restart GPS tracking if navigation was cancelled
+              if (isCapiInterviewer) {
+                LocationService.startBackgroundTracking().catch(() => {});
+              }
+            },
           },
           {
             text: 'Start',
@@ -1894,6 +2025,7 @@ export default function InterviewerDashboard({ navigation, user, onLogout }: Das
             <View style={styles.userDetails}>
               <Text style={styles.userName}>{user.firstName} {user.lastName}</Text>
               <Text style={styles.userRole}>Interviewer</Text>
+              <Text style={styles.appVersion}>Version: {Constants.expoConfig?.version || Constants.manifest?.version || 'N/A'}</Text>
             </View>
           </View>
           <Button
@@ -2706,6 +2838,11 @@ const styles = StyleSheet.create({
   userRole: {
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.8)',
+  },
+  appVersion: {
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginTop: 2,
   },
   logoutButton: {
     borderColor: 'rgba(255, 255, 255, 0.5)',

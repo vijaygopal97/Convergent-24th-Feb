@@ -1,0 +1,167 @@
+{
+  "generatedAt": "2026-02-03T03:37:45.064Z",
+  "totalFiles": 22,
+  "successful": 11,
+  "failed": 11,
+  "durationSeconds": "859.44",
+  "defaultSurveyId": "68fd1915d41841da463f0d46",
+  "maxRowsPerFile": 5000,
+  "processedACs": [
+    {
+      "acCode": 131,
+      "acCodeFormatted": "WB131",
+      "acName": "Kakdwip",
+      "csvFile": "ac131.csv",
+      "excelFile": "ac131_output.xlsx",
+      "processedAt": "2026-02-03T03:24:08.695Z"
+    },
+    {
+      "acCode": 132,
+      "acCodeFormatted": "WB132",
+      "acName": "Sagar",
+      "csvFile": "ac132.csv",
+      "excelFile": "ac132_output.xlsx",
+      "processedAt": "2026-02-03T03:25:01.654Z"
+    },
+    {
+      "acCode": 133,
+      "acCodeFormatted": "WB133",
+      "acName": "Kulpi",
+      "csvFile": "ac133.csv",
+      "excelFile": "ac133_output.xlsx",
+      "processedAt": "2026-02-03T03:25:43.703Z"
+    },
+    {
+      "acCode": 135,
+      "acCodeFormatted": "WB135",
+      "acName": "Mandirbazar",
+      "csvFile": "ac135.csv",
+      "excelFile": "ac135_output.xlsx",
+      "processedAt": "2026-02-03T03:26:17.545Z"
+    },
+    {
+      "acCode": 15,
+      "acCodeFormatted": "WB015",
+      "acName": "Dhupguri",
+      "csvFile": "ac15.csv",
+      "excelFile": "ac15_output.xlsx",
+      "processedAt": "2026-02-03T03:27:10.729Z"
+    },
+    {
+      "acCode": 150,
+      "acCodeFormatted": "WB150",
+      "acName": "Jadavpur",
+      "csvFile": "ac150.csv",
+      "excelFile": "ac150_output.xlsx",
+      "processedAt": "2026-02-03T03:28:02.558Z"
+    },
+    {
+      "acCode": 193,
+      "acCodeFormatted": "WB193",
+      "acName": "Saptagram",
+      "csvFile": "ac193.csv",
+      "excelFile": "ac193_output.xlsx",
+      "processedAt": "2026-02-03T03:28:45.180Z"
+    },
+    {
+      "acCode": 203,
+      "acCodeFormatted": "WB203",
+      "acName": "Tamluk",
+      "csvFile": "ac203.csv",
+      "excelFile": "ac203_output.xlsx",
+      "processedAt": "2026-02-03T03:29:30.825Z"
+    },
+    {
+      "acCode": 207,
+      "acCodeFormatted": "WB207",
+      "acName": "Nandakumar",
+      "csvFile": "ac207.csv",
+      "excelFile": "ac207_output.xlsx",
+      "processedAt": "2026-02-03T03:30:29.513Z"
+    },
+    {
+      "acCode": 233,
+      "acCodeFormatted": "WB233",
+      "acName": "Garbeta",
+      "csvFile": "ac233.csv",
+      "excelFile": "ac233_output.xlsx",
+      "processedAt": "2026-02-03T03:31:21.777Z"
+    },
+    {
+      "acCode": 235,
+      "acCodeFormatted": "WB235",
+      "acName": "Keshpur",
+      "csvFile": "ac235.csv",
+      "excelFile": "ac235_output.xlsx",
+      "processedAt": "2026-02-03T03:32:07.634Z"
+    }
+  ],
+  "failedFiles": [
+    {
+      "error": "Adding contacts to survey failed",
+      "acCode": 255,
+      "acName": "Bishnupur, Bankura",
+      "processedAt": "2026-02-03T03:32:40.649Z"
+    },
+    {
+      "error": "Adding contacts to survey failed",
+      "acCode": 261,
+      "acName": "Raina",
+      "processedAt": "2026-02-03T03:33:05.864Z"
+    },
+    {
+      "error": "Adding contacts to survey failed",
+      "acCode": 290,
+      "acName": "Mayureswar",
+      "processedAt": "2026-02-03T03:33:31.728Z"
+    },
+    {
+      "error": "Adding contacts to survey failed",
+      "acCode": 291,
+      "acName": "Rampurhat",
+      "processedAt": "2026-02-03T03:34:01.146Z"
+    },
+    {
+      "error": "Adding contacts to survey failed",
+      "acCode": 45,
+      "acName": "Chanchal",
+      "processedAt": "2026-02-03T03:34:24.650Z"
+    },
+    {
+      "error": "Adding contacts to survey failed",
+      "acCode": 47,
+      "acName": "Malatipur",
+      "processedAt": "2026-02-03T03:34:52.374Z"
+    },
+    {
+      "error": "Adding contacts to survey failed",
+      "acCode": 54,
+      "acName": "Baisnabnagar",
+      "processedAt": "2026-02-03T03:35:24.107Z"
+    },
+    {
+      "error": "Adding contacts to survey failed",
+      "acCode": 63,
+      "acName": "Raninagar",
+      "processedAt": "2026-02-03T03:35:55.152Z"
+    },
+    {
+      "error": "Adding contacts to survey failed",
+      "acCode": 70,
+      "acName": "Rejinagar",
+      "processedAt": "2026-02-03T03:36:27.381Z"
+    },
+    {
+      "error": "Adding contacts to survey failed",
+      "acCode": 80,
+      "acName": "Kaliganj",
+      "processedAt": "2026-02-03T03:37:03.876Z"
+    },
+    {
+      "error": "Adding contacts to survey failed",
+      "acCode": 93,
+      "acName": "Haringhata",
+      "processedAt": "2026-02-03T03:37:45.064Z"
+    }
+  ]
+}

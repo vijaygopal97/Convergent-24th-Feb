@@ -630,14 +630,14 @@ export default function InterviewInterface({ navigation, route }: any) {
       const supervisorIdQuestion = {
         id: 'supervisor-id',
         type: 'numeric',
-        text: 'Enter Supervisor ID {সুপারভাইজার আইডি লিখুন}',
+        text: 'Enter Supervisor ID {সুপারভাইজার আইডি লিখুন{सुपरवाइज़र आईडी दर्ज करें}}',
         description: '',
         required: false, // Optional question
         order: -3, // Make it appear before Consent Form
         sectionIndex: -3, // Special section for supervisor ID
         questionIndex: -3,
         sectionId: 'supervisor-id',
-        sectionTitle: 'Supervisor ID',
+        sectionTitle: 'Supervisor ID {সুপারভাইজার আইডি{सुपरवाइज़र आईडी}}',
         isSupervisorId: true, // Flag to identify this special question
         validation: {
           maxValue: 99999, // Max 5 digits
@@ -649,26 +649,26 @@ export default function InterviewInterface({ navigation, route }: any) {
     
     // Add Consent Form question as the very first question (before AC/Polling Station)
     const consentFormMessage = isCatiMode 
-      ? `Namaste, my name is ${interviewerFirstName || 'Interviewer'}. We are calling from Convergent, an independent research organization. We are conducting a survey on social and political issues in West Bengal, interviewing thousands of people. I will ask you a few questions about government performance and your preferences. Your responses will remain strictly confidential and will only be analysed in combination with others. No personal details will ever be shared. The survey will take about 5–10 minutes, and your honest opinions will greatly help us. {নমস্কার, আমার নাম ${interviewerFirstName || 'Interviewer'}। আমরা কনভারজেন্ট থেকে বলছি, এটি একটি স্বাধীন গবেষণা সংস্থা। আমরা পশ্চিমবঙ্গে সামাজিক ও রাজনৈতিক বিষয় নিয়ে একটি সমীক্ষা করছি, যেখানে হাজার হাজার মানুষের সঙ্গে কথা বলা হচ্ছে। সরকার কতটা ভালো কাজ করছে এবং আপনার পছন্দ-অপছন্দ সম্পর্কে কিছু প্রশ্ন করব। আপনার সব উত্তর একদম গোপন রাখা হবে এবং শুধুমাত্র অন্যদের সঙ্গে মিলিয়ে বিশ্লেষণ করা হবে। কোন ব্যক্তিগত তথ্য কখনোই শেয়ার করা হবে না। এই সার্ভেটা প্রায় ৫–১০ মিনিট লাগবে, এবং আপনার সৎ মতামত আমাদের জন্য খুবই মূল্যবান।}\n\nShould I Continue? {আমি কি চালিয়ে যেতে পারি?}`
-      : `Namaste, my name is ${interviewerFirstName || 'Interviewer'}. We are from Convergent, an independent research organization. We are conducting a survey on social and political issues in West Bengal, interviewing thousands of people. I will ask you a few questions about government performance and your preferences. {নমস্কার, আমার নাম ${interviewerFirstName || 'Interviewer'}। আমরা কনভার্জেন্ট থেকে কথা বলছি, এটা একটা স্বাধীন গবেষণা সংস্থা। আমরা পশ্চিমবঙ্গের সামাজিক ও রাজনৈতিক বিষয় নিয়ে একটা সার্ভে করছি, যেখানে হাজার হাজার মানুষের মতামত নেওয়া হচ্ছে। আমি আপনাকে সরকারী কাজকর্ম আর আপনার পছন্দ-অপছন্দ নিয়ে কয়েকটা প্রশ্ন করব।}\n\nYour responses will remain strictly confidential and will only be analysed in combination with others. No personal details will ever be shared. The survey will take about 5–10 minutes, and your honest opinions will greatly help us. {আপনার দেওয়া তথ্য পুরোপুরি গোপন রাখা হবে এবং শুধু অন্যদের সঙ্গে মিলিয়ে বিশ্লেষণ করা হবে—কোনো ব্যক্তিগত তথ্য কখনোই শেয়ার করা হবে না। সার্ভেটা প্রায় ৫–১০ মিনিট লাগবে, আর আপনার সৎ মতামত আমাদের জন্য খুবই গুরুত্বপূর্ণ।}\n\nShould I Continue? {আমি কি চালিয়ে যেতে পারি?}`;
+      ? `Namaste, my name is ${interviewerFirstName || 'Interviewer'}. We are calling from Convergent, an independent research organization. We are conducting a survey on social and political issues in West Bengal, interviewing thousands of people. I will ask you a few questions about government performance and your preferences. Your responses will remain strictly confidential and will only be analysed in combination with others. No personal details will ever be shared. The survey will take about 5–10 minutes, and your honest opinions will greatly help us. {নমস্কার, আমার নাম ${interviewerFirstName || 'Interviewer'}। আমরা কনভারজেন্ট থেকে বলছি, এটি একটি স্বাধীন গবেষণা সংস্থা। আমরা পশ্চিমবঙ্গে সামাজিক ও রাজনৈতিক বিষয় নিয়ে একটি সমীক্ষা করছি, যেখানে হাজার হাজার মানুষের সঙ্গে কথা বলা হচ্ছে। সরকার কতটা ভালো কাজ করছে এবং আপনার পছন্দ-অপছন্দ সম্পর্কে কিছু প্রশ্ন করব। আপনার সব উত্তর একদম গোপন রাখা হবে এবং শুধুমাত্র অন্যদের সঙ্গে মিলিয়ে বিশ্লেষণ করা হবে। কোন ব্যক্তিগত তথ্য কখনোই শেয়ার করা হবে না। এই সার্ভেটা প্রায় ৫–১০ মিনিট লাগবে, এবং আপনার সৎ মতামত আমাদের জন্য খুবই মূল্যবান।{नमस्ते, मेरा नाम ${interviewerFirstName || 'Interviewer'} है। हम कन्वर्जेंट से बुला रहे हैं, जो एक स्वतंत्र अनुसंधान संगठन है। हम पश्चिम बंगाल में सामाजिक और राजनीतिक मुद्दों पर एक सर्वेक्षण कर रहे हैं, जिसमें हजारों लोगों से बात की जा रही है। मैं आपसे सरकार के प्रदर्शन और आपकी प्राथमिकताओं के बारे में कुछ प्रश्न पूछूंगा। आपकी प्रतिक्रियाएं पूरी तरह से गोपनीय रखी जाएंगी और केवल दूसरों के साथ संयोजन में विश्लेषण की जाएंगी। कोई व्यक्तिगत विवरण कभी साझा नहीं किया जाएगा। सर्वेक्षण में लगभग 5-10 मिनट लगेंगे, और आपकी ईमानदार राय हमारे लिए बहुत मददगार होगी।}}\n\nShould I Continue? {আমি কি চালিয়ে যেতে পারি?{क्या मैं जारी रखूं?}}`
+      : `Namaste, my name is ${interviewerFirstName || 'Interviewer'}. We are from Convergent, an independent research organization. We are conducting a survey on social and political issues in West Bengal, interviewing thousands of people. I will ask you a few questions about government performance and your preferences. {নমস্কার, আমার নাম ${interviewerFirstName || 'Interviewer'}। আমরা কনভার্জেন্ট থেকে কথা বলছি, এটা একটা স্বাধীন গবেষণা সংস্থা। আমরা পশ্চিমবঙ্গের সামাজিক ও রাজনৈতিক বিষয় নিয়ে একটা সার্ভে করছি, যেখানে হাজার হাজার মানুষের মতামত নেওয়া হচ্ছে। আমি আপনাকে সরকারী কাজকর্ম আর আপনার পছন্দ-অপছন্দ নিয়ে কয়েকটা প্রশ্ন করব।{नमस्ते, मेरा नाम ${interviewerFirstName || 'Interviewer'} है। हम कन्वर्जेंट से हैं, जो एक स्वतंत्र अनुसंधान संगठन है। हम पश्चिम बंगाल में सामाजिक और राजनीतिक मुद्दों पर एक सर्वेक्षण कर रहे हैं, जिसमें हजारों लोगों से बात की जा रही है। मैं आपसे सरकार के प्रदर्शन और आपकी प्राथमिकताओं के बारे में कुछ प्रश्न पूछूंगा।}}\n\nYour responses will remain strictly confidential and will only be analysed in combination with others. No personal details will ever be shared. The survey will take about 5–10 minutes, and your honest opinions will greatly help us. {আপনার দেওয়া তথ্য পুরোপুরি গোপন রাখা হবে এবং শুধু অন্যদের সঙ্গে মিলিয়ে বিশ্লেষণ করা হবে—কোনো ব্যক্তিগত তথ্য কখনোই শেয়ার করা হবে না। সার্ভেটা প্রায় ৫–১০ মিনিট লাগবে, আর আপনার সৎ মতামত আমাদের জন্য খুবই গুরুত্বপূর্ণ।{आपकी प्रतिक्रियाएं पूरी तरह से गोपनीय रखी जाएंगी और केवल दूसरों के साथ संयोजन में विश्लेषण की जाएंगी। कोई व्यक्तिगत विवरण कभी साझा नहीं किया जाएगा। सर्वेक्षण में लगभग 5-10 मिनट लगेंगे, और आपकी ईमानदार राय हमारे लिए बहुत महत्वपूर्ण होगी।}}\n\nShould I Continue? {আমি কি চালিয়ে যেতে পারি?{क्या मैं जारी रखूं?}}`;
     
     const consentFormQuestion = {
       id: 'consent-form',
       type: 'single_choice',
-      text: 'Consent Form {সম্মতিপত্র}',
+      text: 'Consent Form {সম্মতিপত্র{सहमति पत्र}}',
       description: consentFormMessage,
       required: true,
       order: -2, // Make it appear first (before AC selection)
       options: [
         {
           id: 'consent-agree',
-          text: 'Yes {হ্যাঁ}',
+          text: 'Yes {হ্যাঁ{हाँ}}',
           value: '1',
           code: '1'
         },
         {
           id: 'consent-disagree',
-          text: 'No {না}',
+          text: 'No {না{नहीं}}',
           value: '2',
           code: '2'
         }
@@ -676,7 +676,7 @@ export default function InterviewInterface({ navigation, route }: any) {
       sectionIndex: -2, // Special section for consent form
       questionIndex: -2,
       sectionId: 'consent-form',
-      sectionTitle: 'Consent Form {সম্মতিপত্র}',
+      sectionTitle: 'Consent Form {সম্মতিপত্র{सहमति पत्र}}',
       isConsentForm: true // Flag to identify this special question
     };
     questions.push(consentFormQuestion);
@@ -2307,10 +2307,11 @@ export default function InterviewInterface({ navigation, route }: any) {
               return;
             }
             
-            // Permission granted - get location (BLOCKING - required for data integrity)
+            // Permission granted - get location snapshot (uses pre-warmed GPS if available)
+            // PERFORMANCE: Uses cached location if fresh (< 2s), otherwise gets fresh (GPS already warmed)
             const isOnline = await apiService.isOnline();
             console.log('📡 Online status for location:', isOnline);
-            locationData = await LocationService.getCurrentLocation(!isOnline);
+            locationData = await LocationService.getLocationSnapshot(!isOnline);
             
             if (!locationData || !locationData.latitude || !locationData.longitude) {
               throw new Error('Failed to get valid GPS coordinates');
@@ -2341,10 +2342,10 @@ export default function InterviewInterface({ navigation, route }: any) {
                 {
                   text: 'Retry',
                   onPress: async () => {
-                    // Retry location capture
+                    // Retry location capture (uses pre-warmed GPS if available)
                     try {
                       const isOnline = await apiService.isOnline();
-                      const retryLocation = await LocationService.getCurrentLocation(!isOnline);
+                      const retryLocation = await LocationService.getLocationSnapshot(!isOnline);
                       if (retryLocation && retryLocation.latitude && retryLocation.longitude) {
                         setLocationData(retryLocation);
                         setLocationLoading(false);
@@ -2381,6 +2382,7 @@ export default function InterviewInterface({ navigation, route }: any) {
           
           // PERFORMANCE: Wait for survey validation (should be fast - uses cache)
           const validationResult = await surveyValidationPromise;
+          
           if (!validationResult.success) {
             Alert.alert(
               validationResult.error === 'Survey not synced' ? 'Survey Not Synced' : 'Survey Data Incomplete',
@@ -2492,36 +2494,31 @@ export default function InterviewInterface({ navigation, route }: any) {
               showSnackbar('Offline mode: Interview started locally. Will sync when online.');
             }
             
-            // CRITICAL: Start audio recording FIRST (before allowing interview interaction)
-            // This ensures all questions are captured in the audio recording
+            // PERFORMANCE: Start audio recording in BACKGROUND (non-blocking)
+            // Interview can start immediately, audio recording starts in parallel
+            // This eliminates the delay caused by waiting for audio recording to start
             const shouldRecordAudio = (survey.mode === 'capi') || 
                                      (survey.mode === 'multi_mode' && survey.assignedMode === 'capi');
             
             if (shouldRecordAudio) {
-              console.log('🎙️ Starting audio recording FIRST (before interview interaction)...');
-              // Start recording immediately and wait for it to be ready
-              const recordingStarted = await startAudioRecording();
-              
-              if (!recordingStarted) {
-                // Recording failed - show error and prevent interview from starting
-                console.error('❌ Audio recording failed - cannot start interview');
-                Alert.alert(
-                  'Audio Recording Required',
-                  'Failed to start audio recording. The interview cannot proceed without audio recording. Please check your permissions and try again.',
-                  [
-                    {
-                      text: 'OK',
-                      onPress: () => {
-                        navigation.goBack();
-                      }
-                    }
-                  ]
-                );
-                setIsLoading(false);
-                return; // Exit - don't proceed with interview
-              }
-              
-              console.log('✅ Audio recording confirmed - interview can now proceed');
+              console.log('🎙️ Starting audio recording in background (non-blocking)...');
+              // Start recording in background - don't await it
+              // Interview can proceed immediately while recording starts
+              startAudioRecording()
+                .then((recordingStarted) => {
+                  if (recordingStarted) {
+                    console.log('✅ Audio recording started successfully in background');
+                  } else {
+                    console.warn('⚠️ Audio recording failed in background - interview continues');
+                    // Show warning but don't block interview
+                    showSnackbar('Warning: Audio recording failed. Interview will continue without audio.');
+                  }
+                })
+                .catch((error) => {
+                  console.error('❌ Error starting audio recording in background:', error);
+                  // Show warning but don't block interview
+                  showSnackbar('Warning: Audio recording error. Interview will continue without audio.');
+                });
             }
             
             // PERFORMANCE: Defer polling data caching to AFTER interview starts (non-blocking)
@@ -5314,10 +5311,10 @@ export default function InterviewInterface({ navigation, route }: any) {
     // GPS is REQUIRED for CAPI interviews - cannot submit without it
     if (!isCatiMode) {
       if (!locationData || !locationData.latitude || !locationData.longitude) {
-        // Try to get location one more time before showing error
+        // Try to get location one more time before showing error (uses pre-warmed GPS)
         try {
           const isOnline = await apiService.isOnline();
-          const retryLocation = await LocationService.getCurrentLocation(!isOnline);
+          const retryLocation = await LocationService.getLocationSnapshot(!isOnline);
           
           if (retryLocation && retryLocation.latitude && retryLocation.longitude) {
             setLocationData(retryLocation);
@@ -5343,7 +5340,7 @@ export default function InterviewInterface({ navigation, route }: any) {
                   try {
                     setIsLoading(true);
                     const isOnline = await apiService.isOnline();
-                    const finalLocation = await LocationService.getCurrentLocation(!isOnline);
+                    const finalLocation = await LocationService.getLocationSnapshot(!isOnline);
                     
                     if (finalLocation && finalLocation.latitude && finalLocation.longitude) {
                       setLocationData(finalLocation);

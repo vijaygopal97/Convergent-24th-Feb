@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-02-03T03:59:31.644Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Malatipur",
+  "excelFile": "/var/www/Report-Generation/ac47_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 4999,
+  "errors": [
+    "Row 2474: Invalid phone number format. Phone must be 10-15 digits (got 9 digits)"
+  ],
+  "newContactsAdded": 0,
+  "queueEntriesCreated": 4999,
+  "duplicateCleanup": {
+    "totalEntries": 764151,
+    "uniquePhones": 763824,
+    "duplicateCount": 327,
+    "deleted": 327
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4675,
+    "totalPending": 673345
+  },
+  "durationSeconds": "26.55"
+}

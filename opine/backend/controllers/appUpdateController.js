@@ -108,9 +108,11 @@ const checkAppUpdate = async (req, res) => {
     }
     
     // Check if this is a force update (critical version)
-    // You can customize this logic - for now, no force updates
-    const isForceUpdate = false;
-    const minRequiredVersion = null; // Set this if you want to force updates for old versions
+    // FORCE UPDATE ENABLED FOR V21: All users must update to v21
+    // If latest version is 21 or higher, force update for all older versions
+    const isForceUpdate = latestVersion.versionCode >= 21 && 
+                          (currentVersionCode === null || currentVersionCode < 21);
+    const minRequiredVersion = "21"; // Minimum required version - users below this must update
     
     const response = {
       success: true,

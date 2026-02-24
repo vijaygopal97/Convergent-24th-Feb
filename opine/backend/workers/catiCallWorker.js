@@ -19,7 +19,7 @@ const CatiAgent = require('../models/CatiAgent'); // Needed for CloudTelephony a
 const { getCachedRegistrationStatus, setCachedRegistrationStatus } = require('../utils/catiAgentCache');
 const ProviderFactory = require('../services/catiProviders/providerFactory'); // Use ProviderFactory instead of hardcoded DeepCall
 const redisOps = require('../utils/redisClient');
-const WEBHOOK_BASE_URL = process.env.WEBHOOK_BASE_URL || 'https://opine.exypnossolutions.com';
+const WEBHOOK_BASE_URL = process.env.WEBHOOK_BASE_URL || 'https://convo.convergentview.com';
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -94,8 +94,8 @@ const initiateCall = async (companyId, interviewerId, fromNumber, toNumber, from
     // OPTIMIZED: Use Redis cache to avoid database query on every call
     if (providerName === 'cloudtelephony') {
       // Check cache first (fast path - no database query)
-      const { getCachedRegistrationStatus } = require('../utils/catiAgentCache');
-      const cachedStatus = await getCachedRegistrationStatus(interviewerId, cleanFrom, 'cloudtelephony');
+      const { getCachedRegistrationStatus, setCachedRegistrationStatus, invalidateCachedRegistrationStatus } = require('../utils/catiAgentCache');
+      let cachedStatus = await getCachedRegistrationStatus(interviewerId, cleanFrom, 'cloudtelephony');
       
       if (cachedStatus === true) {
         // Cache hit - agent is registered, skip database query and registration check
@@ -113,9 +113,10 @@ const initiateCall = async (companyId, interviewerId, fromNumber, toNumber, from
           const interviewer = await User.findById(interviewerId).select('firstName lastName').lean();
           const agentName = `${interviewer?.firstName || ''} ${interviewer?.lastName || ''}`.trim() || cleanFrom;
           try {
+            console.log(`📝 [Worker] Registering agent for CloudTelephony: ${cleanFrom} (${agentName})`);
             const regResult = await provider.registerAgent(cleanFrom, agentName);
             // Mark as registered even if provider says "already exists" (idempotent behavior)
-            agent.markRegistered('cloudtelephony', regResult?.response?.member_id || regResult?.response?.agentId || null);
+            agent.markRegistered('cloudtelephony', regResult?.response?.member_id || regResult?.response?.agentId || regResult?.response?.getmember?.[0]?.member_id || null);
             await agent.save();
             
             // Update cache with registered status
@@ -139,15 +140,77 @@ const initiateCall = async (companyId, interviewerId, fromNumber, toNumber, from
     }
 
     // Make call using provider
-    const callResult = await provider.makeCall({
-      fromNumber: cleanFrom,
-      toNumber: cleanTo,
-      fromType,
-      toType,
-      fromRingTime,
-      toRingTime,
-      uid: `worker_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`
-    });
+    let callResult;
+    try {
+      callResult = await provider.makeCall({
+        fromNumber: cleanFrom,
+        toNumber: cleanTo,
+        fromType,
+        toType,
+        fromRingTime,
+        toRingTime,
+        uid: `worker_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`
+      });
+    } catch (callError) {
+      // If call fails with "Agent on break" or similar errors, it might mean:
+      // 1. Member was deleted from Cloud Telephony dashboard
+      // 2. Cache is stale (says registered but member doesn't exist)
+      // 3. Member exists but is in wrong status
+      // In this case, clear cache and retry registration
+      const errorMessage = callError.message || callError.response?.data?.message || '';
+      if (providerName === 'cloudtelephony' && 
+          (errorMessage.toLowerCase().includes('agent on break') || 
+           errorMessage.toLowerCase().includes('not allowed') ||
+           errorMessage.toLowerCase().includes('member not found'))) {
+        console.log(`⚠️ [Worker] Call failed with agent error for ${cleanFrom}, clearing cache and retrying registration...`);
+        
+        // Clear stale cache
+        const { invalidateCachedRegistrationStatus } = require('../utils/catiAgentCache');
+        await invalidateCachedRegistrationStatus(interviewerId, cleanFrom, 'cloudtelephony');
+        
+        // Check database and register if needed
+        const agent = await CatiAgent.getOrCreate(interviewerId, cleanFrom);
+        const isRegistered = agent.isRegistered('cloudtelephony');
+        
+        if (!isRegistered) {
+          // Register the agent
+          const interviewer = await User.findById(interviewerId).select('firstName lastName').lean();
+          const agentName = `${interviewer?.firstName || ''} ${interviewer?.lastName || ''}`.trim() || cleanFrom;
+          try {
+            console.log(`📝 [Worker] Re-registering agent after call failure: ${cleanFrom} (${agentName})`);
+            const regResult = await provider.registerAgent(cleanFrom, agentName);
+            agent.markRegistered('cloudtelephony', regResult?.response?.member_id || regResult?.response?.agentId || regResult?.response?.getmember?.[0]?.member_id || null);
+            await agent.save();
+            
+            const { setCachedRegistrationStatus } = require('../utils/catiAgentCache');
+            await setCachedRegistrationStatus(interviewerId, cleanFrom, 'cloudtelephony', true);
+            
+            console.log(`✅ [Worker] Agent re-registered for CloudTelephony: ${cleanFrom}`);
+            
+            // Retry the call after registration
+            callResult = await provider.makeCall({
+              fromNumber: cleanFrom,
+              toNumber: cleanTo,
+              fromType,
+              toType,
+              fromRingTime,
+              toRingTime,
+              uid: `worker_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`
+            });
+          } catch (regErr) {
+            console.error(`❌ [Worker] Failed to re-register agent after call failure: ${regErr.message}`);
+            throw callError; // Re-throw original call error
+          }
+        } else {
+          // Database says registered but call failed - might be Cloud Telephony status issue
+          console.log(`⚠️ [Worker] Agent is registered in DB but call failed - might be Cloud Telephony status issue`);
+          throw callError; // Re-throw original call error
+        }
+      } else {
+        // Different error, re-throw
+        throw callError;
+      }
+    }
 
     console.log(`✅ [Worker] Call initiated via ${providerName}, callId: ${callResult.callId}`);
 

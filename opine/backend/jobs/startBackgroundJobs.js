@@ -24,9 +24,20 @@ async function acquireJobLock() {
     // Try to acquire lock with 60 second TTL
     const lockKey = 'background_jobs_lock';
     const lockValue = `${process.pid}-${Date.now()}`;
-    const acquired = await redisOps.set(lockKey, lockValue, 60, 'NX'); // NX = only set if not exists
     
-    if (acquired) {
+    // Check if lock exists
+    const existingLock = await redisOps.get(lockKey);
+    if (existingLock) {
+      console.log('⏭️  Lock already exists, another instance is running background jobs');
+      return false;
+    }
+    
+    // Set lock with 60 second TTL
+    await redisOps.set(lockKey, lockValue, 60);
+    
+    // Verify we got the lock (check again after setting)
+    const verifyLock = await redisOps.get(lockKey);
+    if (verifyLock === lockValue) {
       // Refresh lock every 30 seconds
       const refreshInterval = setInterval(async () => {
         try {
@@ -37,12 +48,14 @@ async function acquireJobLock() {
         }
       }, 30000);
       
+      console.log('✅ Acquired background jobs lock');
       return true;
     }
+    
     return false;
   } catch (error) {
     // If Redis fails, don't run jobs (fail safe)
-    console.warn('⚠️  Could not acquire job lock (Redis unavailable), skipping background jobs');
+    console.warn('⚠️  Could not acquire job lock (Redis unavailable), skipping background jobs:', error.message);
     return false;
   }
 }

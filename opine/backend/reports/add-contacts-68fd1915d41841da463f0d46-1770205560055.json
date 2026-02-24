@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-02-04T11:46:00.055Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Nakashipara",
+  "excelFile": "/var/www/Report-Generation/ac81_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 4999,
+  "errors": [
+    "Row 2767: Invalid phone number format. Phone must be 10-15 digits (got 8 digits)"
+  ],
+  "newContactsAdded": 4985,
+  "queueEntriesCreated": 4999,
+  "duplicateCleanup": {
+    "totalEntries": 840620,
+    "uniquePhones": 840409,
+    "duplicateCount": 211,
+    "deleted": 211
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4797,
+    "totalPending": 746649
+  },
+  "durationSeconds": "28.53"
+}

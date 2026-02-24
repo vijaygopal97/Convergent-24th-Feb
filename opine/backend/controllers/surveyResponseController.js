@@ -7,6 +7,80 @@ const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const { addResponseToBatch } = require('../utils/qcBatchHelper');
 
+// Helper function to get filtered user IDs for state managers
+// State managers see all users in their company filtered by their selected types (CAPI, CATI, QC)
+const getStateManagerFilteredUserIds = async (stateManager) => {
+  try {
+    if (!stateManager || !stateManager.company || !stateManager.stateManagerTypes || stateManager.stateManagerTypes.length === 0) {
+      return { interviewerIds: [], qualityAgentIds: [] };
+    }
+
+    const companyId = stateManager.company._id || stateManager.company;
+    const selectedTypes = stateManager.stateManagerTypes || [];
+    
+    const interviewerIds = [];
+    const qualityAgentIds = [];
+
+    // Build query for interviewers based on selected types
+    if (selectedTypes.includes('CAPI') || selectedTypes.includes('CATI')) {
+      const interviewerQuery = {
+        company: companyId,
+        userType: 'interviewer',
+        status: { $ne: 'deleted' }
+      };
+
+      // If both CAPI and CATI are selected, get all interviewers
+      // Otherwise filter by interviewModes
+      if (selectedTypes.includes('CAPI') && selectedTypes.includes('CATI')) {
+        // Get all interviewers (no mode filter)
+      } else if (selectedTypes.includes('CAPI')) {
+        // Get only CAPI interviewers
+        interviewerQuery.$or = [
+          { interviewModes: 'CAPI (Face To Face)' },
+          { interviewModes: 'Both' }
+        ];
+      } else if (selectedTypes.includes('CATI')) {
+        // Get only CATI interviewers
+        interviewerQuery.$or = [
+          { interviewModes: 'CATI (Telephonic interview)' },
+          { interviewModes: 'Both' }
+        ];
+      }
+
+      const interviewers = await User.find(interviewerQuery)
+        .select('_id')
+        .lean();
+
+      interviewers.forEach(interviewer => {
+        interviewerIds.push(interviewer._id);
+      });
+    }
+
+    // If QC is selected, get all quality agents in the company
+    if (selectedTypes.includes('QC')) {
+      const qualityAgents = await User.find({
+        company: companyId,
+        userType: 'quality_agent',
+        status: { $ne: 'deleted' }
+      })
+        .select('_id')
+        .lean();
+
+      qualityAgents.forEach(qa => {
+        qualityAgentIds.push(qa._id);
+      });
+    }
+
+    return {
+      interviewerIds: interviewerIds.map(id => new mongoose.Types.ObjectId(id)),
+      qualityAgentIds: qualityAgentIds.map(id => new mongoose.Types.ObjectId(id))
+    };
+  } catch (error) {
+    console.error('Error getting state manager filtered user IDs:', error);
+    return { interviewerIds: [], qualityAgentIds: [] };
+  }
+};
+
 // Helper functions for IST (Indian Standard Time) timezone handling
 // IST is UTC+5:30
 
@@ -3487,8 +3561,12 @@ const getNextReviewAssignment = async (req, res) => {
             ? { _id: activeAssignment.survey._id || activeAssignment.survey.id || activeAssignment.survey }
             : { _id: activeAssignment.survey };
         
+        // BACKEND-ONLY FIX: Normalize response questionText to ensure name questions are reliably identifiable
+        const { normalizeSurveyResponseForMobileApp } = require('../utils/responseNormalizer');
+        const normalizedActiveAssignment = normalizeSurveyResponseForMobileApp(activeAssignment);
+        
         const transformedResponse = {
-          ...activeAssignment,
+          ...(normalizedActiveAssignment || activeAssignment),
           survey: normalizedSurvey,
           audioRecording, // Include audio recording with signed URL
           totalQuestions: effectiveQuestions,
@@ -3974,8 +4052,12 @@ const getNextReviewAssignment = async (req, res) => {
             }
           : { _id: assignedResponse.survey };
         
+        // BACKEND-ONLY FIX: Normalize response questionText to ensure name questions are reliably identifiable
+        const { normalizeSurveyResponseForMobileApp } = require('../utils/responseNormalizer');
+        const normalizedAssignedResponse = normalizeSurveyResponseForMobileApp(assignedResponse);
+        
         const transformedResponse = {
-          ...assignedResponse,
+          ...(normalizedAssignedResponse || assignedResponse),
           survey: normalizedSurvey,
           interviewer: interviewerData || { _id: assignedResponse.interviewer }
         };
@@ -4302,8 +4384,12 @@ const getNextReviewAssignment = async (req, res) => {
         ? { _id: updatedResponse.survey._id || updatedResponse.survey.id || updatedResponse.survey }
         : { _id: updatedResponse.survey };
     
+    // BACKEND-ONLY FIX: Normalize response questionText to ensure name questions are reliably identifiable
+    const { normalizeSurveyResponseForMobileApp } = require('../utils/responseNormalizer');
+    const normalizedUpdatedResponse = normalizeSurveyResponseForMobileApp(updatedResponse);
+    
     const transformedResponse = {
-      ...updatedResponse,
+      ...(normalizedUpdatedResponse || updatedResponse),
       survey: normalizedSurvey,
       audioRecording, // Include audio recording with signed URL
       totalQuestions: effectiveQuestions,
@@ -5212,11 +5298,10 @@ const getSurveyResponseById = async (req, res) => {
     }
 
     // Authorization check: Allow access based on user role
-    // Company admins and project managers can view all responses from their company
-    // Quality managers can view responses from their assigned surveys
+    // Company admins, project managers, and state managers can view all responses from their company
     // Quality agents can view responses they're assigned to review
     // Interviewers can only view their own responses
-    if (userRole === 'company_admin' || userRole === 'project_manager') {
+    if (userRole === 'company_admin' || userRole === 'project_manager' || userRole === 'state_manager') {
       // For company admins and project managers, verify the response belongs to their company
       const survey = surveyResponse.survey;
       if (survey && survey.company) {
@@ -5250,49 +5335,6 @@ const getSurveyResponseById = async (req, res) => {
           // Allow if interviewer is managed by this project manager OR if company check passed
           // (Company check already passed above, so this is just for additional validation)
         }
-      }
-    } else if (userRole === 'quality_manager') {
-      // For quality managers, verify the response belongs to their company and is from an assigned survey
-      const survey = surveyResponse.survey;
-      if (!survey) {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied. Survey not found for this response.'
-        });
-      }
-
-      const currentUser = await User.findById(userId).populate('company').populate('assignedSurveys');
-      if (!currentUser || !currentUser.company) {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied. User not associated with any company.'
-        });
-      }
-
-      // Check if survey belongs to the same company
-      if (survey.company) {
-        const surveyCompanyId = survey.company._id ? survey.company._id.toString() : survey.company.toString();
-        const userCompanyId = currentUser.company._id ? currentUser.company._id.toString() : currentUser.company.toString();
-        
-        if (surveyCompanyId !== userCompanyId) {
-          return res.status(403).json({
-            success: false,
-            message: 'Access denied. You can only view responses from your company.'
-          });
-        }
-      }
-
-      // Check if survey is assigned to this quality manager
-      const assignedSurveyIds = currentUser.assignedSurveys.map(s => 
-        typeof s === 'object' && s._id ? s._id.toString() : s.toString()
-      );
-      
-      const surveyId = survey._id ? survey._id.toString() : survey.toString();
-      if (!assignedSurveyIds.includes(surveyId)) {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied. This survey is not assigned to you.'
-        });
       }
     } else if (userRole === 'quality_agent') {
       // Quality agents can view responses they're assigned to review
@@ -5379,29 +5421,37 @@ const getSurveyResponseById = async (req, res) => {
     // Convert to plain object and ensure interviewer and reviewer are properly serialized
     const responseData = surveyResponse.toObject ? surveyResponse.toObject() : surveyResponse;
     
+    // BACKEND-ONLY FIX: Normalize response questionText to ensure name questions are reliably identifiable
+    // This fixes mobile app's text matching issue without changing mobile app code
+    const { normalizeSurveyResponseForMobileApp } = require('../utils/responseNormalizer');
+    const normalizedResponseData = normalizeSurveyResponseForMobileApp(responseData);
+    
+    // Use normalized data for all subsequent operations
+    const finalResponseData = normalizedResponseData || responseData;
+    
     // Ensure interviewer field is properly formatted
-    if (responseData.interviewer) {
-      responseData.interviewer = {
-        _id: responseData.interviewer._id || responseData.interviewer,
-        firstName: responseData.interviewer.firstName || '',
-        lastName: responseData.interviewer.lastName || '',
-        email: responseData.interviewer.email || null,
-        phone: responseData.interviewer.phone || null,
-        memberId: responseData.interviewer.memberId || null
+    if (finalResponseData.interviewer) {
+      finalResponseData.interviewer = {
+        _id: finalResponseData.interviewer._id || finalResponseData.interviewer,
+        firstName: finalResponseData.interviewer.firstName || '',
+        lastName: finalResponseData.interviewer.lastName || '',
+        email: finalResponseData.interviewer.email || null,
+        phone: finalResponseData.interviewer.phone || null,
+        memberId: finalResponseData.interviewer.memberId || null
       };
     }
     
     // Ensure reviewer field is properly formatted (CRITICAL: Prevents "Unknown Reviewer" issue)
-    if (responseData.verificationData && responseData.verificationData.reviewer) {
-      if (typeof responseData.verificationData.reviewer === 'object' && responseData.verificationData.reviewer._id) {
+    if (finalResponseData.verificationData && finalResponseData.verificationData.reviewer) {
+      if (typeof finalResponseData.verificationData.reviewer === 'object' && finalResponseData.verificationData.reviewer._id) {
         // Reviewer is populated - ensure it's properly serialized
-        responseData.verificationData.reviewer = {
-          _id: responseData.verificationData.reviewer._id || responseData.verificationData.reviewer,
-          firstName: responseData.verificationData.reviewer.firstName || '',
-          lastName: responseData.verificationData.reviewer.lastName || '',
-          email: responseData.verificationData.reviewer.email || null
+        finalResponseData.verificationData.reviewer = {
+          _id: finalResponseData.verificationData.reviewer._id || finalResponseData.verificationData.reviewer,
+          firstName: finalResponseData.verificationData.reviewer.firstName || '',
+          lastName: finalResponseData.verificationData.reviewer.lastName || '',
+          email: finalResponseData.verificationData.reviewer.email || null
         };
-      } else if (typeof responseData.verificationData.reviewer === 'string' || typeof responseData.verificationData.reviewer === 'object') {
+      } else if (typeof finalResponseData.verificationData.reviewer === 'string' || typeof finalResponseData.verificationData.reviewer === 'object') {
         // Reviewer is just an ID - keep it as is (frontend will handle lookup if needed)
         // But we should have populated it above, so this shouldn't happen
         console.warn('⚠️ Reviewer not populated properly for response:', responseId);
@@ -5410,7 +5460,7 @@ const getSurveyResponseById = async (req, res) => {
     
     res.json({
       success: true,
-      interview: responseData
+      interview: finalResponseData
     });
   } catch (error) {
     console.error('Error fetching survey response:', error);
@@ -5433,6 +5483,7 @@ const getSurveyResponses = async (req, res) => {
     const filter = { survey: surveyId };
     
     // For project managers: if interviewerIds not provided, get from assignedTeamMembers
+    // For state managers: get all interviewers in company filtered by stateManagerTypes
     let finalInterviewerIds = interviewerIds;
     let projectManagerInterviewerIds = [];
     if (!finalInterviewerIds && req.user.userType === 'project_manager') {
@@ -5468,6 +5519,22 @@ const getSurveyResponses = async (req, res) => {
         console.error('❌ Error fetching project manager assigned interviewers:', error);
         // Continue without filtering if there's an error
       }
+    } else if (!finalInterviewerIds && req.user.userType === 'state_manager') {
+      try {
+        console.log('🔍 getSurveyResponses - State Manager detected, fetching company interviewers by type');
+        const currentUser = await User.findById(req.user.id).populate('company');
+        const filteredUsers = await getStateManagerFilteredUserIds(currentUser);
+        
+        if (filteredUsers.interviewerIds.length > 0) {
+          projectManagerInterviewerIds = filteredUsers.interviewerIds;
+          finalInterviewerIds = filteredUsers.interviewerIds.map(id => id.toString()).join(',');
+          console.log('🔍 getSurveyResponses - State Manager: Filtering by', projectManagerInterviewerIds.length, 'interviewers');
+        } else {
+          console.log('⚠️ getSurveyResponses - State Manager: No interviewers found for selected types');
+        }
+      } catch (error) {
+        console.error('❌ Error fetching state manager filtered interviewers:', error);
+      }
     }
     
     // Filter by interviewer IDs (for project managers)
@@ -5482,9 +5549,10 @@ const getSurveyResponses = async (req, res) => {
         projectManagerInterviewerIds = interviewerObjectIds;
         console.log('🔍 getSurveyResponses - Applied interviewer filter:', interviewerObjectIds.length, 'interviewers');
       }
-    } else if (req.user.userType === 'project_manager') {
-      console.log('⚠️ getSurveyResponses - Project manager but no interviewer filter applied - returning empty results');
-      // For project managers with no assigned interviewers, return empty results
+    } else if (req.user.userType === 'project_manager' || req.user.userType === 'state_manager') {
+      const userTypeLabel = req.user.userType === 'state_manager' ? 'State Manager' : 'Project Manager';
+      console.log(`⚠️ getSurveyResponses - ${userTypeLabel} but no interviewer filter applied - returning empty results`);
+      // For project managers/state managers with no assigned interviewers, return empty results
       return res.json({
         success: true,
         data: {
@@ -5525,8 +5593,8 @@ const getSurveyResponses = async (req, res) => {
         filter.status = status;
       }
     } else {
-      // Default: Include both Approved and Rejected responses
-      filter.status = { $in: ['Approved', 'Rejected'] };
+      // Default: Include all statuses (Approved, Rejected, and Pending_Approval)
+      filter.status = { $in: ['Approved', 'Rejected', 'Pending_Approval'] };
     }
     
     console.log('🔍 getSurveyResponses - Status filter:', status);
@@ -5801,6 +5869,7 @@ const getACPerformanceStats = async (req, res) => {
     // Check access
     const isCompanyAdmin = req.user.userType === 'company_admin';
     const isProjectManager = req.user.userType === 'project_manager';
+    const isStateManager = req.user.userType === 'state_manager';
     const isSameCompany = req.user.company?.toString() === survey.company?.toString();
     
     if (!isCompanyAdmin && !isSameCompany) {
@@ -5813,6 +5882,7 @@ const getACPerformanceStats = async (req, res) => {
     const state = survey.acAssignmentState || 'West Bengal';
 
     // Build response filter - for project managers, filter by assigned interviewers
+    // For state managers, filter by company and stateManagerTypes
     const responseFilter = { survey: surveyId };
     if (isProjectManager && !isCompanyAdmin) {
       try {
@@ -5859,6 +5929,39 @@ const getACPerformanceStats = async (req, res) => {
       } catch (error) {
         console.error('Error fetching project manager assigned interviewers for AC stats:', error);
         // Return empty stats on error
+        return res.json({
+          success: true,
+          data: {
+            acStats: [],
+            totalResponses: 0,
+            totalApproved: 0,
+            totalRejected: 0,
+            totalPending: 0
+          }
+        });
+      }
+    } else if (isStateManager && !isCompanyAdmin) {
+      try {
+        const currentUser = await User.findById(req.user.id).populate('company');
+        const filteredUsers = await getStateManagerFilteredUserIds(currentUser);
+        
+        if (filteredUsers.interviewerIds.length > 0) {
+          responseFilter.interviewer = { $in: filteredUsers.interviewerIds };
+        } else {
+          // No interviewers for selected types, return empty stats
+          return res.json({
+            success: true,
+            data: {
+              acStats: [],
+              totalResponses: 0,
+              totalApproved: 0,
+              totalRejected: 0,
+              totalPending: 0
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching state manager filtered interviewers for AC stats:', error);
         return res.json({
           success: true,
           data: {
@@ -6311,6 +6414,8 @@ const getInterviewerPerformanceStats = async (req, res) => {
 
     // Build response filter - for project managers, filter by assigned interviewers
     const responseFilter = { survey: surveyId };
+    const isStateManager = req.user.userType === 'state_manager';
+    
     if (isProjectManager && !isCompanyAdmin) {
       try {
         const currentUser = await User.findById(req.user.id);
@@ -6342,6 +6447,26 @@ const getInterviewerPerformanceStats = async (req, res) => {
         }
       } catch (error) {
         console.error('Error fetching project manager assigned interviewers for interviewer stats:', error);
+        return res.json({
+          success: true,
+          data: []
+        });
+      }
+    } else if (isStateManager && !isCompanyAdmin) {
+      try {
+        const currentUser = await User.findById(req.user.id).populate('company');
+        const filteredUsers = await getStateManagerFilteredUserIds(currentUser);
+        
+        if (filteredUsers.interviewerIds.length > 0) {
+          responseFilter.interviewer = { $in: filteredUsers.interviewerIds };
+        } else {
+          return res.json({
+            success: true,
+            data: []
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching state manager filtered interviewers for interviewer stats:', error);
         return res.json({
           success: true,
           data: []
@@ -7183,6 +7308,98 @@ const getApprovalStats = async (req, res) => {
   }
 };
 
+// Helper function to build MongoDB query for rejection reason matching
+function buildRejectionReasonMatch(reasonCode) {
+  switch(reasonCode) {
+    case '1': // Short Duration
+      return {
+        $or: [
+          { 'verificationData.autoRejectionReasons': 'duration' },
+          { 'verificationData.feedback': { $regex: /(interview too short|too short|short duration)/i } }
+        ]
+      };
+    
+    case '2': // GPS Distance
+      return {
+        $or: [
+          { 'verificationData.autoRejectionReasons': 'gps_distance' },
+          { 'verificationData.feedback': { $regex: /(gps location too far|gps.*far|location too far|gps distance)/i } }
+        ]
+      };
+    
+    case '3': // Duplicate Phone
+      return {
+        $or: [
+          { 'verificationData.autoRejectionReasons': 'duplicate_phone' },
+          { 'verificationData.feedback': { $regex: /(duplicate phone)/i } }
+        ]
+      };
+    
+    case '4': // Audio Quality
+      return {
+        $and: [
+          { 'verificationData.criteria.audioStatus': { $exists: true, $ne: null, $ne: '' } },
+          { 'verificationData.criteria.audioStatus': { $nin: ['1', '4', '7'] } }
+        ]
+      };
+    
+    case '5': // Gender Mismatch
+      return {
+        $and: [
+          { 'verificationData.criteria.genderMatching': { $exists: true, $ne: null, $ne: '' } },
+          { 'verificationData.criteria.genderMatching': { $ne: '1' } }
+        ]
+      };
+    
+    case '6': // 2021 Assembly Elections
+      return {
+        $and: [
+          { 'verificationData.criteria.previousElectionsMatching': { $exists: true, $ne: null, $ne: '' } },
+          { 'verificationData.criteria.previousElectionsMatching': { $nin: ['1', '3'] } }
+        ]
+      };
+    
+    case '7': // 2024 Lok Sabha Elections
+      return {
+        $and: [
+          { 'verificationData.criteria.previousLoksabhaElectionsMatching': { $exists: true, $ne: null, $ne: '' } },
+          { 'verificationData.criteria.previousLoksabhaElectionsMatching': { $nin: ['1', '3'] } }
+        ]
+      };
+    
+    case '8': // Upcoming Elections
+      return {
+        $and: [
+          { 'verificationData.criteria.upcomingElectionsMatching': { $exists: true, $ne: null, $ne: '' } },
+          { 'verificationData.criteria.upcomingElectionsMatching': { $nin: ['1', '3'] } }
+        ]
+      };
+    
+    case '9': // Interviewer Performance
+      return {
+        'verificationData.feedback': { 
+          $regex: /(interviewer performance|performance|quality|incomplete|poor quality|poor performance)/i 
+        }
+      };
+    
+    default:
+      return null;
+  }
+}
+
+// Rejection reason labels mapping
+const REJECTION_REASON_LABELS = {
+  '1': 'Short Duration',
+  '2': 'GPS Distance Too Far',
+  '3': 'Duplicate Phone Number',
+  '4': 'Audio Quality Doesn\'t Meet Standard',
+  '5': 'Gender Mismatch',
+  '6': '2021 Assembly Elections Mismatch',
+  '7': '2024 Lok Sabha Elections Mismatch',
+  '8': 'Upcoming Elections Mismatch',
+  '9': 'Interviewer Performance/Quality Issues'
+};
+
 // Stub functions for other missing endpoints
 const getSurveyResponsesV2 = async (req, res) => {
   try {
@@ -7205,7 +7422,8 @@ const getSurveyResponsesV2 = async (req, res) => {
       interviewerIds,
       interviewerMode = 'include',
       search,
-      qualityAgentId
+      qualityAgentId,
+      rejectionReason
     } = req.query;
 
     // Verify survey exists
@@ -7215,37 +7433,6 @@ const getSurveyResponsesV2 = async (req, res) => {
         success: false,
         message: 'Survey not found'
       });
-    }
-
-    // For quality managers, verify they have access to this survey
-    if (req.user.userType === 'quality_manager') {
-      const currentUser = await User.findById(req.user.id).populate('company').populate('assignedSurveys');
-      if (!currentUser || !currentUser.company) {
-        return res.status(400).json({
-          success: false,
-          message: 'User not associated with any company'
-        });
-      }
-
-      // Check if survey belongs to the same company
-      if (survey.company.toString() !== currentUser.company._id.toString()) {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied. You can only view responses from surveys in your company.'
-        });
-      }
-
-      // Check if survey is assigned to this quality manager
-      const assignedSurveyIds = currentUser.assignedSurveys.map(s => 
-        typeof s === 'object' && s._id ? s._id.toString() : s.toString()
-      );
-      
-      if (!assignedSurveyIds.includes(survey._id.toString())) {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied. This survey is not assigned to you.'
-        });
-      }
     }
 
     // Build match filter for MongoDB aggregation (NO LIMITS - handles millions of records)
@@ -7568,6 +7755,28 @@ const getSurveyResponsesV2 = async (req, res) => {
       else if (searchTerm.length >= 8 && /^[0-9a-f-]+$/i.test(searchTerm)) {
         matchFilter.responseId = { $regex: searchTerm, $options: 'i' };
         console.log(`✅ Early responseId search filter applied (partial UUID): ${searchTerm} (using MongoDB index)`);
+      }
+    }
+    
+    // Rejection Reason Filter - Only apply when filtering rejected responses
+    if (rejectionReason && rejectionReason.trim() !== '') {
+      // Check if status filter includes "Rejected"
+      const statusFilter = matchFilter.status;
+      const includesRejected = 
+        statusFilter === 'Rejected' ||
+        (Array.isArray(statusFilter?.$in) && statusFilter.$in.includes('Rejected')) ||
+        (!statusFilter || (Array.isArray(statusFilter?.$in) && statusFilter.$in.includes('Rejected')));
+      
+      if (includesRejected) {
+        const rejectionReasonMatch = buildRejectionReasonMatch(rejectionReason.trim());
+        if (rejectionReasonMatch) {
+          // Use $and to combine with existing filters
+          if (!matchFilter.$and) {
+            matchFilter.$and = [];
+          }
+          matchFilter.$and.push(rejectionReasonMatch);
+          console.log(`✅ Rejection reason filter applied: ${rejectionReason} (${REJECTION_REASON_LABELS[rejectionReason] || 'Unknown'})`);
+        }
       }
     }
     
@@ -8204,7 +8413,8 @@ const getSurveyResponsesV2 = async (req, res) => {
         ac: [],
         city: [],
         district: [],
-        lokSabha: []
+        lokSabha: [],
+        rejectionReasons: []
       };
     } else {
       // Generate filter options only if requested
@@ -8336,6 +8546,103 @@ const getSurveyResponsesV2 = async (req, res) => {
         }
       },
       {
+        $addFields: {
+          rejectionReasonCode: {
+            $cond: {
+              if: { $eq: ['$status', 'Rejected'] },
+              then: {
+                $switch: {
+                  branches: [
+                    // Priority 1: Auto-rejection reasons
+                    {
+                      case: { $in: ['duration', { $ifNull: ['$verificationData.autoRejectionReasons', []] }] },
+                      then: '1'
+                    },
+                    {
+                      case: { $in: ['gps_distance', { $ifNull: ['$verificationData.autoRejectionReasons', []] }] },
+                      then: '2'
+                    },
+                    {
+                      case: { $in: ['duplicate_phone', { $ifNull: ['$verificationData.autoRejectionReasons', []] }] },
+                      then: '3'
+                    },
+                    // Priority 2: Manual criteria - Audio Status
+                    {
+                      case: {
+                        $and: [
+                          { $ne: [{ $ifNull: ['$verificationData.criteria.audioStatus', null] }, null] },
+                          { $ne: [{ $ifNull: ['$verificationData.criteria.audioStatus', ''] }, ''] },
+                          { $not: { $in: [{ $ifNull: ['$verificationData.criteria.audioStatus', ''] }, ['1', '4', '7']] } }
+                        ]
+                      },
+                      then: '4'
+                    },
+                    // Gender Mismatch
+                    {
+                      case: {
+                        $and: [
+                          { $ne: [{ $ifNull: ['$verificationData.criteria.genderMatching', null] }, null] },
+                          { $ne: [{ $ifNull: ['$verificationData.criteria.genderMatching', ''] }, ''] },
+                          { $ne: [{ $ifNull: ['$verificationData.criteria.genderMatching', ''] }, '1'] }
+                        ]
+                      },
+                      then: '5'
+                    },
+                    // 2021 Assembly Elections
+                    {
+                      case: {
+                        $and: [
+                          { $ne: [{ $ifNull: ['$verificationData.criteria.previousElectionsMatching', null] }, null] },
+                          { $ne: [{ $ifNull: ['$verificationData.criteria.previousElectionsMatching', ''] }, ''] },
+                          { $not: { $in: [{ $ifNull: ['$verificationData.criteria.previousElectionsMatching', ''] }, ['1', '3']] } }
+                        ]
+                      },
+                      then: '6'
+                    },
+                    // 2024 Lok Sabha Elections
+                    {
+                      case: {
+                        $and: [
+                          { $ne: [{ $ifNull: ['$verificationData.criteria.previousLoksabhaElectionsMatching', null] }, null] },
+                          { $ne: [{ $ifNull: ['$verificationData.criteria.previousLoksabhaElectionsMatching', ''] }, ''] },
+                          { $not: { $in: [{ $ifNull: ['$verificationData.criteria.previousLoksabhaElectionsMatching', ''] }, ['1', '3']] } }
+                        ]
+                      },
+                      then: '7'
+                    },
+                    // Upcoming Elections
+                    {
+                      case: {
+                        $and: [
+                          { $ne: [{ $ifNull: ['$verificationData.criteria.upcomingElectionsMatching', null] }, null] },
+                          { $ne: [{ $ifNull: ['$verificationData.criteria.upcomingElectionsMatching', ''] }, ''] },
+                          { $not: { $in: [{ $ifNull: ['$verificationData.criteria.upcomingElectionsMatching', ''] }, ['1', '3']] } }
+                        ]
+                      },
+                      then: '8'
+                    }
+                  ],
+                  default: {
+                    // Priority 3: Check feedback for interviewer performance
+                    $cond: {
+                      if: {
+                        $regexMatch: {
+                          input: { $ifNull: ['$verificationData.feedback', ''] },
+                          regex: /(interviewer performance|performance|quality|incomplete|poor quality|poor performance)/i
+                        }
+                      },
+                      then: '9',
+                      else: ''
+                    }
+                  }
+                }
+              },
+              else: ''
+            }
+          }
+        }
+      },
+      {
         $group: {
           _id: null,
           genders: { $addToSet: '$genderValue' },
@@ -8343,7 +8650,8 @@ const getSurveyResponsesV2 = async (req, res) => {
           acs: { $addToSet: '$acValue' },
           cities: { $addToSet: '$cityValue' },
           districts: { $addToSet: '$districtValue' },
-          lokSabhas: { $addToSet: '$lokSabhaValue' }
+          lokSabhas: { $addToSet: '$lokSabhaValue' },
+          rejectionReasons: { $addToSet: '$rejectionReasonCode' }
         }
       }
       );
@@ -8359,14 +8667,22 @@ const getSurveyResponsesV2 = async (req, res) => {
         ac: filterOptionsResult[0].acs.filter(Boolean),
         city: filterOptionsResult[0].cities.filter(Boolean),
         district: filterOptionsResult[0].districts.filter(Boolean),
-        lokSabha: filterOptionsResult[0].lokSabhas.filter(Boolean)
+        lokSabha: filterOptionsResult[0].lokSabhas.filter(Boolean),
+        rejectionReasons: (filterOptionsResult[0].rejectionReasons || [])
+          .filter(code => code && code !== '')
+          .map(code => ({
+            code,
+            label: REJECTION_REASON_LABELS[code] || `Reason ${code}`
+          }))
+          .sort((a, b) => a.code.localeCompare(b.code))
       } : {
         gender: [],
         age: [],
         ac: [],
         city: [],
         district: [],
-        lokSabha: []
+        lokSabha: [],
+        rejectionReasons: []
       };
     }
 
@@ -8420,49 +8736,12 @@ const getSurveyResponseCounts = async (req, res) => {
     } = req.query;
 
     // Verify survey exists (lightweight check)
-    const survey = await Survey.findById(surveyId).select('_id company').lean();
+    const survey = await Survey.findById(surveyId).select('_id').lean();
     if (!survey) {
       return res.status(404).json({
         success: false,
         message: 'Survey not found'
       });
-    }
-
-    // For quality managers, verify they have access to this survey
-    if (req.user.userType === 'quality_manager') {
-      const currentUser = await User.findById(req.user.id).populate('company').populate('assignedSurveys');
-      if (!currentUser || !currentUser.company) {
-        return res.status(400).json({
-          success: false,
-          message: 'User not associated with any company'
-        });
-      }
-
-      // Check if survey belongs to the same company
-      if (survey.company) {
-        const surveyCompanyId = survey.company.toString();
-        const userCompanyId = currentUser.company._id ? currentUser.company._id.toString() : currentUser.company.toString();
-        
-        if (surveyCompanyId !== userCompanyId) {
-          return res.status(403).json({
-            success: false,
-            message: 'Access denied. You can only view counts from surveys in your company.'
-          });
-        }
-      }
-
-      // Check if survey is assigned to this quality manager
-      const assignedSurveyIds = currentUser.assignedSurveys.map(s => 
-        typeof s === 'object' && s._id ? s._id.toString() : s.toString()
-      );
-      
-      const surveyIdStr = survey._id.toString();
-      if (!assignedSurveyIds.includes(surveyIdStr)) {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied. This survey is not assigned to you.'
-        });
-      }
     }
 
     // Build match filter (same logic as getSurveyResponsesV2 but optimized for counts)
@@ -8879,23 +9158,134 @@ const getSurveyResponsesV2ForCSV = async (req, res) => {
 
 const getCSVFileInfo = async (req, res) => {
   try {
+    const { surveyId } = req.params;
+    
+    if (!surveyId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Survey ID is required'
+      });
+    }
+    
+    // Use the helper function from csvGeneratorHelper
+    const { getCSVFileInfo: getCSVInfo } = require('../utils/csvGeneratorHelper');
+    const csvInfo = getCSVInfo(surveyId);
+    
     res.status(200).json({
       success: true,
-      data: { exists: false, filePath: null, generatedAt: null }
+      data: csvInfo
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('Error getting CSV file info:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message || 'Failed to get CSV file info' 
+    });
   }
 };
 
 const downloadPreGeneratedCSV = async (req, res) => {
   try {
-    res.status(404).json({
-      success: false,
-      message: 'CSV file not found'
+    const { surveyId } = req.params;
+    const { mode = 'codes' } = req.query; // 'codes' or 'responses'
+    
+    if (!surveyId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Survey ID is required'
+      });
+    }
+    
+    if (!['codes', 'responses'].includes(mode)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid mode. Must be "codes" or "responses"'
+      });
+    }
+    
+    // Get CSV file info to check if file exists
+    const { getCSVFileInfo, CSV_STORAGE_DIR } = require('../utils/csvGeneratorHelper');
+    const csvInfo = getCSVFileInfo(surveyId);
+    
+    // Check if the requested mode file exists
+    const fileMetadata = mode === 'codes' ? csvInfo.codes : csvInfo.responses;
+    
+    if (!fileMetadata) {
+      return res.status(404).json({
+        success: false,
+        message: `Pre-generated CSV file not found for mode: ${mode}`
+      });
+    }
+    
+    // Build file path
+    const filename = mode === 'codes' ? 'responses_codes.csv' : 'responses_responses.csv';
+    const filePath = path.join(CSV_STORAGE_DIR, surveyId, filename);
+    
+    // Check if file exists
+    const fsSync = require('fs');
+    if (!fsSync.existsSync(filePath)) {
+      return res.status(404).json({
+        success: false,
+        message: `CSV file not found: ${filename}`
+      });
+    }
+    
+    // Get file stats
+    let fileStats;
+    try {
+      fileStats = fsSync.statSync(filePath);
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: 'Error accessing CSV file',
+        error: error.message
+      });
+    }
+    
+    // Set response headers
+    const downloadFilename = `survey_${surveyId}_${mode}_${new Date(fileMetadata.lastUpdated).toISOString().split('T')[0]}.csv`;
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${downloadFilename}"`);
+    res.setHeader('Content-Length', fileStats.size);
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Accept-Ranges', 'bytes');
+    
+    // Stream file instead of loading into memory
+    const fileStream = fsSync.createReadStream(filePath, { 
+      encoding: 'utf8',
+      highWaterMark: 64 * 1024 // 64KB chunks for better performance
     });
+    
+    // Handle stream errors
+    fileStream.on('error', (error) => {
+      console.error(`❌ File stream error for survey ${surveyId}, mode ${mode}:`, error);
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          message: 'Error reading CSV file',
+          error: error.message
+        });
+      }
+    });
+    
+    // Handle client disconnect
+    req.on('close', () => {
+      if (fileStream && !fileStream.destroyed) {
+        fileStream.destroy();
+      }
+    });
+    
+    // Pipe file stream to response
+    fileStream.pipe(res);
+    
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('Error downloading pre-generated CSV:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ 
+        success: false, 
+        message: error.message || 'Failed to download CSV file' 
+      });
+    }
   }
 };
 
@@ -9394,6 +9784,10 @@ const downloadCSVFromJob = async (req, res) => {
   try {
     const { jobId } = req.params;
 
+    // Set extended timeout for CSV downloads (2 hours for large files)
+    req.setTimeout(7200000); // 2 hours
+    res.setTimeout(7200000); // 2 hours
+
     // Get job progress to check if completed
     const progress = await getJobProgress(jobId);
 
@@ -9469,9 +9863,10 @@ const downloadCSVFromJob = async (req, res) => {
     const filePath = progress.result.filePath;
     const filename = progress.result.filename || `survey_${progress.result.surveyId}_${progress.result.mode}_${new Date().toISOString().split('T')[0]}.csv`;
 
-    // Check if file exists
+    // Check if file exists and get file stats
+    let fileStats;
     try {
-      await fs.access(filePath);
+      fileStats = await fs.stat(filePath);
     } catch (error) {
       return res.status(404).json({
         success: false,
@@ -9479,16 +9874,47 @@ const downloadCSVFromJob = async (req, res) => {
       });
     }
 
-    // Read and send file
-    const fileContent = await fs.readFile(filePath, 'utf8');
-
+    // Set response headers before streaming
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Content-Length', Buffer.byteLength(fileContent, 'utf8'));
+    res.setHeader('Content-Length', fileStats.size);
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Accept-Ranges', 'bytes'); // Support range requests for better download resumption
 
-    res.send(fileContent);
+    // Stream file instead of loading into memory
+    const fsSync = require('fs');
+    // Use highWaterMark for better streaming performance (64KB chunks)
+    const fileStream = fsSync.createReadStream(filePath, { 
+      encoding: 'utf8',
+      highWaterMark: 64 * 1024 // 64KB chunks for better performance
+    });
 
-    console.log(`✅ CSV downloaded from job ${jobId}: ${filename}`);
+    // Handle stream errors
+    fileStream.on('error', (error) => {
+      console.error(`❌ File stream error for job ${jobId}:`, error);
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          message: 'Error reading CSV file',
+          error: error.message
+        });
+      }
+    });
+
+    // Handle client disconnect
+    req.on('close', () => {
+      if (fileStream && !fileStream.destroyed) {
+        fileStream.destroy();
+      }
+    });
+
+    // Pipe file stream to response
+    fileStream.pipe(res);
+
+    // Log completion when stream ends
+    fileStream.on('end', () => {
+      console.log(`✅ CSV streamed successfully from job ${jobId}: ${filename} (${fileStats.size} bytes)`);
+    });
 
   } catch (error) {
     console.error('❌ Error downloading CSV from job:', error);
@@ -10260,5 +10686,6 @@ module.exports = {
   getBoosterChecks,
   bulkApproveBoosterChecks,
   bulkRejectBoosterChecks,
-  bulkSetPendingBoosterChecks
+  bulkSetPendingBoosterChecks,
+  getStateManagerFilteredUserIds // Helper for state manager filtering
 };

@@ -318,16 +318,6 @@ export const authAPI = {
           }
         },
 
-        // Add quality agent by quality manager
-        addQualityAgentByQualityManager: async (qualityAgentData) => {
-          try {
-            const response = await api.post('/api/auth/quality-manager/add-quality-agent', qualityAgentData);
-            return response.data;
-          } catch (error) {
-            throw error;
-          }
-        },
-
         // Update interviewer preferences by project manager
         updateInterviewerPreferencesByPM: async (interviewerId, preferencesData) => {
           try {
@@ -1362,13 +1352,23 @@ export const surveyResponseAPI = {
     },
 
     // Download CSV from completed job
-    downloadCSVFromJob: async (jobId) => {
+    downloadCSVFromJob: async (jobId, onDownloadProgress = null) => {
       try {
         console.log('📥 Starting CSV download for job:', jobId);
         
         const response = await api.get(`/api/survey-responses/csv-job/${jobId}/download`, {
           responseType: 'blob',
-          timeout: 600000
+          timeout: 3600000, // 1 hour timeout for large files (50MB+)
+          onDownloadProgress: onDownloadProgress ? (progressEvent) => {
+            const totalBytes = progressEvent.total || 0;
+            const loadedBytes = progressEvent.loaded || 0;
+            const progress = totalBytes > 0 ? Math.round((loadedBytes / totalBytes) * 100) : 0;
+            onDownloadProgress({
+              loaded: loadedBytes,
+              total: totalBytes,
+              progress: progress
+            });
+          } : undefined
         });
 
         console.log('📥 Download response received:', {

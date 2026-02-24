@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-02-03T03:30:29.405Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Nandakumar",
+  "excelFile": "/var/www/Report-Generation/ac207_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 5000,
+  "errors": [],
+  "newContactsAdded": 4998,
+  "queueEntriesCreated": 4994,
+  "duplicateCleanup": {
+    "totalEntries": 725869,
+    "uniquePhones": 725741,
+    "duplicateCount": 128,
+    "deleted": 128
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4871,
+    "totalPending": 635289
+  },
+  "durationSeconds": "33.90"
+}

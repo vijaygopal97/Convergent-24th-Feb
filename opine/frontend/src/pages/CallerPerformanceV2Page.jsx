@@ -33,9 +33,10 @@ const CallerPerformanceV2Page = () => {
   const location = useLocation();
   const { user } = useAuth();
   
-  // Determine if we're in project manager route
+  // Determine if we're in project manager or state manager route
   const isProjectManagerRoute = location.pathname.includes('/project-manager/');
-  const backPath = isProjectManagerRoute ? '/project-manager/survey-reports' : '/company/surveys';
+  const isStateManagerRoute = location.pathname.includes('/state-manager/');
+  const backPath = isProjectManagerRoute ? '/project-manager/survey-reports' : (isStateManagerRoute ? '/state-manager/survey-reports' : '/company/surveys');
   
   const [survey, setSurvey] = useState(null);
   const [responses, setResponses] = useState([]);
@@ -476,34 +477,93 @@ const CallerPerformanceV2Page = () => {
   // Fetch assigned team members for project managers
   useEffect(() => {
     const fetchAssignedInterviewers = async () => {
-      if (isProjectManagerRoute && user && user.userType === 'project_manager') {
-        try {
-          const userResponse = await api.get('/api/auth/me');
-          if (userResponse.data?.success && userResponse.data?.data?.assignedTeamMembers) {
-            const assignedTeamMembers = userResponse.data.data.assignedTeamMembers;
-            const interviewerDetails = assignedTeamMembers
-              .filter(tm => tm.userType === 'interviewer' && tm.user && tm.user._id)
-              .map(tm => ({
-                _id: tm.user._id,
-                firstName: tm.user.firstName || '',
-                lastName: tm.user.lastName || '',
-                email: tm.user.email || '',
-                memberId: tm.user.memberId || '',
-                name: `${tm.user.firstName || ''} ${tm.user.lastName || ''}`.trim() || 'Unknown'
-              }))
-              .filter(int => !!int._id);
-            
-            if (interviewerDetails.length > 0) {
-              setAssignedInterviewers(interviewerDetails);
+      if ((isProjectManagerRoute || isStateManagerRoute) && user && (user.userType === 'project_manager' || user.userType === 'state_manager')) {
+        if (user.userType === 'project_manager') {
+          try {
+            const userResponse = await api.get('/api/auth/me');
+            if (userResponse.data?.success && userResponse.data?.data?.assignedTeamMembers) {
+              const assignedTeamMembers = userResponse.data.data.assignedTeamMembers;
+              const interviewerDetails = assignedTeamMembers
+                .filter(tm => tm.userType === 'interviewer' && tm.user && tm.user._id)
+                .map(tm => ({
+                  _id: tm.user._id,
+                  firstName: tm.user.firstName || '',
+                  lastName: tm.user.lastName || '',
+                  email: tm.user.email || '',
+                  memberId: tm.user.memberId || '',
+                  name: `${tm.user.firstName || ''} ${tm.user.lastName || ''}`.trim() || 'Unknown'
+                }))
+                .filter(int => !!int._id);
+              
+              if (interviewerDetails.length > 0) {
+                setAssignedInterviewers(interviewerDetails);
+              } else {
+                setAssignedInterviewers([]);
+              }
             } else {
               setAssignedInterviewers([]);
             }
-          } else {
+          } catch (error) {
+            console.error('Error fetching assigned interviewers:', error);
             setAssignedInterviewers([]);
           }
-        } catch (error) {
-          console.error('Error fetching assigned interviewers:', error);
-          setAssignedInterviewers([]);
+        } else if (user.userType === 'state_manager') {
+          // For state managers, fetch all company interviewers based on stateManagerTypes
+          try {
+            const stateManagerTypes = user.stateManagerTypes || [];
+            const hasCAPIOrCATI = stateManagerTypes.includes('CAPI') || stateManagerTypes.includes('CATI');
+            
+            if (hasCAPIOrCATI) {
+              // Fetch all company users with interviewer type
+              const params = new URLSearchParams({
+                page: '1',
+                limit: '10000',
+                userType: 'interviewer',
+                status: ''
+              });
+              
+              const usersResponse = await api.get(`/api/auth/company/users?${params.toString()}`);
+              if (usersResponse.data?.success && usersResponse.data?.data?.users) {
+                const allUsers = usersResponse.data.data.users;
+                
+                // Filter by stateManagerTypes if needed
+                let filteredUsers = allUsers;
+                if (stateManagerTypes.includes('CAPI') && !stateManagerTypes.includes('CATI')) {
+                  // Only CAPI interviewers
+                  filteredUsers = allUsers.filter(u => 
+                    u.interviewModes === 'CAPI (Face To Face)' || u.interviewModes === 'Both'
+                  );
+                } else if (stateManagerTypes.includes('CATI') && !stateManagerTypes.includes('CAPI')) {
+                  // Only CATI interviewers
+                  filteredUsers = allUsers.filter(u => 
+                    u.interviewModes === 'CATI (Telephonic interview)' || u.interviewModes === 'Both'
+                  );
+                }
+                
+                const interviewerDetails = filteredUsers.map(u => ({
+                  _id: u._id,
+                  firstName: u.firstName || '',
+                  lastName: u.lastName || '',
+                  email: u.email || '',
+                  memberId: u.memberId || '',
+                  name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Unknown'
+                })).filter(int => !!int._id);
+                
+                if (interviewerDetails.length > 0) {
+                  setAssignedInterviewers(interviewerDetails);
+                } else {
+                  setAssignedInterviewers([]);
+                }
+              } else {
+                setAssignedInterviewers([]);
+              }
+            } else {
+              setAssignedInterviewers([]);
+            }
+          } catch (error) {
+            console.error('Error fetching state manager interviewers:', error);
+            setAssignedInterviewers([]);
+          }
         }
       } else {
         setAssignedInterviewers([]);
@@ -511,7 +571,7 @@ const CallerPerformanceV2Page = () => {
     };
     
     fetchAssignedInterviewers();
-  }, [isProjectManagerRoute, user]);
+  }, [isProjectManagerRoute, isStateManagerRoute, user]);
 
   // CRITICAL: Cleanup on component unmount (prevents memory leaks)
   useEffect(() => {
@@ -1354,6 +1414,9 @@ const CallerPerformanceV2Page = () => {
                       'Switch Off': stat.switchOff || 0,
                       'Number Not Reachable': stat.numberNotReachable || 0,
                       'Number Does Not Exist': stat.numberDoesNotExist || 0,
+                      'Respondent Busy Reason Counts': stat.busy || 0,
+                      'Unknown Reasons': stat.unknownStatus || 0,
+                      'Did Not Pick Up': stat.didNotPickUp || 0,
                       'No Response by Telecaller': stat.noResponseByTelecaller || 0
                     }));
                     
@@ -1400,6 +1463,9 @@ const CallerPerformanceV2Page = () => {
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Switch Off</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Number Not Reachable</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Number Does Not Exist</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Respondent Busy Reason Counts</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Unknown Reasons</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Did Not Pick Up</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">No Response by Telecaller</th>
                     </tr>
                   </thead>
@@ -1422,6 +1488,9 @@ const CallerPerformanceV2Page = () => {
                         acc.switchOff += stat.switchOff || 0;
                         acc.numberNotReachable += stat.numberNotReachable || 0;
                         acc.numberDoesNotExist += stat.numberDoesNotExist || 0;
+                        acc.didNotPickUp += stat.didNotPickUp || 0;
+                        acc.busy += stat.busy || 0;
+                        acc.unknownStatus += stat.unknownStatus || 0;
                         acc.noResponseByTelecaller += stat.noResponseByTelecaller || 0;
                         
                         // Parse and sum form duration
@@ -1459,6 +1528,9 @@ const CallerPerformanceV2Page = () => {
                         switchOff: 0,
                         numberNotReachable: 0,
                         numberDoesNotExist: 0,
+                        didNotPickUp: 0,
+                        busy: 0,
+                        unknownStatus: 0,
                         noResponseByTelecaller: 0,
                         totalFormDurationSeconds: 0
                       });
@@ -1501,6 +1573,9 @@ const CallerPerformanceV2Page = () => {
                             <td className="px-4 py-3 whitespace-nowrap text-sm text-[#373177] font-bold">{totals.switchOff}</td>
                             <td className="px-4 py-3 whitespace-nowrap text-sm text-[#373177] font-bold">{totals.numberNotReachable}</td>
                             <td className="px-4 py-3 whitespace-nowrap text-sm text-[#373177] font-bold">{totals.numberDoesNotExist}</td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-[#373177] font-bold">{totals.busy}</td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-[#373177] font-bold">{totals.unknownStatus}</td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-[#373177] font-bold">{totals.didNotPickUp}</td>
                             <td className="px-4 py-3 whitespace-nowrap text-sm text-[#373177] font-bold">{totals.noResponseByTelecaller}</td>
                           </tr>
                           {/* Individual Interviewer Rows - Paginated */}
@@ -1528,6 +1603,9 @@ const CallerPerformanceV2Page = () => {
                                 <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{stat.switchOff || 0}</td>
                                 <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{stat.numberNotReachable || 0}</td>
                                 <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{stat.numberDoesNotExist || 0}</td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{stat.busy || 0}</td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{stat.unknownStatus || 0}</td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{stat.didNotPickUp || 0}</td>
                                 <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{stat.noResponseByTelecaller || 0}</td>
                               </tr>
                             );

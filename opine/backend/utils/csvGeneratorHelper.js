@@ -708,7 +708,10 @@ const generateCSVHeadersInternal = async (survey, downloadMode, surveyId) => {
       'q12_9': 'q12_11',
       'q12_10': 'q12_12',
       'q12_11': 'q12_14',
-      'q12_12': 'q12_99'
+      'q12_12': 'q12_99',
+      'q30': 'bs_scheme',
+      'q30_44': 'bs_scheme_oth',
+      'q30_oth': 'bs_scheme_oth'
     };
     
     allCodeRow = allCodeRow.map(code => {
@@ -722,7 +725,8 @@ const generateCSVHeadersInternal = async (survey, downloadMode, surveyId) => {
       if (typeof code === 'string' && code.includes('_oth_choice')) {
         return code.replace(/_oth_choice$/, '_44');
       }
-      if (typeof code === 'string' && code.match(/_[a-z]*_oth$/)) {
+      // Exclude custom column names (like bs_scheme_oth) that should preserve _oth suffix
+      if (typeof code === 'string' && code.match(/_[a-z]*_oth$/) && !code.startsWith('bs_scheme')) {
         return code.replace(/_oth$/, '_44');
       }
       return code;
@@ -1415,7 +1419,10 @@ const generateCSVContent = async (survey, sortedResponses, downloadMode, surveyI
       'q12_9': 'q12_11',
       'q12_10': 'q12_12',
       'q12_11': 'q12_14',
-      'q12_12': 'q12_99'
+      'q12_12': 'q12_99',
+      'q30': 'bs_scheme',
+      'q30_44': 'bs_scheme_oth',
+      'q30_oth': 'bs_scheme_oth'
     };
     
     allCodeRow = allCodeRow.map(code => {
@@ -1427,12 +1434,14 @@ const generateCSVContent = async (survey, sortedResponses, downloadMode, surveyI
     
     // 3. Change _oth_choice format to _44 (e.g., q4_oth_choice → q4_44)
     // This should already be handled above, but ensure any remaining _oth patterns are converted
+    // EXCLUDE: Custom column names like bs_scheme_oth should NOT be converted
     allCodeRow = allCodeRow.map(code => {
       if (typeof code === 'string' && code.includes('_oth_choice')) {
         return code.replace(/_oth_choice$/, '_44');
       }
       // Also handle any _oth patterns that might exist
-      if (typeof code === 'string' && code.match(/_[a-z]*_oth$/)) {
+      // But exclude custom column names (like bs_scheme_oth) that should preserve _oth suffix
+      if (typeof code === 'string' && code.match(/_[a-z]*_oth$/) && !code.startsWith('bs_scheme')) {
         return code.replace(/_oth$/, '_44');
       }
       return code;
@@ -2304,6 +2313,7 @@ const getCSVFileInfo = (surveyId) => {
 module.exports = {
   generateCSVForSurvey,
   generateCSVContent,
+  generateCSVContentBatch,
   getCSVFileInfo,
   CSV_STORAGE_DIR
 };

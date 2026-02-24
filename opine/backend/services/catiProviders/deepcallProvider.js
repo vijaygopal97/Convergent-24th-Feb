@@ -8,7 +8,7 @@ const BaseProvider = require('./baseProvider');
 const DEEPCALL_API_BASE_URL = process.env.DEEPCALL_API_BASE_URL || 'https://s-ct3.sarv.com/v2/clickToCall/para';
 const DEEPCALL_USER_ID = process.env.DEEPCALL_USER_ID || '89130240';
 const DEEPCALL_TOKEN = process.env.DEEPCALL_TOKEN || '6GQJuwW6lB8ZBHntzaRU';
-const WEBHOOK_BASE_URL = process.env.WEBHOOK_BASE_URL || 'https://opine.exypnossolutions.com';
+const WEBHOOK_BASE_URL = process.env.WEBHOOK_BASE_URL || 'https://convo.convergentview.com';
 
 class DeepCallProvider extends BaseProvider {
   constructor(config) {
@@ -84,6 +84,19 @@ class DeepCallProvider extends BaseProvider {
       });
 
       const apiResponse = response.data;
+
+      // CRITICAL: Check for error responses from DeepCall
+      // DeepCall can return HTTP 200 with error status in response body
+      if (apiResponse && typeof apiResponse === 'object') {
+        const status = String(apiResponse.status || '').toLowerCase();
+        const message = apiResponse.message || apiResponse.error || '';
+        
+        if (status === 'error' || apiResponse.code) {
+          const errorMsg = message || `DeepCall API error (code: ${apiResponse.code || 'unknown'})`;
+          console.error(`❌ [DeepCall] API returned error: ${errorMsg}`);
+          throw new Error(errorMsg);
+        }
+      }
 
       // DeepCall returns call_id in response
       const callId = apiResponse?.call_id || 

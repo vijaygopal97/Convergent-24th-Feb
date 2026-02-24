@@ -72,7 +72,9 @@ router.get('/stats', authorize('company_admin'), getCallStats);
 router.get('/calls/:id', getCallById);
 
 // Get recording (proxy with authentication) - company_admin, quality_agent, or interviewer (with ownership check)
-router.get('/recording/:callId', getRecording);
+// OPTIMIZED: Allow token in query param for streaming (expo-av can't send custom headers)
+// Route uses protect middleware, but controller handles query param auth as fallback
+router.get('/recording/:callId', protect, getRecording);
 
 // Manually check call status
 router.post('/calls/:id/check-status', checkCallStatus);

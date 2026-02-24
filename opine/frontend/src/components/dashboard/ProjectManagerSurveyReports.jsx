@@ -14,12 +14,50 @@ import {
   Target,
   Phone
 } from 'lucide-react';
-import { surveyAPI } from '../../services/api';
+import { surveyAPI, authAPI } from '../../services/api';
 import { useToast } from '../../contexts/ToastContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ProjectManagerSurveyReports = () => {
   const navigate = useNavigate();
   const { showError } = useToast();
+  const { user, login } = useAuth();
+  const [userData, setUserData] = useState(user);
+  
+  // Fetch fresh user data if state manager and stateManagerTypes is missing
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (user?.userType === 'state_manager' && (!user?.stateManagerTypes || user.stateManagerTypes.length === 0)) {
+        try {
+          const response = await authAPI.getMe();
+          if (response.success && response.data) {
+            setUserData(response.data);
+            // Update localStorage and AuthContext
+            localStorage.setItem('user', JSON.stringify(response.data));
+            login(response.data, localStorage.getItem('token'));
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      } else {
+        setUserData(user);
+      }
+    };
+    
+    fetchUserData();
+  }, [user, login]);
+  
+  // Check if user is state manager and get their types
+  const isStateManager = userData?.userType === 'state_manager';
+  const stateManagerTypes = userData?.stateManagerTypes || [];
+  const hasQC = stateManagerTypes.includes('QC');
+  const hasCAPIOrCATI = stateManagerTypes.includes('CAPI') || stateManagerTypes.includes('CATI');
+  
+  // Determine which buttons to show for state managers
+  const showReportsV2 = !isStateManager || hasCAPIOrCATI;
+  const showResponsesV2 = !isStateManager || hasCAPIOrCATI;
+  const showQCPerformance = !isStateManager || hasQC;
+  const showCallerPerformanceV2 = !isStateManager || hasCAPIOrCATI; // Show for state managers with CAPI or CATI
   const [surveys, setSurveys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -94,7 +132,8 @@ const ProjectManagerSurveyReports = () => {
   };
 
   const handleViewQCPerformance = (survey) => {
-    navigate(`/project-manager/surveys/${survey._id || survey.id}/qc-performance`);
+    const basePath = isStateManager ? '/state-manager' : '/project-manager';
+    navigate(`${basePath}/surveys/${survey._id || survey.id}/qc-performance`);
   };
 
   const handleViewResponses = (survey) => {
@@ -106,7 +145,8 @@ const ProjectManagerSurveyReports = () => {
   };
 
   const handleViewCallerPerformance = (survey) => {
-    navigate(`/project-manager/surveys/${survey._id || survey.id}/caller-performance-v2`);
+    const basePath = isStateManager ? '/state-manager' : '/project-manager';
+    navigate(`${basePath}/surveys/${survey._id || survey.id}/caller-performance-v2`);
   };
 
   const filteredSurveys = surveys.filter(survey => {
@@ -233,14 +273,8 @@ const ProjectManagerSurveyReports = () => {
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex flex-col items-end space-y-2">
-                          {/* Reports button hidden to encourage use of Reports V2 */}
-                          {/* <button
-                            onClick={() => handleViewReports(survey)}
-                            className="inline-flex items-center px-3 py-1.5 bg-[#001D48] text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                          >
-                            <BarChart3 className="w-4 h-4 mr-1.5" />
-                            Reports
-                          </button> */}
+                          {/* Conditionally show buttons based on user type */}
+                          {showReportsV2 && (
                           <button
                             onClick={() => handleViewReportsV2(survey)}
                             className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
@@ -249,37 +283,37 @@ const ProjectManagerSurveyReports = () => {
                             <TrendingUp className="w-4 h-4 mr-1.5" />
                             Reports-V2
                           </button>
+                          )}
+                          {showResponsesV2 && (
+                            <button
+                              onClick={() => handleViewResponsesV2(survey)}
+                              className="inline-flex items-center px-3 py-1.5 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors shadow-sm"
+                              title="View Responses V2"
+                            >
+                              <FileText className="w-4 h-4 mr-1.5" />
+                              Responses-V2
+                            </button>
+                          )}
+                          {showQCPerformance && (
+                            <button
+                              onClick={() => handleViewQCPerformance(survey)}
+                              className="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors shadow-sm"
+                              title="View QC Performance"
+                            >
+                              <CheckCircle className="w-4 h-4 mr-1.5" />
+                              QC Performance
+                            </button>
+                          )}
+                          {showCallerPerformanceV2 && (
                           <button
                             onClick={() => handleViewCallerPerformance(survey)}
                             className="inline-flex items-center px-3 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-sm"
-                            title="View Caller Performance V2 (Optimized for Big Data)"
+                              title="View Caller Performance V2"
                           >
                             <Phone className="w-4 h-4 mr-1.5" />
                             Caller Performance-V2
                           </button>
-                          {/* Responses button hidden to encourage use of Responses V2 */}
-                          {/* <button
-                            onClick={() => handleViewResponses(survey)}
-                            className="inline-flex items-center px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
-                          >
-                            <Eye className="w-4 h-4 mr-1.5" />
-                            Responses
-                          </button> */}
-                          <button
-                            onClick={() => handleViewResponsesV2(survey)}
-                            className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
-                            title="View Optimized Responses V2"
-                          >
-                            <TrendingUp className="w-4 h-4 mr-1.5" />
-                            Responses-V2
-                          </button>
-                          <button
-                            onClick={() => handleViewQCPerformance(survey)}
-                            className="inline-flex items-center px-3 py-1.5 bg-[#373177] text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors"
-                          >
-                            <Users className="w-4 h-4 mr-1.5" />
-                            QC Performance
-                          </button>
+                          )}
                         </div>
                       </td>
                     </tr>

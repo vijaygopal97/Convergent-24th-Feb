@@ -1,0 +1,1388 @@
+{
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "generatedAt": "2026-02-20T06:32:50.571Z",
+  "totalInterviewersWithAC": 115,
+  "interviewers": [
+    {
+      "memberId": "CATI2028",
+      "name": "Ravindranath Basak",
+      "phone": "9647912676",
+      "email": "caticati2028@gmail.com",
+      "assignedACs": [
+        "Champdani"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-07T05:51:13.504Z",
+      "interviewerId": "6986c5a7202e38b496f5f1b2"
+    },
+    {
+      "memberId": "CATI2019",
+      "name": "Subroto Das",
+      "phone": "8826796979",
+      "email": "caticati2019@gmail.com",
+      "assignedACs": [
+        "Madarihat"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-07T05:51:14.903Z",
+      "interviewerId": "6986c5a8202e38b496f5f1ba"
+    },
+    {
+      "memberId": "CATI2020",
+      "name": "Souvik Saha",
+      "phone": "9382920401",
+      "email": "caticati2020@gmail.com",
+      "assignedACs": [
+        "Jhargram"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-07T05:51:16.276Z",
+      "interviewerId": "6986c5a9202e38b496f5f1c2"
+    },
+    {
+      "memberId": "CATI2013",
+      "name": "Jaidev Haldhar",
+      "phone": "8527575938",
+      "email": "caticati2013@gmail.com",
+      "assignedACs": [
+        "Jangipara"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-07T05:51:18.903Z",
+      "interviewerId": "6986c5ab202e38b496f5f1ca"
+    },
+    {
+      "memberId": "CATI2004",
+      "name": "Anima Ghosh",
+      "phone": "9073876130",
+      "email": "caticati2004@gmail.com",
+      "assignedACs": [
+        "Satgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-07T05:51:23.459Z",
+      "interviewerId": "6986c5ac202e38b496f5f1d2"
+    },
+    {
+      "memberId": "CATI2009",
+      "name": "Priyanka Haldar",
+      "phone": "8384011822",
+      "email": "caticati2009@gmail.com",
+      "assignedACs": [
+        "Kalchini"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-07T05:44:06.242Z",
+      "interviewerId": "6986c5ad202e38b496f5f1da"
+    },
+    {
+      "memberId": "CATI2023",
+      "name": "Aditya kumar Sarkar",
+      "phone": "7797676262",
+      "email": "caticati2023@gmail.com",
+      "assignedACs": [
+        "Champdani"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-07T05:51:11.839Z",
+      "interviewerId": "6986d0ef6f2adc65758aa28d"
+    },
+    {
+      "memberId": "CATIundefined",
+      "name": "Company Admin",
+      "phone": "6290497761",
+      "email": "caticatiundefined@gmail.com",
+      "assignedACs": [
+        "Madarihat"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-07T05:51:50.944Z",
+      "interviewerId": "6986d0f06f2adc65758aaa50"
+    },
+    {
+      "memberId": "CATI2001",
+      "name": "Abhijeet Sarkar",
+      "phone": "9958011900",
+      "email": "caticati2001@gmail.com",
+      "assignedACs": [
+        "Jhargram"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-07T05:43:50.974Z",
+      "interviewerId": "6986d0f16f2adc65758ab213"
+    },
+    {
+      "memberId": "CATI2018",
+      "name": "Rumi Santra",
+      "phone": "8287738255",
+      "email": "caticati2018@gmail.com",
+      "assignedACs": [
+        "Jangipara"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-07T05:51:14.183Z",
+      "interviewerId": "6986d0f36f2adc65758ac19c"
+    },
+    {
+      "memberId": "CATI2016",
+      "name": "Kaushik Biswas",
+      "phone": "8448612543",
+      "email": "caticati2016@gmail.com",
+      "assignedACs": [
+        "Satgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-07T05:51:15.598Z",
+      "interviewerId": "6986d0f56f2adc65758ad127"
+    },
+    {
+      "memberId": "CATI2021",
+      "name": "Biswajit Sarkar",
+      "phone": "8799734796",
+      "email": "caticati2021@gmail.com",
+      "assignedACs": [
+        "Kalchini"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-07T05:51:17.596Z",
+      "interviewerId": "6986d0f76f2adc65758ae879"
+    },
+    {
+      "memberId": "CATI2015",
+      "name": "Prashant Majee",
+      "phone": "8178321310",
+      "email": "caticati2015@gmail.com",
+      "assignedACs": [
+        "Champdani"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-07T05:51:18.254Z",
+      "interviewerId": "6986d0f96f2adc65758af041"
+    },
+    {
+      "memberId": "CATI2033",
+      "name": "Rohan Parsad",
+      "phone": "6291213072",
+      "email": "caticati2033@gmail.com",
+      "assignedACs": [
+        "Madarihat"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-07T05:51:20.835Z",
+      "interviewerId": "6986d11e2ab2ff0efba52cc4"
+    },
+    {
+      "memberId": "CATI2008",
+      "name": "Suman Mali",
+      "phone": "9958011916",
+      "email": "caticati2008@gmail.com",
+      "assignedACs": [
+        "Jhargram"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-07T05:44:03.512Z",
+      "interviewerId": "6986d1222ab2ff0efba553af"
+    },
+    {
+      "memberId": "CATI2011",
+      "name": "Subhanker Das Gupta",
+      "phone": "9958011907",
+      "email": "caticati2011@gmail.com",
+      "assignedACs": [
+        "Jangipara"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-07T05:44:10.613Z",
+      "interviewerId": "6986d12a2ab2ff0efba5a18d"
+    },
+    {
+      "memberId": "CATI2002",
+      "name": "Suman De",
+      "phone": "9958011915",
+      "email": "caticati2002@gmail.com",
+      "assignedACs": [
+        "Satgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-07T05:44:11.730Z",
+      "interviewerId": "6986d12b2ab2ff0efba5a959"
+    },
+    {
+      "memberId": "CATI8333",
+      "name": "Dewanjan Das",
+      "phone": "9163947344",
+      "email": "cati8333@gmail.com",
+      "assignedACs": [
+        "Madarihat"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-11T15:54:12.923Z",
+      "interviewerId": "698ca623213777ed4462d012"
+    },
+    {
+      "memberId": "150",
+      "name": "Swati Mondal",
+      "phone": "7980064408",
+      "email": "150@gmail.com",
+      "assignedACs": [
+        "Jangipara"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:23.868Z",
+      "interviewerId": "6938a26aa3f38fb8cfd1d497"
+    },
+    {
+      "memberId": "151",
+      "name": "Annanya Banik",
+      "phone": "8670595984",
+      "email": "bhowmikripan797@gmail.com",
+      "assignedACs": [
+        "Satgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:23.869Z",
+      "interviewerId": "6938a26ca3f38fb8cfd1d5e7"
+    },
+    {
+      "memberId": "153",
+      "name": "Rupsa Roy",
+      "phone": "8100003117",
+      "email": "tanoy@gmail.com",
+      "assignedACs": [
+        "Satgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:23.871Z",
+      "interviewerId": "6938a26fa3f38fb8cfd1d88a"
+    },
+    {
+      "memberId": "160",
+      "name": "Golapsa Khatun",
+      "phone": "8583982824",
+      "email": "abulkalam926542@gmail.com",
+      "assignedACs": [
+        "Kalchini"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:23.881Z",
+      "interviewerId": "6938a27da3f38fb8cfd1e499"
+    },
+    {
+      "memberId": "161",
+      "name": "Neha Khatun",
+      "phone": "9073222202",
+      "email": "biswajitsaha7679683314@gmail.com",
+      "assignedACs": [
+        "Champdani"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:23.882Z",
+      "interviewerId": "6938a27ea3f38fb8cfd1e5f5"
+    },
+    {
+      "memberId": "185",
+      "name": "MD. Ehtasam",
+      "phone": "6289033808",
+      "email": "samirulrahaman2002@gmail.com",
+      "assignedACs": [
+        "Gaighata"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:23.943Z",
+      "interviewerId": "6938a2d1a3f38fb8cfd236bd"
+    },
+    {
+      "memberId": "191",
+      "name": "Sumit Kumar Roy",
+      "phone": "8670475453",
+      "email": "cati191@gmail.com",
+      "assignedACs": [
+        "Kalchini"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-16T07:04:37.572Z",
+      "interviewerId": "69410483bdaa79cdc5df2a32"
+    },
+    {
+      "memberId": "196",
+      "name": "Arushi Das",
+      "phone": "9330342865",
+      "email": "196@gmail.com",
+      "assignedACs": [
+        "Jhargram"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:23.956Z",
+      "interviewerId": "6938a2e4a3f38fb8cfd24b8e"
+    },
+    {
+      "memberId": "198",
+      "name": "Debasmita Bhattacharya",
+      "phone": "8348458341",
+      "email": "198@gmail.com",
+      "assignedACs": [
+        "Ranaghat Uttar Paschim"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:23.958Z",
+      "interviewerId": "6938a2e8a3f38fb8cfd24ed1"
+    },
+    {
+      "memberId": "200",
+      "name": "Pamela Basu Das",
+      "phone": "8622962546",
+      "email": "capi200@gmail.com",
+      "assignedACs": [
+        "Nagrakata"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:23.960Z",
+      "interviewerId": "6938a2eba3f38fb8cfd25218"
+    },
+    {
+      "memberId": "236",
+      "name": "Avi Mondal",
+      "phone": "9748361727",
+      "email": "capi236@gmail.com",
+      "assignedACs": [
+        "Kashipur Belgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:24.151Z",
+      "interviewerId": "6938a40ea3f38fb8cfd3e06b"
+    },
+    {
+      "memberId": "272",
+      "name": "Deepshikha Das",
+      "phone": "6290679554",
+      "email": "cati272@gmail.com",
+      "assignedACs": [
+        "Madarihat"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-20T07:08:11.871Z",
+      "interviewerId": "69464b5a047d016a11700186"
+    },
+    {
+      "memberId": "276",
+      "name": "Sayan Das",
+      "phone": "9147092575",
+      "email": "cati276@gmail.com",
+      "assignedACs": [
+        "Jangipara"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-29T10:08:35.019Z",
+      "interviewerId": "6952531fa6f66493bed155c7"
+    },
+    {
+      "memberId": "277",
+      "name": "Disha Mayur",
+      "phone": "7044715053",
+      "email": "cati277@gmail.com",
+      "assignedACs": [
+        "Jhargram"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-29T09:50:10.541Z",
+      "interviewerId": "69524ed03e3c9830e5cb9771"
+    },
+    {
+      "memberId": "278",
+      "name": "Maitree Sarkar",
+      "phone": "9635354589",
+      "email": "cati278@gmail.com",
+      "assignedACs": [
+        "Satgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-16T09:02:42.834Z",
+      "interviewerId": "6969feb1054ee14d6664a3ad"
+    },
+    {
+      "memberId": "281",
+      "name": "Sumi Majhi",
+      "phone": "8910898452",
+      "email": "cati281@gmail.com",
+      "assignedACs": [
+        "Nagrakata"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-17T07:25:29.551Z",
+      "interviewerId": "699417e86459929f3d13cb21"
+    },
+    {
+      "memberId": "320",
+      "name": "Suvankar Chowdhury",
+      "phone": "8967408759",
+      "email": "cati320@gmail.com",
+      "assignedACs": [
+        "Champdani"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-16T12:32:48.451Z",
+      "interviewerId": "69930e6fac0b8c14e17faf7c"
+    },
+    {
+      "memberId": "322",
+      "name": "SAHITYA MONDAL",
+      "phone": "7865894125",
+      "email": "cati322@gmail.com",
+      "assignedACs": [
+        "Madarihat"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-16T12:32:50.210Z",
+      "interviewerId": "69930e71ac0b8c14e17fc0cc"
+    },
+    {
+      "memberId": "323",
+      "name": "AYAN MAJUMDAR",
+      "phone": "8697700821",
+      "email": "cati323@gmail.com",
+      "assignedACs": [
+        "Jhargram"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-16T12:32:51.713Z",
+      "interviewerId": "69930e72ac0b8c14e17fd20c"
+    },
+    {
+      "memberId": "324",
+      "name": "RAJU GOPE",
+      "phone": "8420592263",
+      "email": "cati324@gmail.com",
+      "assignedACs": [
+        "Jangipara"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-16T12:32:53.203Z",
+      "interviewerId": "69930e74ac0b8c14e17fe34e"
+    },
+    {
+      "memberId": "325",
+      "name": "PARTHA SARTHI MAJUMDER",
+      "phone": "9830556500",
+      "email": "cati325@gmail.com",
+      "assignedACs": [
+        "Satgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-16T12:32:54.654Z",
+      "interviewerId": "69930e75ac0b8c14e17ff492"
+    },
+    {
+      "memberId": "326",
+      "name": "PARTHA PRATIM PAUL",
+      "phone": "9163258007",
+      "email": "cati326@gmail.com",
+      "assignedACs": [
+        "Kalchini"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-16T12:36:27.496Z",
+      "interviewerId": "69930f4a414c35c36d273473"
+    },
+    {
+      "memberId": "664",
+      "name": "Sakina khatun",
+      "phone": "9382317257",
+      "email": "664@gmail.com",
+      "assignedACs": [
+        "Jangipara"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:24.294Z",
+      "interviewerId": "6938a4e5a3f38fb8cfd554af"
+    },
+    {
+      "memberId": "666",
+      "name": "Pratima adhikari",
+      "phone": "8101981375",
+      "email": "666@gmail.com",
+      "assignedACs": [
+        "Joypur, Purulia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:24.367Z",
+      "interviewerId": "6938a554a3f38fb8cfd62972"
+    },
+    {
+      "memberId": "670",
+      "name": "Ibratun Khatun",
+      "phone": "6294114011",
+      "email": "670@gmail.com",
+      "assignedACs": [
+        "Kharagpur Sadar"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:24.470Z",
+      "interviewerId": "6938a5efa3f38fb8cfd78005"
+    },
+    {
+      "memberId": "672",
+      "name": "Samima User",
+      "phone": "7679731192",
+      "email": "672@gmail.com",
+      "assignedACs": [
+        "Purulia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:24.476Z",
+      "interviewerId": "6938a5f8a3f38fb8cfd79514"
+    },
+    {
+      "memberId": "702",
+      "name": "Mahuya Mistry",
+      "phone": "8017607102",
+      "email": "702@gmail.com",
+      "assignedACs": [
+        "Madarihat"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:24.013Z",
+      "interviewerId": "6938a336a3f38fb8cfd2a91b"
+    },
+    {
+      "memberId": "808",
+      "name": "Baby Saha",
+      "phone": "7003457864",
+      "email": "808@gmail.com",
+      "assignedACs": [
+        "Behala Paschim"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:23.988Z",
+      "interviewerId": "6938a312a3f38fb8cfd27e1f"
+    },
+    {
+      "memberId": "825",
+      "name": "Manika Sarkar",
+      "phone": "8420850550",
+      "email": "825@gmail.com",
+      "assignedACs": [
+        "Champdani"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:24.002Z",
+      "interviewerId": "6938a325a3f38fb8cfd29520"
+    },
+    {
+      "memberId": "841",
+      "name": "Nikhat Saina",
+      "phone": "6290100680",
+      "email": "841@gmail.com",
+      "assignedACs": [
+        "Chunchura"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:24.050Z",
+      "interviewerId": "6938a36ba3f38fb8cfd2e9da"
+    },
+    {
+      "memberId": "3260",
+      "name": "Lili Kadar",
+      "phone": "9733747089",
+      "email": "3260@gmail.com",
+      "assignedACs": [
+        "Satgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:24.323Z",
+      "interviewerId": "6938a50fa3f38fb8cfd5a35d"
+    },
+    {
+      "memberId": "3556",
+      "name": "SUMAN CHAKRABORTY",
+      "phone": "8597590443",
+      "email": "cati3556@gmail.com",
+      "assignedACs": [
+        "Satgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:24.580Z",
+      "interviewerId": "693d455ccba171e81f4daf1e"
+    },
+    {
+      "memberId": "3800",
+      "name": "Subrata Chakraborty",
+      "phone": "6290497761",
+      "email": "cati3800@gmail.com",
+      "assignedACs": [
+        "Kalchini"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:24.514Z",
+      "interviewerId": "693d2b7fa66b5df82f9fc01b"
+    },
+    {
+      "memberId": "3803",
+      "name": "Ankita Dey",
+      "phone": "9874345662",
+      "email": "cati3803@gmail.com",
+      "assignedACs": [
+        "Champdani"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:24.517Z",
+      "interviewerId": "693d2b87a66b5df82f9fcb91"
+    },
+    {
+      "memberId": "3804",
+      "name": "Suman Adak",
+      "phone": "7439337177",
+      "email": "cati3804@gmail.com",
+      "assignedACs": [
+        "Madarihat"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:24.518Z",
+      "interviewerId": "693d2b8aa66b5df82f9fcf65"
+    },
+    {
+      "memberId": "3806",
+      "name": "Sarmistha das",
+      "phone": "9674208124",
+      "email": "cati3806@gmail.com",
+      "assignedACs": [
+        "Jhargram"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:24.520Z",
+      "interviewerId": "693d2b8fa66b5df82f9fd710"
+    },
+    {
+      "memberId": "3907",
+      "name": "Anish Ghoshal",
+      "phone": "6296893855",
+      "email": "cati3907@gmail.com",
+      "assignedACs": [
+        "Jangipara"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:24.521Z",
+      "interviewerId": "693d2b92a66b5df82f9fdae7"
+    },
+    {
+      "memberId": "4005",
+      "name": "Manosi Mondal",
+      "phone": "8240668762",
+      "email": "sikhamaji116@gmail.com",
+      "assignedACs": [
+        "Champdani"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:23.825Z",
+      "interviewerId": "693a8d155ebfd0288b94a7b6"
+    },
+    {
+      "memberId": "5047",
+      "name": "Manab Dey",
+      "phone": "8585889936",
+      "email": "cati5047@gmail.com",
+      "assignedACs": [
+        "Kalchini"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-17T04:39:10.364Z",
+      "interviewerId": "6993f0ed550f13ba90162e93"
+    },
+    {
+      "memberId": "5049",
+      "name": "Mampi khatun",
+      "phone": "9339032290",
+      "email": "cati5049@gmail.com",
+      "assignedACs": [
+        "Jangipara"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-17T04:54:13.666Z",
+      "interviewerId": "6993f474550f13ba90168cdd"
+    },
+    {
+      "memberId": "5102",
+      "name": "Roni Ghatak",
+      "phone": "6295479034",
+      "email": "cati5102@gmail.com",
+      "assignedACs": [
+        "Gaighata"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-17T07:12:51.370Z",
+      "interviewerId": "699414f2c596947ee7f3ed53"
+    },
+    {
+      "memberId": "5106",
+      "name": "SrayaShree Shome",
+      "phone": "9123660398",
+      "email": "cati5106@gmail.com",
+      "assignedACs": [
+        "Champdani"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-17T07:50:13.776Z",
+      "interviewerId": "69941db49d98ce220fdc50d4"
+    },
+    {
+      "memberId": "5107",
+      "name": "Smritikana Dasgupta",
+      "phone": "9102444686",
+      "email": "cati5107@gmail.com",
+      "assignedACs": [
+        "Madarihat"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-17T07:50:15.635Z",
+      "interviewerId": "69941db69d98ce220fdc627a"
+    },
+    {
+      "memberId": "5131",
+      "name": "Dhriti Sarkar",
+      "phone": "9330575753",
+      "email": "cati5131@gmail.com",
+      "assignedACs": [
+        "Nagrakata"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-19T05:54:48.792Z",
+      "interviewerId": "6996a5a7532f23a389173d76"
+    },
+    {
+      "memberId": "8003",
+      "name": "Kakali Mondal",
+      "phone": "9093886916",
+      "email": "cati8003@gmail.com",
+      "assignedACs": [
+        "Satgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-05T05:56:57.173Z",
+      "interviewerId": "6984312745480057ad4cd17f"
+    },
+    {
+      "memberId": "8004",
+      "name": "Priti Ghosh",
+      "phone": "9073588366",
+      "email": "cati8004@gmail.com",
+      "assignedACs": [
+        "Madarihat"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-05T05:57:46.920Z",
+      "interviewerId": "6984315945480057ad4d03f5"
+    },
+    {
+      "memberId": "8007",
+      "name": "Surja Basu",
+      "phone": "8961726823",
+      "email": "cati8007@gmail.com",
+      "assignedACs": [
+        "Jangipara"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-05T05:59:52.161Z",
+      "interviewerId": "698431d645480057ad4d97ae"
+    },
+    {
+      "memberId": "8008",
+      "name": "Rupali Dutta",
+      "phone": "6290806081",
+      "email": "cati8008@gmail.com",
+      "assignedACs": [
+        "Tamluk"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-05T06:00:36.621Z",
+      "interviewerId": "6984320345480057ad4dced2"
+    },
+    {
+      "memberId": "8009",
+      "name": "Partha pratim Basu",
+      "phone": "8595737942",
+      "email": "cati8009@gmail.com",
+      "assignedACs": [
+        "Maheshtala"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-05T06:02:25.763Z",
+      "interviewerId": "69843270468584cc5beced92"
+    },
+    {
+      "memberId": "8010",
+      "name": "Monami Sen",
+      "phone": "9875512384",
+      "email": "cati8010@gmail.com",
+      "assignedACs": [
+        "Champdani"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-05T06:03:09.988Z",
+      "interviewerId": "6984329c468584cc5bed188a"
+    },
+    {
+      "memberId": "8014",
+      "name": "Natasa Das",
+      "phone": "9123842521",
+      "email": "cati8014@gmail.com",
+      "assignedACs": [
+        "Jangipara"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-06T19:05:21.629Z",
+      "interviewerId": "69863b703b1d7fc7297990d7"
+    },
+    {
+      "memberId": "8023",
+      "name": "Rita khatuwa",
+      "phone": "7044666823",
+      "email": "cati8023@gmail.com",
+      "assignedACs": [
+        "Jhargram"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-11T16:06:10.453Z",
+      "interviewerId": "698ca8f12aa12f29b3dbb0f5"
+    },
+    {
+      "memberId": "8032",
+      "name": "Priyanka Mandal",
+      "phone": "9907075412",
+      "email": "cati8032@gmail.com",
+      "assignedACs": [
+        "Kalchini"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-13T10:13:25.489Z",
+      "interviewerId": "698ef944103e022384b7cbb6"
+    },
+    {
+      "memberId": "8300",
+      "name": "Bishakha Tanti",
+      "phone": "6291859299",
+      "email": "cati8300@gmail.com",
+      "assignedACs": [
+        "Behala Paschim"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-09T05:22:08.733Z",
+      "interviewerId": "69896eff78d3a7e711a7fd72"
+    },
+    {
+      "memberId": "8301",
+      "name": "Swati Shaw",
+      "phone": "9875635534",
+      "email": "cati8301@gmail.com",
+      "assignedACs": [
+        "Behala Paschim"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-09T05:23:02.908Z",
+      "interviewerId": "69896f3578d3a7e711a8434f"
+    },
+    {
+      "memberId": "8302",
+      "name": "Tanu kumari Singh",
+      "phone": "6291350730",
+      "email": "cati8302@gmail.com",
+      "assignedACs": [
+        "Ranaghat Uttar Paschim"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-09T05:23:47.578Z",
+      "interviewerId": "69896f6278d3a7e711a87466"
+    },
+    {
+      "memberId": "8303",
+      "name": "Sahana Anjoom",
+      "phone": "9330596768",
+      "email": "cati8303@gmail.com",
+      "assignedACs": [
+        "Ranaghat Uttar Paschim"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-09T05:24:55.760Z",
+      "interviewerId": "69896fa67bb2bdd063222902"
+    },
+    {
+      "memberId": "8304",
+      "name": "Sanjana Shaw",
+      "phone": "6289942421",
+      "email": "cati8304@gmail.com",
+      "assignedACs": [
+        "Ranaghat Uttar Paschim"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-09T05:25:35.020Z",
+      "interviewerId": "69896fcdbd208e0cf608bb82"
+    },
+    {
+      "memberId": "8322",
+      "name": "Barnali Debnath",
+      "phone": "8653880391",
+      "email": "cati8322@gmail.com",
+      "assignedACs": [
+        "Ranaghat Uttar Paschim"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-11T05:21:23.466Z",
+      "interviewerId": "698c11d2262ece021985250b"
+    },
+    {
+      "memberId": "8327",
+      "name": "Sermeen Ali",
+      "phone": "6291448593",
+      "email": "cati8327@gmail.com",
+      "assignedACs": [
+        "Champdani"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-11T08:07:27.085Z",
+      "interviewerId": "698c38bda249fd60a3f1bffb"
+    },
+    {
+      "memberId": "8341",
+      "name": "Subha Ghosh",
+      "phone": "8159843689",
+      "email": "cati8341@gmail.com",
+      "assignedACs": [
+        "Satgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-13T09:41:01.662Z",
+      "interviewerId": "698ef1accebacdd8ae6d3807"
+    },
+    {
+      "memberId": "8356",
+      "name": "Sukhendu Das",
+      "phone": "9134783447",
+      "email": "cati8356@gmail.com",
+      "assignedACs": [
+        "Satgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-17T08:49:43.642Z",
+      "interviewerId": "69942ba60fcd6772a833e917"
+    },
+    {
+      "memberId": "10002",
+      "name": "Tuhina Khatun",
+      "phone": "6295933638",
+      "email": "cati10002@gmail.com",
+      "assignedACs": [
+        "Satgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-23T05:24:59.110Z",
+      "interviewerId": "69730629ea03aaf99b7b7665"
+    },
+    {
+      "memberId": "10003",
+      "name": "SEULI KHATUN",
+      "phone": "9609865745",
+      "email": "cati10003@gmail.com",
+      "assignedACs": [
+        "Nagrakata"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-23T05:25:36.852Z",
+      "interviewerId": "6973064f4e30e6669e4857ad"
+    },
+    {
+      "memberId": "10005",
+      "name": "Laboni debnath",
+      "phone": "8918512905",
+      "email": "cati10005@gmail.com",
+      "assignedACs": [
+        "Champdani"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-23T05:26:52.839Z",
+      "interviewerId": "6973069b4e30e6669e48c976"
+    },
+    {
+      "memberId": "10007",
+      "name": "Sabana Mustary",
+      "phone": "9907750380",
+      "email": "cati10007@gmail.com",
+      "assignedACs": [
+        "Rashbehari"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-23T05:28:00.356Z",
+      "interviewerId": "697306df4e30e6669e4929c5"
+    },
+    {
+      "memberId": "10010",
+      "name": "Jesmin khatun",
+      "phone": "9339470880",
+      "email": "cati10010@gmail.com",
+      "assignedACs": [
+        "Jhargram"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-23T05:37:09.978Z",
+      "interviewerId": "697309044e30e6669e49fe94"
+    },
+    {
+      "memberId": "10013",
+      "name": "Geeta Dey",
+      "phone": "9564692588",
+      "email": "cati10013@gmail.com",
+      "assignedACs": [
+        "Jangipara"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-23T05:40:41.763Z",
+      "interviewerId": "697309d84e30e6669e4af392"
+    },
+    {
+      "memberId": "10014",
+      "name": "Priti das",
+      "phone": "8250692224",
+      "email": "cati10014@gmail.com",
+      "assignedACs": [
+        "Chunchura"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-23T05:53:01.678Z",
+      "interviewerId": "69730cbc17a75c0d27c500e9"
+    },
+    {
+      "memberId": "10016",
+      "name": "Chetana gonrai",
+      "phone": "7865892189",
+      "email": "cati10016@gmail.com",
+      "assignedACs": [
+        "Kalchini"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-24T06:23:44.789Z",
+      "interviewerId": "6974656fea03aaf99b7f02c3"
+    },
+    {
+      "memberId": "10018",
+      "name": "Rehena Sultana",
+      "phone": "8101969297",
+      "email": "cati10018@gmail.com",
+      "assignedACs": [
+        "Taldangra"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-24T06:26:01.117Z",
+      "interviewerId": "697465f7ea03aaf99b7f69a8"
+    },
+    {
+      "memberId": "10020",
+      "name": "sampa mahato",
+      "phone": "9932382056",
+      "email": "cati10020@gmail.com",
+      "assignedACs": [
+        "Chunchura"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-24T06:28:36.792Z",
+      "interviewerId": "69746693450165ed1aca3e67"
+    },
+    {
+      "memberId": "10024",
+      "name": "Mahammuda Khatun",
+      "phone": "9064481338",
+      "email": "cati10024@gmail.com",
+      "assignedACs": [
+        "Jhargram"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-27T04:43:43.672Z",
+      "interviewerId": "6978427eea03aaf99b83e77d"
+    },
+    {
+      "memberId": "10025",
+      "name": "Afroja Khatun",
+      "phone": "9733584396",
+      "email": "cati10025@gmail.com",
+      "assignedACs": [
+        "Jangipara"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-27T04:44:26.989Z",
+      "interviewerId": "697842a9ea03aaf99b841852"
+    },
+    {
+      "memberId": "10026",
+      "name": "Kulsuma Khatun",
+      "phone": "8001074403",
+      "email": "cati10026@gmail.com",
+      "assignedACs": [
+        "Satgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-27T04:45:04.575Z",
+      "interviewerId": "697842cfea03aaf99b844aad"
+    },
+    {
+      "memberId": "10031",
+      "name": "Renu Bibi",
+      "phone": "9832651296",
+      "email": "cati10031@gmail.com",
+      "assignedACs": [
+        "Kashipur Belgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-27T11:44:32.026Z",
+      "interviewerId": "6978a51e4e30e6669e569769"
+    },
+    {
+      "memberId": "10039",
+      "name": "Runa khatun",
+      "phone": "8346995819",
+      "email": "cati10039@gmail.com",
+      "assignedACs": [
+        "Jangipara"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-12T07:20:51.039Z",
+      "interviewerId": "698d7f519eb8057526c87b1e"
+    },
+    {
+      "memberId": "12735",
+      "name": "Rinky pramanik",
+      "phone": "7811953011",
+      "email": "cati12735@gmail.com",
+      "assignedACs": [
+        "Bishnupur, Bankura"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-20T09:00:04.973Z",
+      "interviewerId": "696f44138bff1bceca4029d7"
+    },
+    {
+      "memberId": "15722",
+      "name": "tej hangma limboo",
+      "phone": "7810915722",
+      "email": "tejhangmalimboo7810915722@gmail.com",
+      "assignedACs": [
+        "Jangipara"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-19T06:38:15.581Z",
+      "interviewerId": "696dd156583960c9574f0017"
+    },
+    {
+      "memberId": "31745",
+      "name": "Arjun Pradhan",
+      "phone": "6901331745",
+      "email": "arjunpradhan6901331745@gmail.com",
+      "assignedACs": [
+        "Madarihat"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-19T06:38:10.493Z",
+      "interviewerId": "696dd150583960c9574ef202"
+    },
+    {
+      "memberId": "46689",
+      "name": "Amla Pradhan",
+      "phone": "8415846689",
+      "email": "amlapradhan8415846689@gmail.com",
+      "assignedACs": [
+        "Jhargram"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-19T06:38:13.067Z",
+      "interviewerId": "696dd153583960c9574ef90c"
+    },
+    {
+      "memberId": "67521",
+      "name": "Vivek sunar",
+      "phone": "8453167521",
+      "email": "viveksunar8453167521@gmail.com",
+      "assignedACs": [
+        "Kalchini"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-19T06:38:04.959Z",
+      "interviewerId": "696dd14b583960c9574ee3f1"
+    },
+    {
+      "memberId": "81077",
+      "name": "Anup sunar",
+      "phone": "7477481077",
+      "email": "anupsunar7477481077@gmail.com",
+      "assignedACs": [
+        "Champdani"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-19T06:38:07.814Z",
+      "interviewerId": "696dd14e583960c9574eeaf9"
+    },
+    {
+      "memberId": "90002",
+      "name": "Avijit Dhar",
+      "phone": "6297624245",
+      "email": "cati90002@gmail.com",
+      "assignedACs": [
+        "Kalchini"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-05T06:31:23.010Z",
+      "interviewerId": "698439390d862590a2ca4cb8"
+    },
+    {
+      "memberId": "90003",
+      "name": "Atunu Barai",
+      "phone": "8101305920",
+      "email": "cati90003@gmail.com",
+      "assignedACs": [
+        "Champdani"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-05T06:31:45.412Z",
+      "interviewerId": "6984395062cc208cfaa1d89a"
+    },
+    {
+      "memberId": "90004",
+      "name": "Yukta Chakraborty",
+      "phone": "7074160474",
+      "email": "cati90004@gmail.com",
+      "assignedACs": [
+        "Madarihat"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-05T06:32:07.449Z",
+      "interviewerId": "6984396662cc208cfaa20b8d"
+    },
+    {
+      "memberId": "90005",
+      "name": "Sajdia Parvin",
+      "phone": "9547916754",
+      "email": "cati90005@gmail.com",
+      "assignedACs": [
+        "Jhargram"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-05T06:32:29.316Z",
+      "interviewerId": "6984397c62cc208cfaa23857"
+    },
+    {
+      "memberId": "90006",
+      "name": "Anjali Yadav",
+      "phone": "7439940116",
+      "email": "cati90006@gmail.com",
+      "assignedACs": [
+        "Jangipara"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-05T06:32:49.195Z",
+      "interviewerId": "6984398f62cc208cfaa27188"
+    },
+    {
+      "memberId": "90007",
+      "name": "Sk Babul",
+      "phone": "8967906556",
+      "email": "cati90007@gmail.com",
+      "assignedACs": [
+        "Satgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-05T06:33:11.594Z",
+      "interviewerId": "698439a64ecbd402f00d0b60"
+    },
+    {
+      "memberId": "90008",
+      "name": "Rafika Khatun",
+      "phone": "8016487478",
+      "email": "cati90008@gmail.com",
+      "assignedACs": [
+        "Kalchini"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-05T06:33:39.463Z",
+      "interviewerId": "698439c24ecbd402f00d4b0e"
+    },
+    {
+      "memberId": "90012",
+      "name": "Azra Khatun",
+      "phone": "8420045700",
+      "email": "cati90012@gmail.com",
+      "assignedACs": [
+        "Satgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-02-09T06:08:07.543Z",
+      "interviewerId": "698979c6fe817349e515292a"
+    },
+    {
+      "memberId": "96559",
+      "name": "Susu hangma subba",
+      "phone": "8945996559",
+      "email": "susuhangmasubba8945996559@gmail.com",
+      "assignedACs": [
+        "Satgachhia"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-19T06:38:18.056Z",
+      "interviewerId": "696dd158583960c9574f0723"
+    },
+    {
+      "memberId": "130848",
+      "name": "Vishals Interviewer",
+      "phone": "9958011332",
+      "email": "vishalinterviewer@gmail.com",
+      "assignedACs": [
+        "Jhargram"
+      ],
+      "status": "assigned",
+      "assignedAt": "2025-12-15T11:19:23.830Z",
+      "interviewerId": "68ebf124ab86ea29f3c0f1f8"
+    },
+    {
+      "memberId": "978391",
+      "name": "Sushana lepcha",
+      "phone": "9382562737",
+      "email": "cati978391@gmail.com",
+      "assignedACs": [
+        "Champdani"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-20T09:52:53.061Z",
+      "interviewerId": "696f50734b59934aa744656a"
+    },
+    {
+      "memberId": "978392",
+      "name": "SAJINA TAMANG",
+      "phone": "7047021843",
+      "email": "cati978392@gmail.com",
+      "assignedACs": [
+        "Madarihat"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-20T09:52:56.121Z",
+      "interviewerId": "696f50764b59934aa7446c80"
+    },
+    {
+      "memberId": "978393",
+      "name": "Sanjana lepcha",
+      "phone": "8597061003",
+      "email": "cati978393@gmail.com",
+      "assignedACs": [
+        "Jhargram"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-20T09:52:59.053Z",
+      "interviewerId": "696f50794b59934aa7447397"
+    },
+    {
+      "memberId": "978397",
+      "name": "Samina Interviewer",
+      "phone": "9883738613",
+      "email": "cati978397@gmail.com",
+      "assignedACs": [
+        "Jangipara"
+      ],
+      "status": "assigned",
+      "assignedAt": "2026-01-20T11:02:40.761Z",
+      "interviewerId": "696f60ce31faf98850dfd3f7"
+    }
+  ]
+}

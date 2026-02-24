@@ -10,7 +10,7 @@ const CLOUDTELEPHONY_API_BASE_URL_V3 = 'https://indiavoice.rpdigitalphone.com/ap
 // Member APIs
 const CLOUDTELEPHONY_ADD_MEMBER_API_V3 = 'https://indiavoice.rpdigitalphone.com/api_v3/addmember_v2';
 const CLOUDTELEPHONY_ADD_MEMBER_API_V2 = 'https://indiavoice.rpdigitalphone.com/api_v2/addmember_v2';
-const WEBHOOK_BASE_URL = process.env.WEBHOOK_BASE_URL || 'https://opine.exypnossolutions.com';
+const WEBHOOK_BASE_URL = process.env.WEBHOOK_BASE_URL || 'https://convo.convergentview.com';
 
 class CloudTelephonyProvider extends BaseProvider {
   constructor(config) {
@@ -26,7 +26,28 @@ class CloudTelephonyProvider extends BaseProvider {
     // v2: legacy authcode (fallback)
     this.authCode = config.authCode || process.env.CLOUDTELEPHONY_AUTH_CODE || null;
 
-    this.deskphone = config.deskphone || process.env.CLOUDTELEPHONY_DESKPHONE || '00919228812714';
+    // Get deskphone from config, env, or fallback
+    let deskphone = config.deskphone || process.env.CLOUDTELEPHONY_DESKPHONE || '919228812714';
+    
+    // CRITICAL: Check if this is the old number (in any format) and replace with new number
+    // Remove leading zeros for comparison to catch old number in any format
+    const cleanDeskphone = deskphone.replace(/^0+/, ''); // Remove leading zeros
+    if (cleanDeskphone === '917316525610' || cleanDeskphone === '17316525610' ||
+        cleanDeskphone === '917316525609' || cleanDeskphone === '17316525609' || 
+        cleanDeskphone === '917316525608' || cleanDeskphone === '17316525608' ||
+        cleanDeskphone === '917316525611' || cleanDeskphone === '17316525611' ||
+        cleanDeskphone === '917316525612' || cleanDeskphone === '17316525612' ||
+        cleanDeskphone === '917316525613' || cleanDeskphone === '17316525613' ||
+        cleanDeskphone === '919228812714' || cleanDeskphone === '19228812714' ||
+        cleanDeskphone === '917316525615' || cleanDeskphone === '17316525615') {
+      // This is an old number - force use the new number (don't check env as it might be old)
+      deskphone = '919228812714';
+      console.log(`⚠️ [CloudTelephony] Old deskphone number detected (${config.deskphone || process.env.CLOUDTELEPHONY_DESKPHONE || 'N/A'}), forcing use of new number: ${deskphone}`);
+    }
+    
+    // NOTE: We're using the number WITHOUT "00" prefix as requested
+    // Cloud Telephony API should handle the number format as provided
+    this.deskphone = deskphone;
   }
 
   getName() {
@@ -55,7 +76,7 @@ class CloudTelephonyProvider extends BaseProvider {
       if (this.apiUsername && this.apiPassword) {
         response = await axios.post(this.addMemberApiUrlV3, formData, {
           headers: formData.getHeaders(),
-          timeout: 30000,
+          timeout: 60000,
           auth: { username: this.apiUsername, password: this.apiPassword }
         });
       } else {
@@ -66,7 +87,7 @@ class CloudTelephonyProvider extends BaseProvider {
         formData.append('Authcode', this.authCode);
         response = await axios.post(this.addMemberApiUrlV2, formData, {
         headers: formData.getHeaders(),
-        timeout: 30000
+        timeout: 60000
       });
       }
 
@@ -101,7 +122,7 @@ class CloudTelephonyProvider extends BaseProvider {
     const cleanFrom = fromNumber.replace(/[^0-9]/g, '');
     const cleanTo = toNumber.replace(/[^0-9]/g, '');
 
-    // Build API parameters
+    // Build API parameters - match exact format of working CURL request
     const params = {
       calling_party_a: cleanFrom, // Agent (FROM number)
       calling_party_b: cleanTo,   // Respondent (TO number)
@@ -109,19 +130,23 @@ class CloudTelephonyProvider extends BaseProvider {
       call_from_did: '1' // Always 1 (mandatory)
     };
 
-    // Add optional parameters
-    if (fromRingTime) params.waittime = parseInt(fromRingTime);
-    if (timeLimit) params.CallLimit = parseInt(timeLimit);
-    // Optional: client/system UID. Provider docs say it is returned back in webhook if configured.
-    if (uid) params.uid = String(uid);
+    // NOTE: Removed optional parameters (waittime, CallLimit, uid) to match working CURL format
+    // These may cause "No Callgroup" errors - only include if absolutely necessary
+    // if (fromRingTime) params.waittime = parseInt(fromRingTime);
+    // if (timeLimit) params.CallLimit = parseInt(timeLimit);
+    // if (uid) params.uid = String(uid);
 
     const queryString = new URLSearchParams(params).toString();
     const fullUrl = `${(this.apiUsername && this.apiPassword) ? this.apiBaseUrlV3 : this.apiBaseUrlV2}?${queryString}${(this.apiUsername && this.apiPassword) ? '' : `&authcode=${encodeURIComponent(this.authCode || '')}`}`;
 
     console.log(`📞 [CloudTelephony] Making call: ${fromNumber} -> ${toNumber}`);
+    console.log(`📞 [CloudTelephony] Using deskphone: ${this.deskphone} (from config: ${callParams.config?.deskphone || 'N/A'}, env: ${process.env.CLOUDTELEPHONY_DESKPHONE || 'N/A'})`);
+    console.log(`📞 [CloudTelephony] API URL: ${fullUrl}`);
+    console.log(`📞 [CloudTelephony] Parameters: ${JSON.stringify(params, null, 2)}`);
+    console.log(`📞 [CloudTelephony] Using Auth: ${this.apiUsername && this.apiPassword ? 'Basic Auth (V3)' : 'Authcode (V2)'}`);
 
     const axiosOptions = {
-      timeout: 30000,
+      timeout: 60000,
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -141,11 +166,17 @@ class CloudTelephonyProvider extends BaseProvider {
 
     const apiResponse = response.data;
     
+    console.log(`📞 [CloudTelephony] API Response Status: ${response.status}`);
+    console.log(`📞 [CloudTelephony] API Response Data: ${JSON.stringify(apiResponse, null, 2)}`);
+    
     // Provider can return HTTP 200 with an error payload
     if (apiResponse && typeof apiResponse === 'object' && String(apiResponse.type || '').toLowerCase() === 'error') {
-      throw new Error(apiResponse.message || 'CloudTelephony click-to-call failed');
+      const errorMsg = apiResponse.message || 'CloudTelephony click-to-call failed';
+      console.error(`❌ [CloudTelephony] API returned error: ${errorMsg}`);
+      throw new Error(errorMsg);
     }
     if (typeof apiResponse === 'string' && apiResponse.toLowerCase().includes('error')) {
+      console.error(`❌ [CloudTelephony] API returned error string: ${apiResponse}`);
       throw new Error(apiResponse);
     }
     

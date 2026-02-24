@@ -772,6 +772,24 @@ class ComprehensiveStressTest {
         console.log(`   ✅ Deleted ${interviewerResult.deletedCount} responses created by test interviewers`);
       }
       
+      // Step 5: Reset CATI respondents assigned by test interviewer back to pending
+      console.log('🔄 Step 5: Resetting CATI respondents assigned by test interviewer...');
+      if (catiInterviewer) {
+        const catiQueueCollection = mongoose.connection.db.collection('catirespondentqueues');
+        const catiResetResult = await catiQueueCollection.updateMany(
+          {
+            assignedTo: catiInterviewer._id,
+            status: 'assigned',
+            assignedAt: { $gte: testStartTime }
+          },
+          {
+            $set: { status: 'pending' },
+            $unset: { assignedTo: '', assignedAt: '' }
+          }
+        );
+        console.log(`   ✅ Reset ${catiResetResult.modifiedCount} CATI respondents back to pending`);
+      }
+      
       // Clear tracker
       qualityCheckTracker.clear();
       

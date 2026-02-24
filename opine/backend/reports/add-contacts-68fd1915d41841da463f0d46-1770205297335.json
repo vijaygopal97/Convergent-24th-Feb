@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-02-04T11:41:37.335Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Kalna",
+  "excelFile": "/var/www/Report-Generation/ac264_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 4998,
+  "errors": [
+    "Row 59: Invalid phone number",
+    "Row 2895: Invalid phone number format. Phone must be 10-15 digits (got 9 digits)"
+  ],
+  "newContactsAdded": 4995,
+  "queueEntriesCreated": 4998,
+  "duplicateCleanup": {
+    "totalEntries": 816643,
+    "uniquePhones": 816432,
+    "duplicateCount": 211,
+    "deleted": 211
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4790,
+    "totalPending": 722687
+  },
+  "durationSeconds": "33.27"
+}

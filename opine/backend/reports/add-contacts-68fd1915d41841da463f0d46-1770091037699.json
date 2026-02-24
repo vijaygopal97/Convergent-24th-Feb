@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-02-03T03:57:17.699Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Mayureswar",
+  "excelFile": "/var/www/Report-Generation/ac290_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 5000,
+  "errors": [],
+  "newContactsAdded": 0,
+  "queueEntriesCreated": 5000,
+  "duplicateCleanup": {
+    "totalEntries": 749958,
+    "uniquePhones": 749741,
+    "duplicateCount": 217,
+    "deleted": 217
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4789,
+    "totalPending": 659264
+  },
+  "durationSeconds": "26.61"
+}

@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-02-04T11:40:44.341Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Raghunathpur, Purulia",
+  "excelFile": "/var/www/Report-Generation/ac246_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 5000,
+  "errors": [],
+  "newContactsAdded": 4990,
+  "queueEntriesCreated": 5000,
+  "duplicateCleanup": {
+    "totalEntries": 811866,
+    "uniquePhones": 811645,
+    "duplicateCount": 221,
+    "deleted": 221
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4783,
+    "totalPending": 717906
+  },
+  "durationSeconds": "29.63"
+}

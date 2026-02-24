@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-02-03T03:58:06.499Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Rampurhat",
+  "excelFile": "/var/www/Report-Generation/ac291_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 5000,
+  "errors": [],
+  "newContactsAdded": 0,
+  "queueEntriesCreated": 5000,
+  "duplicateCleanup": {
+    "totalEntries": 754741,
+    "uniquePhones": 754547,
+    "duplicateCount": 194,
+    "deleted": 194
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4810,
+    "totalPending": 664069
+  },
+  "durationSeconds": "30.93"
+}

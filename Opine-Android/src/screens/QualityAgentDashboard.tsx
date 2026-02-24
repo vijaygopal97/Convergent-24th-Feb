@@ -19,6 +19,7 @@ import {
 } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
+import Constants from 'expo-constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { apiService } from '../services/api';
 import { User } from '../types';
@@ -786,6 +787,7 @@ export default function QualityAgentDashboard({ navigation, user, onLogout }: Qu
             <View style={styles.userDetails}>
               <Text style={styles.userName}>{user.firstName} {user.lastName}</Text>
               <Text style={styles.userRole}>Quality Agent</Text>
+              <Text style={styles.appVersion}>Version: {Constants.expoConfig?.version || Constants.manifest?.version || 'N/A'}</Text>
             </View>
           </View>
           <Button
@@ -1093,6 +1095,11 @@ const styles = StyleSheet.create({
   userRole: {
     fontSize: 12,
     color: 'rgba(255, 255, 255, 0.7)',
+  },
+  appVersion: {
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginTop: 2,
   },
   logoutButton: {
     borderColor: 'rgba(255, 255, 255, 0.5)',

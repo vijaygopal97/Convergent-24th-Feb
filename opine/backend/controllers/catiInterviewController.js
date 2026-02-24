@@ -123,7 +123,7 @@ const getACPriority = async (acName) => {
 const DEEPCALL_API_BASE_URL = 'https://s-ct3.sarv.com/v2/clickToCall/para';
 const DEEPCALL_USER_ID = process.env.DEEPCALL_USER_ID || '89130240';
 const DEEPCALL_TOKEN = process.env.DEEPCALL_TOKEN || '6GQJuwW6lB8ZBHntzaRU';
-const WEBHOOK_BASE_URL = process.env.WEBHOOK_BASE_URL || 'https://opine.exypnossolutions.com';
+const WEBHOOK_BASE_URL = process.env.WEBHOOK_BASE_URL || 'https://convo.convergentview.com';
 
 // Helper function to make call via DeepCall API
 const initiateDeepCall = async (fromNumber, toNumber, fromType = 'Number', toType = 'Number', fromRingTime = 30, toRingTime = 30) => {
@@ -620,51 +620,71 @@ const startCatiInterview = async (req, res) => {
       .filter(p => !isNaN(p) && p > 0)
       .sort((a, b) => a - b);
     
-    let selectedRespondent = null;
+    // Declare variables at function scope (needed for fallback paths)
+    let respondentId = null;
+    let selectedAcName = null;
+    let selectedPriority = null;
+    const excludeIds = []; // Track IDs we've tried to avoid duplicates
     
-    // PHASE 1 + 2 + 3 + 6 OPTIMIZATION: Complete solution (Amazon/Twitter approach)
-    // Phase 1: Trust cache (eventual consistency) - removed verification query
-    // Phase 2: Atomic findOneAndUpdate (prevents race conditions)
-    // Phase 3: Simplified query (replaced $facet with optimized single query)
-    // Phase 6: Batch Redis operations (pipeline)
+    // LPOP-BASED QUEUE SOLUTION: Atomic queue assignment (Meta/Facebook approach)
+    // This eliminates race conditions completely - LPOP guarantees only one request gets each ID
+    // Phase 1: LPOP from Redis lists (atomic - no race conditions)
+    // Phase 2: Auto-refill queue when buffer is low
+    // Phase 3: findOneAndUpdate for final assignment (should always succeed with LPOP)
     if (sortedPriorities.length > 0) {
       const surveyObjectId = new mongoose.Types.ObjectId(surveyId);
       
-      // PHASE 6: Batch Redis cache lookups (pipeline optimization)
-      const cacheKeysToCheck = [];
-      for (const priority of sortedPriorities) {
-        const acNames = priorityACs[priority];
-        for (const acName of acNames) {
-          cacheKeysToCheck.push({ surveyId, acName, priority });
-        }
-      }
-      
-      // Batch get all cache entries at once (Phase 6)
-      const cachedEntriesMap = await catiQueueCache.batchGetCachedEntries(cacheKeysToCheck);
-      
-      // PHASE 1: Trust cache (eventual consistency) - use cached ID directly without verification
-      let cachedEntryId = null;
-      let cachedAcName = null;
-      let cachedPriority = null;
+      // Try LPOP for each priority/AC combination in order (highest priority first)
       
       for (const priority of sortedPriorities) {
         const acNames = priorityACs[priority];
+        
         for (const acName of acNames) {
-          const cacheKey = `cati:next:${surveyId}:${acName}:${priority}`;
-          if (cachedEntriesMap[cacheKey]) {
-            cachedEntryId = cachedEntriesMap[cacheKey];
-            cachedAcName = acName;
-            cachedPriority = priority;
-            console.log(`⚡ Found respondent ID from Redis cache (priority ${priority}, AC: ${acName})`);
+          // LPOP: Atomically get next respondent ID from queue (only one request can get each ID)
+          respondentId = await catiQueueCache.getNextRespondentIdWithRefill(
+            surveyId,
+            acName,
+            priority,
+            CatiRespondentQueue,
+            excludeIds
+          );
+          
+          if (respondentId) {
+            selectedAcName = acName;
+            selectedPriority = priority;
+            console.log(`⚡ LPOP: Got respondent ID ${respondentId} from queue (priority ${priority}, AC: ${acName})`);
             break;
           }
         }
-        if (cachedEntryId) break;
+        
+        if (respondentId) break; // Found one, stop searching
       }
       
-      // OPTIMIZATION: Single aggregation query for all priorities (Solution 1: Google/Meta approach)
-      // Instead of sequential queries per priority, query all ACs at once and select best match
-      if (!cachedEntryId) {
+      // If LPOP returned an ID, use it directly with findOneAndUpdate (atomic operation)
+      // No need to check MongoDB first - findOneAndUpdate will validate status atomically
+      // This eliminates TOCTOU gap and handles stale queue entries gracefully
+      if (respondentId) {
+        // Validate ObjectId format only
+        if (!mongoose.Types.ObjectId.isValid(respondentId)) {
+          console.warn(`⚠️ Invalid respondent ID from LPOP: ${respondentId}`);
+          respondentId = null;
+          excludeIds.push(respondentId);
+        } else {
+          // Store for direct use in findOneAndUpdate (no MongoDB check needed)
+          // findOneAndUpdate will atomically check status and assign
+          console.log(`⚡ LPOP: Using respondent ID ${respondentId} directly (priority ${selectedPriority}, AC: ${selectedAcName})`);
+        }
+      }
+      
+      // If LPOP didn't return an ID, fallback to direct DB query (queue empty or Redis unavailable)
+      // CRITICAL: Exclude IDs currently in Redis queues to prevent conflicts
+      if (!respondentId) {
+        console.log(`ℹ️  LPOP returned no ID, falling back to direct DB query`);
+        
+        // Get all IDs currently in Redis queues for this survey/AC/priority to exclude from fallback
+        const queueIdsToExclude = await catiQueueCache.getAllQueueIdsForSurvey(surveyId, sortedPriorities, priorityACs);
+        excludeIds.push(...queueIdsToExclude);
+        
         // Collect all AC names from all priorities
         const allPriorityACs = [];
         for (const priority of sortedPriorities) {
@@ -675,20 +695,24 @@ const startCatiInterview = async (req, res) => {
         if (allPriorityACs.length > 0) {
           const queryStartTime = Date.now();
           
-          // OPTIMIZATION: Single query for all prioritized ACs
-          // Get top candidates (limit to reasonable number for priority sorting)
+          // Direct DB query fallback - exclude IDs in Redis queues
           const allACNames = allPriorityACs.map(item => item.ac);
+          const excludeObjectIds = excludeIds
+            .filter(id => mongoose.Types.ObjectId.isValid(id))
+            .map(id => new mongoose.Types.ObjectId(id));
+          
           const candidates = await CatiRespondentQueue.find({
             survey: surveyObjectId,
             status: 'pending',
-            'respondentContact.ac': { $in: allACNames }
+            'respondentContact.ac': { $in: allACNames },
+            ...(excludeObjectIds.length > 0 && { _id: { $nin: excludeObjectIds } })
           })
           .sort({ createdAt: 1 })
-          .limit(50) // Limit candidates for application-level priority sorting
+          .limit(50)
           .lean();
           
           const queryDuration = Date.now() - queryStartTime;
-          console.log(`⚡ Single query took ${queryDuration}ms (${allACNames.length} ACs, ${candidates.length} candidates)`);
+          console.log(`⚡ Fallback query took ${queryDuration}ms (${allACNames.length} ACs, ${candidates.length} candidates, excluded ${excludeObjectIds.length} queue IDs)`);
           
           if (candidates.length > 0) {
             // Create priority map for fast lookup
@@ -710,45 +734,42 @@ const startCatiInterview = async (req, res) => {
             }
             
             if (bestCandidate) {
-              selectedRespondent = bestCandidate;
-              const selectedAC = bestCandidate.respondentContact?.ac;
-              console.log(`✅ Found respondent at priority ${bestPriority} (AC: ${selectedAC})`);
+              // Use candidate ID directly (will be validated by findOneAndUpdate)
+              respondentId = bestCandidate._id.toString();
+              selectedAcName = bestCandidate.respondentContact?.ac;
+              selectedPriority = bestPriority;
+              console.log(`✅ Fallback: Found respondent at priority ${bestPriority} (AC: ${selectedAcName})`);
               
-              // Cache the result for future requests
-              if (selectedAC) {
-                await catiQueueCache.setCachedNextEntry(surveyId, selectedAC, bestPriority, selectedRespondent._id.toString());
-                console.log(`💾 Cached next entry for priority ${bestPriority}, AC: ${selectedAC}`);
+              // Initialize queue for this AC/priority for future requests
+              if (selectedAcName && bestPriority > 0) {
+                catiQueueCache.initializeQueue(surveyId, selectedAcName, bestPriority, CatiRespondentQueue)
+                  .catch(err => console.warn('⚠️ Background queue initialization error:', err.message));
               }
             }
           }
-        }
-      } else {
-        // Use cached entry ID (Phase 1: trust cache, eventual consistency)
-        // If entry doesn't exist when we try to assign it, we'll handle gracefully in Phase 2
-        try {
-          selectedRespondent = await CatiRespondentQueue.findById(cachedEntryId).lean();
-          if (selectedRespondent && selectedRespondent.status === 'pending' && 
-              selectedRespondent.respondentContact?.ac === cachedAcName) {
-            console.log(`✅ Using cached respondent (ID: ${cachedEntryId})`);
-          } else {
-            // Cache entry was assigned or doesn't exist - clear cache and fallback to query
-            await catiQueueCache.clearCachedNextEntry(surveyId, cachedAcName, cachedPriority);
-            selectedRespondent = null;
-          }
-        } catch (cacheError) {
-          console.warn(`⚠️ Error loading cached entry: ${cacheError.message}`);
-          selectedRespondent = null;
         }
       }
     }
     
     // If no prioritized ACs have pending respondents, select from non-prioritized (ORIGINAL: Simple fallback)
-    if (!selectedRespondent) {
+    // CRITICAL: Exclude IDs in Redis queues to prevent conflicts
+    if (!respondentId) {
+      // Get all IDs currently in Redis queues to exclude (only if we have priorities)
+      if (sortedPriorities && sortedPriorities.length > 0 && priorityACs) {
+        const queueIdsToExclude = await catiQueueCache.getAllQueueIdsForSurvey(surveyId, sortedPriorities, priorityACs);
+        excludeIds.push(...queueIdsToExclude);
+      }
+      
       // CRITICAL FIX: If interviewer has assignedACs, only consider those ACs in fallback
       // Build fallback query based on whether ACs are assigned
+      const excludeObjectIds = excludeIds
+        .filter(id => mongoose.Types.ObjectId.isValid(id))
+        .map(id => new mongoose.Types.ObjectId(id));
+      
       let fallbackQuery = {
         survey: new mongoose.Types.ObjectId(surveyId),
-        status: 'pending'
+        status: 'pending',
+        ...(excludeObjectIds.length > 0 && { _id: { $nin: excludeObjectIds } })
       };
       
       if (hasAssignedACs && assignment && assignment.assignedACs) {
@@ -773,16 +794,27 @@ const startCatiInterview = async (req, res) => {
         ];
       }
       
-      selectedRespondent = await CatiRespondentQueue.findOne(fallbackQuery)
-      .sort({ createdAt: 1 })
-      .lean();
+      const fallbackCandidate = await CatiRespondentQueue.findOne(fallbackQuery)
+        .sort({ createdAt: 1 })
+        .lean();
+      
+      if (fallbackCandidate) {
+        respondentId = fallbackCandidate._id.toString();
+        selectedAcName = fallbackCandidate.respondentContact?.ac;
+        console.log(`✅ Non-prioritized fallback: Found respondent (AC: ${selectedAcName})`);
+      }
     }
     
-    // Final fallback: any pending respondent
-    if (!selectedRespondent) {
+    // Final fallback: any pending respondent (excluding queue IDs)
+    if (!respondentId) {
+      const excludeObjectIds = excludeIds
+        .filter(id => mongoose.Types.ObjectId.isValid(id))
+        .map(id => new mongoose.Types.ObjectId(id));
+      
       const fallbackQuery = {
         survey: surveyId,
-        status: 'pending'
+        status: 'pending',
+        ...(excludeObjectIds.length > 0 && { _id: { $nin: excludeObjectIds } })
       };
       
       if (hasAssignedACs && assignment && assignment.assignedACs) {
@@ -791,16 +823,20 @@ const startCatiInterview = async (req, res) => {
         console.log('🔍 Final fallback query: Only considering assigned ACs:', assignment.assignedACs);
       } else {
         // Original behavior: only exclude Priority 0 ACs if specified
-      if (excludedACs.length > 0) {
-        fallbackQuery['respondentContact.ac'] = { $nin: excludedACs };
+        if (excludedACs.length > 0) {
+          fallbackQuery['respondentContact.ac'] = { $nin: excludedACs };
         }
       }
       
-      selectedRespondent = await CatiRespondentQueue.findOne(fallbackQuery)
+      const finalFallbackCandidate = await CatiRespondentQueue.findOne(fallbackQuery)
         .sort({ createdAt: 1 })
         .lean();
       
-      if (!selectedRespondent) {
+      if (finalFallbackCandidate) {
+        respondentId = finalFallbackCandidate._id.toString();
+        selectedAcName = finalFallbackCandidate.respondentContact?.ac;
+        console.log(`✅ Final fallback: Found respondent (AC: ${selectedAcName})`);
+      } else {
         return res.status(200).json({
           success: false,
           message: 'No Pending Respondents',
@@ -812,25 +848,27 @@ const startCatiInterview = async (req, res) => {
       }
     }
     
-    // PHASE 2: Atomic findOneAndUpdate (prevents race conditions)
-    // This ensures only one interviewer gets each respondent, even under high concurrency
-    if (!selectedRespondent || !selectedRespondent._id) {
-      console.log('⚠️  No respondent found or invalid ID');
+    // PHASE 2: Atomic findOneAndUpdate (final assignment)
+    // Go directly from LPOP/fallback ID to findOneAndUpdate - eliminates TOCTOU gap
+    // findOneAndUpdate atomically checks status and assigns - no MongoDB check needed
+    if (!respondentId) {
+      console.log('⚠️  No respondent ID available');
       return res.status(500).json({
         success: false,
         message: 'Error: No available respondent found'
       });
     }
     
-    const respondentId = selectedRespondent._id;
-    const acName = selectedRespondent.respondentContact?.ac;
+    const respondentObjectId = new mongoose.Types.ObjectId(respondentId);
+    const acName = selectedAcName;
     
     // Atomic assignment - only updates if status is still 'pending'
+    // This is the ONLY MongoDB operation needed - it's atomic and handles stale IDs gracefully
     const assignmentStartTime = Date.now();
-    const nextRespondent = await CatiRespondentQueue.findOneAndUpdate(
+    let nextRespondent = await CatiRespondentQueue.findOneAndUpdate(
       {
-        _id: respondentId,
-        status: 'pending' // Critical: only assign if still pending (prevents race conditions)
+        _id: respondentObjectId,
+        status: 'pending' // Critical: only assign if still pending (atomic check)
       },
       {
         $set: {
@@ -848,71 +886,58 @@ const startCatiInterview = async (req, res) => {
     const assignmentDuration = Date.now() - assignmentStartTime;
     console.log(`⚡ Atomic assignment took ${assignmentDuration}ms`);
     
-    // OPTIMIZATION: Optimistic locking pattern (Solution 5: Netflix approach)
-    // If null, another interviewer already assigned this respondent (race condition handled)
-    // Maximum 2 retries with exponential backoff to prevent infinite loops
+    // If findOneAndUpdate returns null, ID was stale (already assigned)
+    // Retry with LPOP (max 3 attempts) before falling back to DB
     if (!nextRespondent) {
-      console.log(`⚠️  Respondent ${respondentId} was already assigned (race condition handled gracefully)`);
+      console.log(`⚠️  Respondent ${respondentId} was already assigned (stale queue entry)`);
+      excludeIds.push(respondentId);
       
-      // Clear stale cache
-      if (acName) {
-        const acPriority = await getACPriority(acName);
-        if (acPriority !== null && acPriority > 0) {
-          await catiQueueCache.clearCachedNextEntry(surveyId, acName, acPriority);
+      // Retry with LPOP (max 3 attempts)
+      let retrySuccess = false;
+      const maxRetries = 3;
+      
+      for (let retryAttempt = 1; retryAttempt <= maxRetries && !retrySuccess; retryAttempt++) {
+        if (selectedAcName && selectedPriority !== null && selectedPriority > 0) {
+          const retryRespondentId = await catiQueueCache.getNextRespondentIdWithRefill(
+            surveyId,
+            selectedAcName,
+            selectedPriority,
+            CatiRespondentQueue,
+            excludeIds
+          );
+          
+          if (retryRespondentId && mongoose.Types.ObjectId.isValid(retryRespondentId)) {
+            const retryObjectId = new mongoose.Types.ObjectId(retryRespondentId);
+            const retryAssignment = await CatiRespondentQueue.findOneAndUpdate(
+              { _id: retryObjectId, status: 'pending' },
+              {
+                $set: {
+                  status: 'assigned',
+                  assignedTo: interviewerId,
+                  assignedAt: new Date()
+                }
+              },
+              { new: true, runValidators: true }
+            );
+            
+            if (retryAssignment) {
+              nextRespondent = retryAssignment;
+              retrySuccess = true;
+              console.log(`✅ Retry ${retryAttempt}/${maxRetries} successful: assigned respondent ${retryAssignment._id} via LPOP`);
+            } else {
+              excludeIds.push(retryRespondentId);
+            }
+          }
         }
       }
       
-      // OPTIMIZATION: Single retry attempt (simplified from multiple retries)
-      // Try to get another respondent (skip cache, query DB directly)
-      let retryQuery = {
-        survey: new mongoose.Types.ObjectId(surveyId),
-        status: 'pending',
-        _id: { $ne: respondentId } // Exclude the one that was already assigned
-      };
-      
-      if (hasAssignedACs && assignment && assignment.assignedACs) {
-        retryQuery['respondentContact.ac'] = { $in: assignment.assignedACs };
-      }
-      
-      const retryResult = await CatiRespondentQueue.findOne(retryQuery)
-        .sort({ createdAt: 1 })
-        .lean();
-      
-      if (retryResult) {
-        // Try atomic assignment again with new respondent (single retry)
-        const retryAssignment = await CatiRespondentQueue.findOneAndUpdate(
-          { _id: retryResult._id, status: 'pending' },
-          {
-            $set: {
-              status: 'assigned',
-              assignedTo: interviewerId,
-              assignedAt: new Date()
-            }
-          },
-          { new: true, runValidators: true }
-        );
-        
-        if (retryAssignment) {
-          nextRespondent = retryAssignment;
-          console.log(`✅ Retry successful: assigned respondent ${retryAssignment._id}`);
-        } else {
-          // Retry also failed - return error (all respondents are being assigned)
-          return res.status(200).json({
-            success: false,
-            message: 'No Pending Respondents',
-            data: {
-              message: 'All available respondents are currently being assigned. Please try again in a moment.',
-              hasPendingRespondents: false
-            }
-          });
-        }
-      } else {
-        // No more respondents available
+      // If all retries failed, return error
+      if (!retrySuccess) {
         return res.status(200).json({
           success: false,
           message: 'No Pending Respondents',
           data: {
-            message: 'All respondents have been processed or are currently assigned. Please check back later or contact your administrator.',
+            message: 'All available respondents are currently being assigned. Please try again in a moment.',
             hasPendingRespondents: false
           }
         });
@@ -921,14 +946,8 @@ const startCatiInterview = async (req, res) => {
     
     console.log('✅ Respondent assigned atomically:', nextRespondent._id);
     
-    // PHASE 3: Clear cache for this entry (it's now assigned, so cache is stale)
-    if (acName) {
-      const acPriority = await getACPriority(acName);
-      if (acPriority !== null && acPriority > 0) {
-        await catiQueueCache.clearCachedNextEntry(surveyId, acName, acPriority);
-        console.log(`🗑️  Cleared cache for assigned entry (priority ${acPriority}, AC: ${acName})`);
-      }
-    }
+    // Note: No need to clear cache - LPOP already removed ID from queue
+    // Queue will auto-refill when buffer is low
 
     // OPTIMIZED: Use lean() for faster query (returns plain object, not Mongoose document)
     // Top tech companies use lean() for read-only queries to reduce memory overhead
@@ -3562,6 +3581,41 @@ const initializeRespondentQueue = async (surveyId, respondentContacts) => {
         }
       );
       console.log(`🔄 Reset ${resetCount.modifiedCount} entries back to pending status`);
+      
+      // NEW: Re-initialize Redis queues after reset (respondents are now pending again)
+      try {
+        const acPriorityMap = await loadACPriorityMap();
+        const pendingRespondents = await CatiRespondentQueue.find({
+          survey: surveyId,
+          status: 'pending'
+        })
+        .select('respondentContact.ac')
+        .limit(1000) // Sample to get AC distribution
+        .lean();
+        
+        const acNamesSet = new Set();
+        pendingRespondents.forEach(r => {
+          if (r.respondentContact?.ac) {
+            acNamesSet.add(r.respondentContact.ac);
+          }
+        });
+        
+        let queuesInitialized = 0;
+        for (const acName of acNamesSet) {
+          const priority = acPriorityMap[acName] || 0;
+          if (priority > 0) {
+            const initialized = await catiQueueCache.initializeQueue(surveyId, acName, priority, CatiRespondentQueue);
+            if (initialized > 0) {
+              queuesInitialized++;
+            }
+          }
+        }
+        
+        console.log(`✅ Re-initialized ${queuesInitialized} Redis LPOP queues after reset`);
+      } catch (queueInitError) {
+        console.warn('⚠️ Error re-initializing Redis queues after reset:', queueInitError.message);
+      }
+      
       return;
     }
 
@@ -3618,6 +3672,39 @@ const initializeRespondentQueue = async (surveyId, respondentContacts) => {
     }
     
     console.log(`✅ Initialized queue with ${totalInserted}/${queueEntries.length} new respondents for survey ${surveyId}`);
+    
+    // NEW: Initialize Redis LPOP queues for all AC/priority combinations
+    // This pre-populates queues for high-traffic scenarios
+    try {
+      const acPriorityMap = await loadACPriorityMap();
+      const acNamesSet = new Set();
+      
+      // Collect all unique AC names from inserted entries
+      queueEntries.forEach(entry => {
+        if (entry.respondentContact?.ac) {
+          acNamesSet.add(entry.respondentContact.ac);
+        }
+      });
+      
+      // Initialize queues for each AC/priority combination
+      let queuesInitialized = 0;
+      for (const acName of acNamesSet) {
+        const priority = acPriorityMap[acName] || 0;
+        if (priority > 0) {
+          // Only initialize queues for prioritized ACs (priority > 0)
+          const initialized = await catiQueueCache.initializeQueue(surveyId, acName, priority, CatiRespondentQueue);
+          if (initialized > 0) {
+            queuesInitialized++;
+            console.log(`✅ Initialized Redis queue for AC: ${acName}, priority: ${priority} (${initialized} IDs)`);
+          }
+        }
+      }
+      
+      console.log(`✅ Initialized ${queuesInitialized} Redis LPOP queues for survey ${surveyId}`);
+    } catch (queueInitError) {
+      // Non-blocking - queue initialization can happen on-demand
+      console.warn('⚠️ Error initializing Redis queues (will initialize on-demand):', queueInitError.message);
+    }
 
   } catch (error) {
     console.error('Error initializing respondent queue:', error);

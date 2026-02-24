@@ -1,0 +1,1876 @@
+{
+  "totalCount": 207,
+  "dateRange": {
+    "from": "2026-02-10T00:00:00.000Z",
+    "to": "2026-02-11T00:00:00.000Z"
+  },
+  "groupedByStatus": {
+    "unknown": [
+      "698b0492d1a4db87bcb1d2ab",
+      "698b0449d1a4db87bcb1c880",
+      "698b03638b32692dae92ceb2",
+      "698b033e8733e020d620e9f3",
+      "698b033642dc6907a80599b9",
+      "698b02f38b32692dae92c92e",
+      "698b02d38b32692dae92c5d8",
+      "698b02b28b32692dae92c416",
+      "698b02a98b32692dae92c283",
+      "698b02858b32692dae92bf35",
+      "698b025b8b32692dae92bb2e",
+      "698b02328b32692dae92b7d8",
+      "698b01f38b32692dae92b2b1",
+      "698b01ce8b32692dae92b105",
+      "698b01a28b32692dae92af40",
+      "698b017ab05c8e361fccc5a4",
+      "698b01668733e020d620ccdc",
+      "698b01458733e020d620c994",
+      "698b0017b05c8e361fcc948c",
+      "698afff68b32692dae9275dc",
+      "698aff23b05c8e361fcc7c76",
+      "698aff13b05c8e361fcc7abd",
+      "698afeedb05c8e361fcc76db",
+      "698afda3d1a4db87bcb16e10",
+      "698afd8a74fe4430ed29032f",
+      "698af6a1d1a4db87bcb00e33",
+      "698af38274fe4430ed289230",
+      "698af0bbd1a4db87bcafeeae",
+      "698aec2effee00f6fd24bc1d",
+      "698aea7442dc6907a8041155",
+      "698aea37d1a4db87bcafcf16",
+      "698aea1742dc6907a8040bf8",
+      "698ae9f7d1a4db87bcafcb6c",
+      "698ae9d0d1a4db87bcafc9a0",
+      "698ae9b2d1a4db87bcafc7ff",
+      "698ae98f42dc6907a80409e7",
+      "698ae983b05c8e361fcac5c3",
+      "698ae8ff8733e020d61f686d",
+      "698ae86a42dc6907a803f573",
+      "698ae836ffee00f6fd23bc62",
+      "698ae81642dc6907a803eb15",
+      "698ae80342dc6907a803e7e3",
+      "698ae8008b32692dae912910",
+      "698ae7de42dc6907a803e460",
+      "698ae7ae42dc6907a803d31b",
+      "698ae78d42dc6907a803cad3",
+      "698ae78affee00f6fd2397d7",
+      "698ae75242dc6907a803c8ec",
+      "698ae72f42dc6907a803c5b2",
+      "698ae70f42dc6907a803c405",
+      "698ae6ee42dc6907a803c1f4",
+      "698ae6ead1a4db87bcaf9656",
+      "698ae6cc42dc6907a803c02d",
+      "698ae6ac8733e020d61f5739",
+      "698ae6898733e020d61f5584",
+      "698ae6678733e020d61f53c7",
+      "698ae6448733e020d61f5220",
+      "698ae6228733e020d61f4e42",
+      "698ae6018733e020d61f4904",
+      "698ae5e28733e020d61f46fa",
+      "698ae5c38733e020d61f453f",
+      "698ae5be42dc6907a803be75",
+      "698ae5a08733e020d61f3ca3",
+      "698ae56d8733e020d61f3763",
+      "698ae54b8733e020d61f3392",
+      "698ae4dbffee00f6fd22fb0b",
+      "698ae4b2ffee00f6fd22d997",
+      "698ae429b05c8e361fcaa904",
+      "698ae3cfb38b1d892aecd9be",
+      "698ae3adb38b1d892aecd69b",
+      "698ae3a5ffee00f6fd22abfe",
+      "698ae364ffee00f6fd22488f",
+      "698ae2f7b38b1d892aec8c79",
+      "698ae2cab05c8e361fca6438",
+      "698ae296b05c8e361fca6279",
+      "698ae222ffee00f6fd22013c",
+      "698ae21cffee00f6fd21ff91",
+      "698ae1a4ffee00f6fd21f873",
+      "698ae193b38b1d892aec32f2",
+      "698ae13d42dc6907a803aa25",
+      "698ae0f28733e020d61efe2b",
+      "698ae0d4b38b1d892aebef19",
+      "698ae0cf8733e020d61efa69",
+      "698ae0abb05c8e361fca5631",
+      "698adf6742dc6907a8039c30",
+      "698adf66b38b1d892aeba823",
+      "698adf63ffee00f6fd213a14",
+      "698adf52b38b1d892aeba660",
+      "698adf06b38b1d892aeba0f5",
+      "698adee48733e020d61ef14a",
+      "698ade8eb05c8e361fca3dd0",
+      "698ade55b05c8e361fca3a69",
+      "698ade2db05c8e361fca38bc",
+      "698ade0cb05c8e361fca3729",
+      "698ade0774fe4430ed27669f",
+      "698added74fe4430ed2764d2",
+      "698addaf74fe4430ed2755f5",
+      "698add8b8733e020d61eea03",
+      "698add6d8733e020d61ee805",
+      "698add69d1a4db87bcaee5e6",
+      "698add4b8733e020d61ee2cf",
+      "698add1dffee00f6fd20af5d",
+      "698adcf1ffee00f6fd20abc6",
+      "698adccbffee00f6fd20a81b",
+      "698adca0ffee00f6fd209a55",
+      "698adc9542dc6907a80340fe",
+      "698adc75ffee00f6fd206270",
+      "698adc3c8733e020d61ecaef",
+      "698adb43b38b1d892aea477a",
+      "698adb21b38b1d892aea30ef",
+      "698adad4b38b1d892aea2983",
+      "698adaa9b05c8e361fca1fb4",
+      "698ada6fb05c8e361fca13e0",
+      "698ada21b05c8e361fca0d0b",
+      "698ad9b8ffee00f6fd1fa58f",
+      "698ad9b6ffee00f6fd1fa3fc",
+      "698ad93eb05c8e361fc9fd8a",
+      "698ad91b42dc6907a803189c",
+      "698ad8b274fe4430ed270f70",
+      "698ad858ffee00f6fd1f3f5e",
+      "698ad8538b32692dae8fdf53",
+      "698ad830b05c8e361fc9e804",
+      "698ad827b38b1d892ae98b5e",
+      "698ad80f8b32692dae8fd6ee",
+      "698ad7efb05c8e361fc95c67",
+      "698ad7d074fe4430ed27047d",
+      "698ad77e42dc6907a802fe1b",
+      "698ad75742dc6907a802faa3",
+      "698ad66ab38b1d892ae90662",
+      "698ad648b38b1d892ae902b2",
+      "698ad622b38b1d892ae8fdb5",
+      "698ad5a474fe4430ed26b7c7",
+      "698ad54974fe4430ed26af62",
+      "698ad51174fe4430ed26abfc",
+      "698ad392ffee00f6fd1df953",
+      "698ad2e542dc6907a802c204",
+      "698ad2c874fe4430ed267bf6",
+      "698ad1eab38b1d892ae7cbd1",
+      "698ad1c2b05c8e361fc8734e",
+      "698ad12affee00f6fd1d5d6f",
+      "698ad101b38b1d892ae79f8c",
+      "698ad0eed1a4db87bcad5c0b",
+      "698ad093ffee00f6fd1d0d7b",
+      "698ad063ffee00f6fd1d0357",
+      "698ad052b05c8e361fc860e8",
+      "698aceca8b32692dae8f1e33",
+      "698ace9642dc6907a8020098",
+      "698acdf4ffee00f6fd1c2668",
+      "698acdc9b05c8e361fc8423e",
+      "698acd648733e020d61d6b6b",
+      "698acd4642dc6907a801e093",
+      "698acc9e74fe4430ed2635b1",
+      "698acc6cd1a4db87bcacec54",
+      "698acc4442dc6907a801b984",
+      "698acc05d1a4db87bcace15c",
+      "698acbe28b32692dae8ee228",
+      "698acbd3ffee00f6fd1b8ccf",
+      "698acbbcffee00f6fd1b8aea",
+      "698acb768733e020d61d4622",
+      "698acb668733e020d61d445c",
+      "698acb3f74fe4430ed262761",
+      "698acaa58b32692dae8ed25d",
+      "698ac9ffd1a4db87bcacca5d",
+      "698ac95ad1a4db87bcacc4eb",
+      "698ac8f8b05c8e361fc7f30b",
+      "698ac8a38b32692dae8eae3d",
+      "698ac88ab05c8e361fc7bdb5",
+      "698ac85d42dc6907a8014f47",
+      "698ac81cb38b1d892ae54585",
+      "698ac7f1b38b1d892ae523b4",
+      "698ac7e4b05c8e361fc79629",
+      "698ac7b8b05c8e361fc78f1e",
+      "698ac6d4b38b1d892ae4b984",
+      "698ac68cffee00f6fd19b94c",
+      "698ac65bb38b1d892ae4a609",
+      "698ac5d656da40642fbfb97b",
+      "698ac591dabfd0a086f79e81",
+      "698ac55156da40642fbfad63",
+      "698ac51a605f48a2cd450d26",
+      "698ac4ee605f48a2cd45063f",
+      "698ac22973f00d1ad148f012",
+      "698ac182c50fa8b1b25459d8",
+      "698ac0ebce2b1c93b16a4103",
+      "698ac05773f00d1ad148cc5b",
+      "698abfdfc50fa8b1b253bf2a",
+      "698abfbb73f00d1ad148ca43",
+      "698abf7d73f00d1ad14877fe",
+      "698abf4154a74609573d790f",
+      "698abf0f605f48a2cd4459d2",
+      "698abeb8c50fa8b1b2537bad",
+      "698abde673f00d1ad147548b",
+      "698abd2d73f00d1ad14722f5",
+      "698abd0473f00d1ad1471a97",
+      "698abcbc56da40642fbeafc3",
+      "698abcb4605f48a2cd43da9e",
+      "698abc3754a74609573cb54e",
+      "698abb0dc50fa8b1b2525341",
+      "698abaebc50fa8b1b2525018",
+      "698abac98d1bdffc6b0de0c3",
+      "698ababe8d1bdffc6b0ddea2",
+      "698ab9a356da40642fbe9b0f",
+      "698ab98edabfd0a086f6f497",
+      "698ab77fe3a234c65e3280c4",
+      "698ab6628a4147ab6efb6151",
+      "698ab4698a4147ab6efabeb5",
+      "698ab3f061a49d242780a3c3",
+      "698aab1210a28b60db6a132c"
+    ]
+  },
+  "allResponseIds": [
+    {
+      "responseId": "698b0492d1a4db87bcb1d2ab",
+      "createdAt": "2026-02-10T10:12:34.293Z",
+      "interviewer": "6986c5a8202e38b496f5f1ba",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b0449d1a4db87bcb1c880",
+      "createdAt": "2026-02-10T10:11:21.714Z",
+      "interviewer": "6986c5a8202e38b496f5f1ba",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b03638b32692dae92ceb2",
+      "createdAt": "2026-02-10T10:07:31.841Z",
+      "interviewer": "68ebf124ab86ea29f3c0f1f8",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b033e8733e020d620e9f3",
+      "createdAt": "2026-02-10T10:06:54.383Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b033642dc6907a80599b9",
+      "createdAt": "2026-02-10T10:06:46.869Z",
+      "interviewer": "693d2b92a66b5df82f9fdae7",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b02f38b32692dae92c92e",
+      "createdAt": "2026-02-10T10:05:39.226Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b02d38b32692dae92c5d8",
+      "createdAt": "2026-02-10T10:05:07.763Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b02b28b32692dae92c416",
+      "createdAt": "2026-02-10T10:04:34.737Z",
+      "interviewer": "6986c5a8202e38b496f5f1ba",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b02a98b32692dae92c283",
+      "createdAt": "2026-02-10T10:04:25.991Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b02858b32692dae92bf35",
+      "createdAt": "2026-02-10T10:03:49.293Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b025b8b32692dae92bb2e",
+      "createdAt": "2026-02-10T10:03:07.971Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b02328b32692dae92b7d8",
+      "createdAt": "2026-02-10T10:02:26.542Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b01f38b32692dae92b2b1",
+      "createdAt": "2026-02-10T10:01:23.594Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b01ce8b32692dae92b105",
+      "createdAt": "2026-02-10T10:00:46.667Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b01a28b32692dae92af40",
+      "createdAt": "2026-02-10T10:00:02.608Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b017ab05c8e361fccc5a4",
+      "createdAt": "2026-02-10T09:59:22.030Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b01668733e020d620ccdc",
+      "createdAt": "2026-02-10T09:59:02.052Z",
+      "interviewer": "693d2b92a66b5df82f9fdae7",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b01458733e020d620c994",
+      "createdAt": "2026-02-10T09:58:29.424Z",
+      "interviewer": "693d2b92a66b5df82f9fdae7",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698b0017b05c8e361fcc948c",
+      "createdAt": "2026-02-10T09:53:27.234Z",
+      "interviewer": "693d2b8aa66b5df82f9fcf65",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698afff68b32692dae9275dc",
+      "createdAt": "2026-02-10T09:52:54.384Z",
+      "interviewer": "69746693450165ed1aca3e67",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698aff23b05c8e361fcc7c76",
+      "createdAt": "2026-02-10T09:49:23.385Z",
+      "interviewer": "693d2b92a66b5df82f9fdae7",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698aff13b05c8e361fcc7abd",
+      "createdAt": "2026-02-10T09:49:07.599Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698afeedb05c8e361fcc76db",
+      "createdAt": "2026-02-10T09:48:29.419Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698afda3d1a4db87bcb16e10",
+      "createdAt": "2026-02-10T09:42:59.320Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698afd8a74fe4430ed29032f",
+      "createdAt": "2026-02-10T09:42:34.507Z",
+      "interviewer": "693d2b8aa66b5df82f9fcf65",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698af6a1d1a4db87bcb00e33",
+      "createdAt": "2026-02-10T09:13:05.786Z",
+      "interviewer": "6986d0f56f2adc65758ad127",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698af38274fe4430ed289230",
+      "createdAt": "2026-02-10T08:59:46.410Z",
+      "interviewer": "6986d0f36f2adc65758ac19c",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698af0bbd1a4db87bcafeeae",
+      "createdAt": "2026-02-10T08:47:55.934Z",
+      "interviewer": "6986c5a7202e38b496f5f1b2",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698aec2effee00f6fd24bc1d",
+      "createdAt": "2026-02-10T08:28:30.713Z",
+      "interviewer": "6984329c468584cc5bed188a",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698aea7442dc6907a8041155",
+      "createdAt": "2026-02-10T08:21:08.025Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698aea37d1a4db87bcafcf16",
+      "createdAt": "2026-02-10T08:20:07.628Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698aea1742dc6907a8040bf8",
+      "createdAt": "2026-02-10T08:19:35.128Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae9f7d1a4db87bcafcb6c",
+      "createdAt": "2026-02-10T08:19:03.942Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae9d0d1a4db87bcafc9a0",
+      "createdAt": "2026-02-10T08:18:24.521Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae9b2d1a4db87bcafc7ff",
+      "createdAt": "2026-02-10T08:17:54.084Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae98f42dc6907a80409e7",
+      "createdAt": "2026-02-10T08:17:19.717Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae983b05c8e361fcac5c3",
+      "createdAt": "2026-02-10T08:17:07.379Z",
+      "interviewer": "693d2b8aa66b5df82f9fcf65",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae8ff8733e020d61f686d",
+      "createdAt": "2026-02-10T08:14:55.357Z",
+      "interviewer": "693d2b8aa66b5df82f9fcf65",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae86a42dc6907a803f573",
+      "createdAt": "2026-02-10T08:12:26.019Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae836ffee00f6fd23bc62",
+      "createdAt": "2026-02-10T08:11:34.458Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae81642dc6907a803eb15",
+      "createdAt": "2026-02-10T08:11:02.756Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae80342dc6907a803e7e3",
+      "createdAt": "2026-02-10T08:10:43.452Z",
+      "interviewer": "69410483bdaa79cdc5df2a32",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae8008b32692dae912910",
+      "createdAt": "2026-02-10T08:10:40.478Z",
+      "interviewer": "69896fa67bb2bdd063222902",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae7de42dc6907a803e460",
+      "createdAt": "2026-02-10T08:10:06.787Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae7ae42dc6907a803d31b",
+      "createdAt": "2026-02-10T08:09:19.005Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae78d42dc6907a803cad3",
+      "createdAt": "2026-02-10T08:08:45.629Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae78affee00f6fd2397d7",
+      "createdAt": "2026-02-10T08:08:42.520Z",
+      "interviewer": "693d2b8aa66b5df82f9fcf65",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae75242dc6907a803c8ec",
+      "createdAt": "2026-02-10T08:07:46.986Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae72f42dc6907a803c5b2",
+      "createdAt": "2026-02-10T08:07:11.892Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae70f42dc6907a803c405",
+      "createdAt": "2026-02-10T08:06:39.331Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae6ee42dc6907a803c1f4",
+      "createdAt": "2026-02-10T08:06:06.499Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae6ead1a4db87bcaf9656",
+      "createdAt": "2026-02-10T08:06:02.796Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae6cc42dc6907a803c02d",
+      "createdAt": "2026-02-10T08:05:32.839Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae6ac8733e020d61f5739",
+      "createdAt": "2026-02-10T08:05:00.101Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae6898733e020d61f5584",
+      "createdAt": "2026-02-10T08:04:25.445Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae6678733e020d61f53c7",
+      "createdAt": "2026-02-10T08:03:51.153Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae6448733e020d61f5220",
+      "createdAt": "2026-02-10T08:03:16.748Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae6228733e020d61f4e42",
+      "createdAt": "2026-02-10T08:02:42.646Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae6018733e020d61f4904",
+      "createdAt": "2026-02-10T08:02:09.219Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae5e28733e020d61f46fa",
+      "createdAt": "2026-02-10T08:01:38.783Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae5c38733e020d61f453f",
+      "createdAt": "2026-02-10T08:01:07.375Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae5be42dc6907a803be75",
+      "createdAt": "2026-02-10T08:01:02.562Z",
+      "interviewer": "698431d645480057ad4d97ae",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae5a08733e020d61f3ca3",
+      "createdAt": "2026-02-10T08:00:32.691Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae56d8733e020d61f3763",
+      "createdAt": "2026-02-10T07:59:41.477Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae54b8733e020d61f3392",
+      "createdAt": "2026-02-10T07:59:07.931Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae4dbffee00f6fd22fb0b",
+      "createdAt": "2026-02-10T07:57:15.358Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae4b2ffee00f6fd22d997",
+      "createdAt": "2026-02-10T07:56:34.486Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae429b05c8e361fcaa904",
+      "createdAt": "2026-02-10T07:54:17.423Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae3cfb38b1d892aecd9be",
+      "createdAt": "2026-02-10T07:52:47.469Z",
+      "interviewer": "69898982bdc5a3f81c0fb211",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae3adb38b1d892aecd69b",
+      "createdAt": "2026-02-10T07:52:13.551Z",
+      "interviewer": "69898982bdc5a3f81c0fb211",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae3a5ffee00f6fd22abfe",
+      "createdAt": "2026-02-10T07:52:05.539Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae364ffee00f6fd22488f",
+      "createdAt": "2026-02-10T07:51:00.979Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae2f7b38b1d892aec8c79",
+      "createdAt": "2026-02-10T07:49:11.055Z",
+      "interviewer": "69898982bdc5a3f81c0fb211",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae2cab05c8e361fca6438",
+      "createdAt": "2026-02-10T07:48:26.232Z",
+      "interviewer": "693d2b92a66b5df82f9fdae7",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae296b05c8e361fca6279",
+      "createdAt": "2026-02-10T07:47:34.760Z",
+      "interviewer": "693d2b92a66b5df82f9fdae7",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae222ffee00f6fd22013c",
+      "createdAt": "2026-02-10T07:45:38.100Z",
+      "interviewer": "69898982bdc5a3f81c0fb211",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae21cffee00f6fd21ff91",
+      "createdAt": "2026-02-10T07:45:32.177Z",
+      "interviewer": "693d2b92a66b5df82f9fdae7",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae1a4ffee00f6fd21f873",
+      "createdAt": "2026-02-10T07:43:32.631Z",
+      "interviewer": "69898982bdc5a3f81c0fb211",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae193b38b1d892aec32f2",
+      "createdAt": "2026-02-10T07:43:15.554Z",
+      "interviewer": "69896fcdbd208e0cf608bb82",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae13d42dc6907a803aa25",
+      "createdAt": "2026-02-10T07:41:49.896Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae0f28733e020d61efe2b",
+      "createdAt": "2026-02-10T07:40:34.104Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae0d4b38b1d892aebef19",
+      "createdAt": "2026-02-10T07:40:04.078Z",
+      "interviewer": "69898982bdc5a3f81c0fb211",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae0cf8733e020d61efa69",
+      "createdAt": "2026-02-10T07:39:59.782Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ae0abb05c8e361fca5631",
+      "createdAt": "2026-02-10T07:39:24.006Z",
+      "interviewer": "69898982bdc5a3f81c0fb211",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698adf6742dc6907a8039c30",
+      "createdAt": "2026-02-10T07:33:59.819Z",
+      "interviewer": "693d2b8aa66b5df82f9fcf65",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698adf66b38b1d892aeba823",
+      "createdAt": "2026-02-10T07:33:58.361Z",
+      "interviewer": "69896f6278d3a7e711a87466",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698adf63ffee00f6fd213a14",
+      "createdAt": "2026-02-10T07:33:55.056Z",
+      "interviewer": "698abf9173f00d1ad1488a98",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698adf52b38b1d892aeba660",
+      "createdAt": "2026-02-10T07:33:38.897Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698adf06b38b1d892aeba0f5",
+      "createdAt": "2026-02-10T07:32:22.807Z",
+      "interviewer": "69410483bdaa79cdc5df2a32",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698adee48733e020d61ef14a",
+      "createdAt": "2026-02-10T07:31:48.474Z",
+      "interviewer": "69746693450165ed1aca3e67",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ade8eb05c8e361fca3dd0",
+      "createdAt": "2026-02-10T07:30:22.456Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ade55b05c8e361fca3a69",
+      "createdAt": "2026-02-10T07:29:25.021Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ade2db05c8e361fca38bc",
+      "createdAt": "2026-02-10T07:28:45.902Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ade0cb05c8e361fca3729",
+      "createdAt": "2026-02-10T07:28:12.227Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ade0774fe4430ed27669f",
+      "createdAt": "2026-02-10T07:28:07.891Z",
+      "interviewer": "69898982bdc5a3f81c0fb211",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698added74fe4430ed2764d2",
+      "createdAt": "2026-02-10T07:27:41.573Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698addaf74fe4430ed2755f5",
+      "createdAt": "2026-02-10T07:26:39.946Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698add8b8733e020d61eea03",
+      "createdAt": "2026-02-10T07:26:03.931Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698add6d8733e020d61ee805",
+      "createdAt": "2026-02-10T07:25:33.480Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698add69d1a4db87bcaee5e6",
+      "createdAt": "2026-02-10T07:25:29.595Z",
+      "interviewer": "693d2b92a66b5df82f9fdae7",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698add4b8733e020d61ee2cf",
+      "createdAt": "2026-02-10T07:24:59.860Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698add1dffee00f6fd20af5d",
+      "createdAt": "2026-02-10T07:24:13.785Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698adcf1ffee00f6fd20abc6",
+      "createdAt": "2026-02-10T07:23:29.970Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698adccbffee00f6fd20a81b",
+      "createdAt": "2026-02-10T07:22:51.519Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698adca0ffee00f6fd209a55",
+      "createdAt": "2026-02-10T07:22:08.502Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698adc9542dc6907a80340fe",
+      "createdAt": "2026-02-10T07:21:57.995Z",
+      "interviewer": "69896fa67bb2bdd063222902",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698adc75ffee00f6fd206270",
+      "createdAt": "2026-02-10T07:21:25.758Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698adc3c8733e020d61ecaef",
+      "createdAt": "2026-02-10T07:20:28.348Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698adb43b38b1d892aea477a",
+      "createdAt": "2026-02-10T07:16:19.517Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698adb21b38b1d892aea30ef",
+      "createdAt": "2026-02-10T07:15:45.498Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698adad4b38b1d892aea2983",
+      "createdAt": "2026-02-10T07:14:28.663Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698adaa9b05c8e361fca1fb4",
+      "createdAt": "2026-02-10T07:13:45.732Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ada6fb05c8e361fca13e0",
+      "createdAt": "2026-02-10T07:12:47.308Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ada21b05c8e361fca0d0b",
+      "createdAt": "2026-02-10T07:11:29.603Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad9b8ffee00f6fd1fa58f",
+      "createdAt": "2026-02-10T07:09:44.359Z",
+      "interviewer": "698abf9173f00d1ad1488a98",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad9b6ffee00f6fd1fa3fc",
+      "createdAt": "2026-02-10T07:09:42.071Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad93eb05c8e361fc9fd8a",
+      "createdAt": "2026-02-10T07:07:42.813Z",
+      "interviewer": "698abf9173f00d1ad1488a98",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad91b42dc6907a803189c",
+      "createdAt": "2026-02-10T07:07:07.756Z",
+      "interviewer": "69896f6278d3a7e711a87466",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad8b274fe4430ed270f70",
+      "createdAt": "2026-02-10T07:05:22.856Z",
+      "interviewer": "698abf9173f00d1ad1488a98",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad858ffee00f6fd1f3f5e",
+      "createdAt": "2026-02-10T07:03:52.488Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad8538b32692dae8fdf53",
+      "createdAt": "2026-02-10T07:03:47.459Z",
+      "interviewer": "6984329c468584cc5bed188a",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad830b05c8e361fc9e804",
+      "createdAt": "2026-02-10T07:03:12.586Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad827b38b1d892ae98b5e",
+      "createdAt": "2026-02-10T07:03:03.870Z",
+      "interviewer": "69896fa67bb2bdd063222902",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad80f8b32692dae8fd6ee",
+      "createdAt": "2026-02-10T07:02:40.006Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad7efb05c8e361fc95c67",
+      "createdAt": "2026-02-10T07:02:07.437Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad7d074fe4430ed27047d",
+      "createdAt": "2026-02-10T07:01:36.671Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad77e42dc6907a802fe1b",
+      "createdAt": "2026-02-10T07:00:14.712Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad75742dc6907a802faa3",
+      "createdAt": "2026-02-10T06:59:36.005Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad66ab38b1d892ae90662",
+      "createdAt": "2026-02-10T06:55:38.683Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad648b38b1d892ae902b2",
+      "createdAt": "2026-02-10T06:55:04.745Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad622b38b1d892ae8fdb5",
+      "createdAt": "2026-02-10T06:54:26.458Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad5a474fe4430ed26b7c7",
+      "createdAt": "2026-02-10T06:52:20.258Z",
+      "interviewer": "6938a482a3f38fb8cfd49a2b",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad54974fe4430ed26af62",
+      "createdAt": "2026-02-10T06:50:49.559Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad51174fe4430ed26abfc",
+      "createdAt": "2026-02-10T06:49:53.217Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad392ffee00f6fd1df953",
+      "createdAt": "2026-02-10T06:43:30.944Z",
+      "interviewer": "693d2b92a66b5df82f9fdae7",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad2e542dc6907a802c204",
+      "createdAt": "2026-02-10T06:40:37.327Z",
+      "interviewer": "6938a2e8a3f38fb8cfd24ed1",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad2c874fe4430ed267bf6",
+      "createdAt": "2026-02-10T06:40:08.797Z",
+      "interviewer": "69896fcdbd208e0cf608bb82",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad1eab38b1d892ae7cbd1",
+      "createdAt": "2026-02-10T06:36:26.832Z",
+      "interviewer": "698431d645480057ad4d97ae",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad1c2b05c8e361fc8734e",
+      "createdAt": "2026-02-10T06:35:46.486Z",
+      "interviewer": "69896eff78d3a7e711a7fd72",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad12affee00f6fd1d5d6f",
+      "createdAt": "2026-02-10T06:33:14.358Z",
+      "interviewer": "69410483bdaa79cdc5df2a32",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad101b38b1d892ae79f8c",
+      "createdAt": "2026-02-10T06:32:33.765Z",
+      "interviewer": "693d2b92a66b5df82f9fdae7",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad0eed1a4db87bcad5c0b",
+      "createdAt": "2026-02-10T06:32:14.376Z",
+      "interviewer": "693d2b8aa66b5df82f9fcf65",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad093ffee00f6fd1d0d7b",
+      "createdAt": "2026-02-10T06:30:43.078Z",
+      "interviewer": "6986d0f36f2adc65758ac19c",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad063ffee00f6fd1d0357",
+      "createdAt": "2026-02-10T06:29:55.109Z",
+      "interviewer": "6984329c468584cc5bed188a",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ad052b05c8e361fc860e8",
+      "createdAt": "2026-02-10T06:29:38.766Z",
+      "interviewer": "69896fcdbd208e0cf608bb82",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698aceca8b32692dae8f1e33",
+      "createdAt": "2026-02-10T06:23:06.510Z",
+      "interviewer": "69896fa67bb2bdd063222902",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ace9642dc6907a8020098",
+      "createdAt": "2026-02-10T06:22:14.254Z",
+      "interviewer": "69896fa67bb2bdd063222902",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698acdf4ffee00f6fd1c2668",
+      "createdAt": "2026-02-10T06:19:32.533Z",
+      "interviewer": "6938a2e8a3f38fb8cfd24ed1",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698acdc9b05c8e361fc8423e",
+      "createdAt": "2026-02-10T06:18:49.897Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698acd648733e020d61d6b6b",
+      "createdAt": "2026-02-10T06:17:08.730Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698acd4642dc6907a801e093",
+      "createdAt": "2026-02-10T06:16:38.763Z",
+      "interviewer": "69896fa67bb2bdd063222902",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698acc9e74fe4430ed2635b1",
+      "createdAt": "2026-02-10T06:13:50.171Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698acc6cd1a4db87bcacec54",
+      "createdAt": "2026-02-10T06:13:00.195Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698acc4442dc6907a801b984",
+      "createdAt": "2026-02-10T06:12:20.757Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698acc05d1a4db87bcace15c",
+      "createdAt": "2026-02-10T06:11:17.862Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698acbe28b32692dae8ee228",
+      "createdAt": "2026-02-10T06:10:42.963Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698acbd3ffee00f6fd1b8ccf",
+      "createdAt": "2026-02-10T06:10:27.753Z",
+      "interviewer": "69896f6278d3a7e711a87466",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698acbbcffee00f6fd1b8aea",
+      "createdAt": "2026-02-10T06:10:04.401Z",
+      "interviewer": "69896fcdbd208e0cf608bb82",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698acb768733e020d61d4622",
+      "createdAt": "2026-02-10T06:08:54.482Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698acb668733e020d61d445c",
+      "createdAt": "2026-02-10T06:08:38.847Z",
+      "interviewer": "6938a2e8a3f38fb8cfd24ed1",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698acb3f74fe4430ed262761",
+      "createdAt": "2026-02-10T06:07:59.614Z",
+      "interviewer": "6986d0f56f2adc65758ad127",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698acaa58b32692dae8ed25d",
+      "createdAt": "2026-02-10T06:05:25.363Z",
+      "interviewer": "6938a40ea3f38fb8cfd3e06b",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac9ffd1a4db87bcacca5d",
+      "createdAt": "2026-02-10T06:02:39.332Z",
+      "interviewer": "6938a2e8a3f38fb8cfd24ed1",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac95ad1a4db87bcacc4eb",
+      "createdAt": "2026-02-10T05:59:54.423Z",
+      "interviewer": "6938a2e8a3f38fb8cfd24ed1",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac8f8b05c8e361fc7f30b",
+      "createdAt": "2026-02-10T05:58:16.593Z",
+      "interviewer": "6973064f4e30e6669e4857ad",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac8a38b32692dae8eae3d",
+      "createdAt": "2026-02-10T05:56:51.327Z",
+      "interviewer": "69524ed03e3c9830e5cb9771",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac88ab05c8e361fc7bdb5",
+      "createdAt": "2026-02-10T05:56:26.194Z",
+      "interviewer": "698abe4c73f00d1ad147c43c",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac85d42dc6907a8014f47",
+      "createdAt": "2026-02-10T05:55:41.839Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac81cb38b1d892ae54585",
+      "createdAt": "2026-02-10T05:54:36.285Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac7f1b38b1d892ae523b4",
+      "createdAt": "2026-02-10T05:53:53.290Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac7e4b05c8e361fc79629",
+      "createdAt": "2026-02-10T05:53:40.225Z",
+      "interviewer": "6986c5a8202e38b496f5f1ba",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac7b8b05c8e361fc78f1e",
+      "createdAt": "2026-02-10T05:52:56.518Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac6d4b38b1d892ae4b984",
+      "createdAt": "2026-02-10T05:49:08.420Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac68cffee00f6fd19b94c",
+      "createdAt": "2026-02-10T05:47:56.345Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac65bb38b1d892ae4a609",
+      "createdAt": "2026-02-10T05:47:07.071Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac5d656da40642fbfb97b",
+      "createdAt": "2026-02-10T05:44:54.126Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac591dabfd0a086f79e81",
+      "createdAt": "2026-02-10T05:43:45.215Z",
+      "interviewer": "693d2b8aa66b5df82f9fcf65",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac55156da40642fbfad63",
+      "createdAt": "2026-02-10T05:42:41.145Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac51a605f48a2cd450d26",
+      "createdAt": "2026-02-10T05:41:46.689Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac4ee605f48a2cd45063f",
+      "createdAt": "2026-02-10T05:41:02.363Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac22973f00d1ad148f012",
+      "createdAt": "2026-02-10T05:29:13.234Z",
+      "interviewer": "6973064f4e30e6669e4857ad",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac182c50fa8b1b25459d8",
+      "createdAt": "2026-02-10T05:26:26.104Z",
+      "interviewer": "69896f6278d3a7e711a87466",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac0ebce2b1c93b16a4103",
+      "createdAt": "2026-02-10T05:23:55.833Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ac05773f00d1ad148cc5b",
+      "createdAt": "2026-02-10T05:21:27.182Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698abfdfc50fa8b1b253bf2a",
+      "createdAt": "2026-02-10T05:19:27.425Z",
+      "interviewer": "6938a2e8a3f38fb8cfd24ed1",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698abfbb73f00d1ad148ca43",
+      "createdAt": "2026-02-10T05:18:51.865Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698abf7d73f00d1ad14877fe",
+      "createdAt": "2026-02-10T05:17:49.347Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698abf4154a74609573d790f",
+      "createdAt": "2026-02-10T05:16:49.889Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698abf0f605f48a2cd4459d2",
+      "createdAt": "2026-02-10T05:15:59.517Z",
+      "interviewer": "69896f3578d3a7e711a8434f",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698abeb8c50fa8b1b2537bad",
+      "createdAt": "2026-02-10T05:14:32.974Z",
+      "interviewer": "69896fcdbd208e0cf608bb82",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698abde673f00d1ad147548b",
+      "createdAt": "2026-02-10T05:11:02.893Z",
+      "interviewer": "68ebf124ab86ea29f3c0f1f8",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698abd2d73f00d1ad14722f5",
+      "createdAt": "2026-02-10T05:07:57.112Z",
+      "interviewer": "6938a2e8a3f38fb8cfd24ed1",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698abd0473f00d1ad1471a97",
+      "createdAt": "2026-02-10T05:07:16.598Z",
+      "interviewer": "6938a2e8a3f38fb8cfd24ed1",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698abcbc56da40642fbeafc3",
+      "createdAt": "2026-02-10T05:06:04.255Z",
+      "interviewer": "693d2b8aa66b5df82f9fcf65",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698abcb4605f48a2cd43da9e",
+      "createdAt": "2026-02-10T05:05:56.763Z",
+      "interviewer": "69524ed03e3c9830e5cb9771",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698abc3754a74609573cb54e",
+      "createdAt": "2026-02-10T05:03:51.216Z",
+      "interviewer": "6986d0f36f2adc65758ac19c",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698abb0dc50fa8b1b2525341",
+      "createdAt": "2026-02-10T04:58:53.469Z",
+      "interviewer": "6986d0f36f2adc65758ac19c",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698abaebc50fa8b1b2525018",
+      "createdAt": "2026-02-10T04:58:19.599Z",
+      "interviewer": "6986d0f36f2adc65758ac19c",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698abac98d1bdffc6b0de0c3",
+      "createdAt": "2026-02-10T04:57:45.861Z",
+      "interviewer": "6986d0f36f2adc65758ac19c",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ababe8d1bdffc6b0ddea2",
+      "createdAt": "2026-02-10T04:57:34.145Z",
+      "interviewer": "6938a2e8a3f38fb8cfd24ed1",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ab9a356da40642fbe9b0f",
+      "createdAt": "2026-02-10T04:52:51.677Z",
+      "interviewer": "6986d0f36f2adc65758ac19c",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ab98edabfd0a086f6f497",
+      "createdAt": "2026-02-10T04:52:30.555Z",
+      "interviewer": "6986d0f36f2adc65758ac19c",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ab77fe3a234c65e3280c4",
+      "createdAt": "2026-02-10T04:43:43.931Z",
+      "interviewer": "693d2b8aa66b5df82f9fcf65",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ab6628a4147ab6efb6151",
+      "createdAt": "2026-02-10T04:38:58.086Z",
+      "interviewer": "6938a336a3f38fb8cfd2a91b",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ab4698a4147ab6efabeb5",
+      "createdAt": "2026-02-10T04:30:33.631Z",
+      "interviewer": "6984329c468584cc5bed188a",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698ab3f061a49d242780a3c3",
+      "createdAt": "2026-02-10T04:28:32.242Z",
+      "interviewer": "697b536b14895b687c282f88",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    },
+    {
+      "responseId": "698aab1210a28b60db6a132c",
+      "createdAt": "2026-02-10T03:50:42.547Z",
+      "interviewer": "6984329c468584cc5bed188a",
+      "status": "abandoned",
+      "knownCallStatus": "unknown",
+      "computedCallStatus": "unknown"
+    }
+  ]
+}

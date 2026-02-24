@@ -1,0 +1,129 @@
+[dotenv@17.2.2] injecting env (22) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+(node:3054790) [MONGOOSE] Warning: Duplicate schema index on {"sessionId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3054790) [MONGOOSE] Warning: Duplicate schema index on {"responseId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:3054790) [MONGOOSE] Warning: Duplicate schema index on {"contentHash":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:3054790) [MONGOOSE] Warning: Duplicate schema index on {"status":1,"interviewMode":1,"survey":1,"reviewAssignment.assignedTo":1,"reviewAssignment.expiresAt":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+✅ Connected to MongoDB
+
+📅 Date Range:
+   Yesterday Start: 2026-02-12T00:00:00.000Z
+   Today Start: 2026-02-13T00:00:00.000Z
+   Now: 2026-02-13T07:52:20.358Z
+
+═══════════════════════════════════════════════════════════════
+📊 TOP 21 CATI INTERVIEWERS (Active Today & Yesterday)
+═══════════════════════════════════════════════════════════════
+
+ 1. Swati Shaw                     | Interviews:  430 | Phone: 9875635534      | Member ID: 8301
+    📧 cati8301@gmail.com
+    🕐 First Interview: 12/2/2026, 9:46:06 am
+    🕐 Last Interview:  13/2/2026, 1:21:40 pm
+
+ 2. Sanjana Shaw                   | Interviews:  405 | Phone: 6289942421      | Member ID: 8304
+    📧 cati8304@gmail.com
+    🕐 First Interview: 12/2/2026, 9:54:50 am
+    🕐 Last Interview:  13/2/2026, 1:20:38 pm
+
+ 3. Suman Adak                     | Interviews:  292 | Phone: 7439337177      | Member ID: 3804
+    📧 cati3804@gmail.com
+    🕐 First Interview: 12/2/2026, 10:06:36 am
+    🕐 Last Interview:  13/2/2026, 1:15:33 pm
+
+ 4. Barnali Debnath                | Interviews:  257 | Phone: 8653880391      | Member ID: 8322
+    📧 cati8322@gmail.com
+    🕐 First Interview: 12/2/2026, 10:37:54 am
+    🕐 Last Interview:  13/2/2026, 1:16:37 pm
+
+ 5. Sumit Kumar Roy                | Interviews:  234 | Phone: 8670475453      | Member ID: 191
+    📧 cati191@gmail.com
+    🕐 First Interview: 12/2/2026, 9:22:27 am
+    🕐 Last Interview:  13/2/2026, 12:28:54 pm
+
+ 6. Tanu kumari Singh              | Interviews:  231 | Phone: 6291350730      | Member ID: 8302
+    📧 cati8302@gmail.com
+    🕐 First Interview: 12/2/2026, 9:44:35 am
+    🕐 Last Interview:  13/2/2026, 1:21:44 pm
+
+ 7. Deepshikha Das                 | Interviews:  224 | Phone: 6290679554      | Member ID: 272
+    📧 cati272@gmail.com
+    🕐 First Interview: 12/2/2026, 9:54:19 am
+    🕐 Last Interview:  13/2/2026, 1:19:20 pm
+
+ 8. Disha Mayur                    | Interviews:  222 | Phone: 7044715053      | Member ID: 277
+    📧 cati277@gmail.com
+    🕐 First Interview: 12/2/2026, 9:35:54 am
+    🕐 Last Interview:  13/2/2026, 1:19:01 pm
+
+ 9. Avi Mondal                     | Interviews:  219 | Phone: 9748361727      | Member ID: 236
+    📧 capi236@gmail.com
+    🕐 First Interview: 12/2/2026, 9:51:37 am
+    🕐 Last Interview:  13/2/2026, 11:26:06 am
+
+10. Sahana Anjoom                  | Interviews:  217 | Phone: 9330596768      | Member ID: 8303
+    📧 cati8303@gmail.com
+    🕐 First Interview: 12/2/2026, 10:39:07 am
+    🕐 Last Interview:  13/2/2026, 1:19:05 pm
+
+11. Sayan Das                      | Interviews:  197 | Phone: 9147092575      | Member ID: 276
+    📧 cati276@gmail.com
+    🕐 First Interview: 12/2/2026, 9:37:52 am
+    🕐 Last Interview:  13/2/2026, 1:21:58 pm
+
+12. SEULI KHATUN                   | Interviews:  174 | Phone: 9609865745      | Member ID: 10003
+    📧 cati10003@gmail.com
+    🕐 First Interview: 12/2/2026, 9:14:02 am
+    🕐 Last Interview:  13/2/2026, 1:02:57 pm
+
+13. Bishakha Tanti                 | Interviews:  164 | Phone: 6291859299      | Member ID: 8300
+    📧 cati8300@gmail.com
+    🕐 First Interview: 12/2/2026, 10:41:00 am
+    🕐 Last Interview:  13/2/2026, 1:19:05 pm
+
+14. Sarmistha das                  | Interviews:  145 | Phone: 9674208124      | Member ID: 3806
+    📧 cati3806@gmail.com
+    🕐 First Interview: 12/2/2026, 11:11:22 am
+    🕐 Last Interview:  13/2/2026, 1:21:43 pm
+
+15. Rehena Sultana                 | Interviews:  143 | Phone: 8101969297      | Member ID: 10018
+    📧 cati10018@gmail.com
+    🕐 First Interview: 12/2/2026, 12:02:59 pm
+    🕐 Last Interview:  13/2/2026, 12:40:10 pm
+
+16. MD. Ehtasam                    | Interviews:  143 | Phone: 6289033808      | Member ID: 185
+    📧 samirulrahaman2002@gmail.com
+    🕐 First Interview: 12/2/2026, 11:23:45 am
+    🕐 Last Interview:  13/2/2026, 11:33:54 am
+
+17. Manika Sarkar                  | Interviews:  135 | Phone: 8420850550      | Member ID: 825
+    📧 825@gmail.com
+    🕐 First Interview: 12/2/2026, 10:38:01 am
+    🕐 Last Interview:  12/2/2026, 5:51:34 pm
+
+18. Kakali Mondal                  | Interviews:  129 | Phone: 9093886916      | Member ID: 8003
+    📧 cati8003@gmail.com
+    🕐 First Interview: 12/2/2026, 12:06:18 pm
+    🕐 Last Interview:  13/2/2026, 1:12:44 pm
+
+19. Runa khatun                    | Interviews:  127 | Phone: 8346995819      | Member ID: 10039
+    📧 cati10039@gmail.com
+    🕐 First Interview: 12/2/2026, 2:17:29 pm
+    🕐 Last Interview:  13/2/2026, 9:59:17 am
+
+20. Pradip Mura                    | Interviews:  117 | Phone: 8389870575      | Member ID: 8329
+    📧 cati8329@gmail.com
+    🕐 First Interview: 12/2/2026, 11:50:14 am
+    🕐 Last Interview:  13/2/2026, 12:07:58 pm
+
+21. Rinky pramanik                 | Interviews:  113 | Phone: 7811953011      | Member ID: 12735
+    📧 cati12735@gmail.com
+    🕐 First Interview: 13/2/2026, 9:59:10 am
+    🕐 Last Interview:  13/2/2026, 1:04:29 pm
+
+═══════════════════════════════════════════════════════════════
+
+📈 Total Interviewers Found: 21
+📊 Total Interviews: 4318
+
+✅ Disconnected from MongoDB
+✅ Script completed successfully

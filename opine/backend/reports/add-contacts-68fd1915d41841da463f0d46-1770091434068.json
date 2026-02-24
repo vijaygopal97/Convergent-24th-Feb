@@ -1,0 +1,27 @@
+{
+  "generatedAt": "2026-02-03T04:03:54.067Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Haringhata",
+  "excelFile": "/var/www/Report-Generation/ac93_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 4997,
+  "errors": [
+    "Row 3260: Invalid phone number",
+    "Row 4022: Invalid phone number format. Phone must be 10-15 digits (got 9 digits)",
+    "Row 4897: Invalid phone number format. Phone must be 10-15 digits (got 9 digits)"
+  ],
+  "newContactsAdded": 0,
+  "queueEntriesCreated": 4997,
+  "duplicateCleanup": {
+    "totalEntries": 787974,
+    "uniquePhones": 787821,
+    "duplicateCount": 153,
+    "deleted": 153
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4848,
+    "totalPending": 697338
+  },
+  "durationSeconds": "27.44"
+}

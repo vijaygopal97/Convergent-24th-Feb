@@ -1,0 +1,108 @@
+{
+  "generatedAt": "2026-02-04T11:46:00.183Z",
+  "totalFiles": 12,
+  "successful": 12,
+  "failed": 0,
+  "durationSeconds": "615.80",
+  "defaultSurveyId": "68fd1915d41841da463f0d46",
+  "maxRowsPerFile": 5000,
+  "processedACs": [
+    {
+      "acCode": 104,
+      "acCodeFormatted": "WB104",
+      "acName": "Naihati",
+      "csvFile": "ac104.csv",
+      "excelFile": "ac104_output.xlsx",
+      "processedAt": "2026-02-04T11:36:32.339Z"
+    },
+    {
+      "acCode": 107,
+      "acCodeFormatted": "WB107",
+      "acName": "Noapara",
+      "csvFile": "ac107.csv",
+      "excelFile": "ac107_output.xlsx",
+      "processedAt": "2026-02-04T11:37:28.761Z"
+    },
+    {
+      "acCode": 149,
+      "acCodeFormatted": "WB149",
+      "acName": "Kasba",
+      "csvFile": "ac149.csv",
+      "excelFile": "ac149_output.xlsx",
+      "processedAt": "2026-02-04T11:38:05.426Z"
+    },
+    {
+      "acCode": 197,
+      "acCodeFormatted": "WB197",
+      "acName": "Dhanekhali",
+      "csvFile": "ac197.csv",
+      "excelFile": "ac197_output.xlsx",
+      "processedAt": "2026-02-04T11:38:55.547Z"
+    },
+    {
+      "acCode": 230,
+      "acCodeFormatted": "WB230",
+      "acName": "Daspur",
+      "csvFile": "ac230.csv",
+      "excelFile": "ac230_output.xlsx",
+      "processedAt": "2026-02-04T11:39:56.899Z"
+    },
+    {
+      "acCode": 246,
+      "acCodeFormatted": "WB246",
+      "acName": "Raghunathpur, Purulia",
+      "csvFile": "ac246.csv",
+      "excelFile": "ac246_output.xlsx",
+      "processedAt": "2026-02-04T11:40:44.455Z"
+    },
+    {
+      "acCode": 264,
+      "acCodeFormatted": "WB264",
+      "acName": "Kalna",
+      "csvFile": "ac264.csv",
+      "excelFile": "ac264_output.xlsx",
+      "processedAt": "2026-02-04T11:41:37.452Z"
+    },
+    {
+      "acCode": 269,
+      "acCodeFormatted": "WB269",
+      "acName": "Purbasthali Uttar",
+      "csvFile": "ac269.csv",
+      "excelFile": "ac269_output.xlsx",
+      "processedAt": "2026-02-04T11:42:28.879Z"
+    },
+    {
+      "acCode": 284,
+      "acCodeFormatted": "WB284",
+      "acName": "Dubrajpur",
+      "csvFile": "ac284.csv",
+      "excelFile": "ac284_output.xlsx",
+      "processedAt": "2026-02-04T11:43:21.462Z"
+    },
+    {
+      "acCode": 33,
+      "acCodeFormatted": "WB033",
+      "acName": "Hemtabad",
+      "csvFile": "ac33.csv",
+      "excelFile": "ac33_output.xlsx",
+      "processedAt": "2026-02-04T11:44:09.815Z"
+    },
+    {
+      "acCode": 76,
+      "acCodeFormatted": "WB076",
+      "acName": "Jalangi",
+      "csvFile": "ac76.csv",
+      "excelFile": "ac76_output.xlsx",
+      "processedAt": "2026-02-04T11:45:06.349Z"
+    },
+    {
+      "acCode": 81,
+      "acCodeFormatted": "WB081",
+      "acName": "Nakashipara",
+      "csvFile": "ac81.csv",
+      "excelFile": "ac81_output.xlsx",
+      "processedAt": "2026-02-04T11:46:00.183Z"
+    }
+  ],
+  "failedFiles": []
+}

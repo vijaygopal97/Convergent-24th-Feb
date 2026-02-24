@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-02-04T11:45:06.225Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Jalangi",
+  "excelFile": "/var/www/Report-Generation/ac76_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 5000,
+  "errors": [],
+  "newContactsAdded": 4998,
+  "queueEntriesCreated": 5000,
+  "duplicateCleanup": {
+    "totalEntries": 835773,
+    "uniquePhones": 835621,
+    "duplicateCount": 152,
+    "deleted": 152
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4850,
+    "totalPending": 741864
+  },
+  "durationSeconds": "28.86"
+}

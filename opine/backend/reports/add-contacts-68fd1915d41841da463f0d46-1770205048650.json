@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-02-04T11:37:28.650Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Noapara",
+  "excelFile": "/var/www/Report-Generation/ac107_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 4998,
+  "errors": [
+    "Row 2561: Invalid phone number format. Phone must be 10-15 digits (got 8 digits)",
+    "Row 2794: Missing name or phone"
+  ],
+  "newContactsAdded": 4992,
+  "queueEntriesCreated": 4998,
+  "duplicateCleanup": {
+    "totalEntries": 797481,
+    "uniquePhones": 797121,
+    "duplicateCount": 360,
+    "deleted": 360
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4648,
+    "totalPending": 703386
+  },
+  "durationSeconds": "29.91"
+}

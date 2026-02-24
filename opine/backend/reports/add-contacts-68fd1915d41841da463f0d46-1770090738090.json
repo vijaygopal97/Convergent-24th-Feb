@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-02-03T03:52:18.090Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Tamluk",
+  "excelFile": "/var/www/Report-Generation/ac203_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 4999,
+  "errors": [
+    "Row 3808: Invalid phone number format. Phone must be 10-15 digits (got 9 digits)"
+  ],
+  "newContactsAdded": 0,
+  "queueEntriesCreated": 4999,
+  "duplicateCleanup": {
+    "totalEntries": 740322,
+    "uniquePhones": 735323,
+    "duplicateCount": 4999,
+    "deleted": 4999
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4858,
+    "totalPending": 644850
+  },
+  "durationSeconds": "27.91"
+}

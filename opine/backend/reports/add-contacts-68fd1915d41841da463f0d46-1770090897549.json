@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-02-03T03:54:57.549Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Keshpur",
+  "excelFile": "/var/www/Report-Generation/ac235_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 4999,
+  "errors": [
+    "Row 4650: Invalid phone number format. Phone must be 10-15 digits (got 9 digits)"
+  ],
+  "newContactsAdded": 0,
+  "queueEntriesCreated": 4999,
+  "duplicateCleanup": {
+    "totalEntries": 740322,
+    "uniquePhones": 735323,
+    "duplicateCount": 4999,
+    "deleted": 4999
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4773,
+    "totalPending": 644849
+  },
+  "durationSeconds": "34.31"
+}

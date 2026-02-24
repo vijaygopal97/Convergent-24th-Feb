@@ -8,8 +8,6 @@ import ProjectManagerSurveyReports from './ProjectManagerSurveyReports';
 import ProjectManagerSurveyReportsPage from './ProjectManagerSurveyReportsPage';
 import ProjectManagerQCPerformancePage from './ProjectManagerQCPerformancePage';
 import ProjectManagerTeamManagement from './ProjectManagerTeamManagement';
-import QualityManagerSurveyReports from './QualityManagerSurveyReports';
-import QualityManagerTeamManagement from './QualityManagerTeamManagement';
 import InterviewerDashboard from './InterviewerDashboard';
 import QualityAgentDashboard from './QualityAgentDashboard';
 import DataAnalystDashboard from './DataAnalystDashboard';
@@ -131,19 +129,22 @@ const AdminDashboard = () => {
       return <ProjectManagerSurveyReports />;
     }
     
-    // Quality Manager routes
-    if (user?.userType === 'quality_manager') {
-      if (path === '/quality-manager/survey-reports') {
-        return <QualityManagerSurveyReports />;
+    // State Manager routes
+    if (user?.userType === 'state_manager') {
+      if (path === '/state-manager/survey-reports') {
+        return <ProjectManagerSurveyReports />; // Reuse same component, backend will filter
       }
-      if (path === '/quality-manager/team-management') {
-        return <QualityManagerTeamManagement />;
+      if (path === '/state-manager/team-management') {
+        return <ProjectManagerTeamManagement />; // Will need to modify to show project managers
       }
-      if (path.startsWith('/quality-manager/surveys/') && path.endsWith('/qc-performance')) {
-        return <ProjectManagerQCPerformancePage />; // Reuse same component
+      if (path.startsWith('/state-manager/surveys/') && path.endsWith('/reports')) {
+        return <ProjectManagerSurveyReportsPage />;
+      }
+      if (path.startsWith('/state-manager/surveys/') && path.endsWith('/qc-performance')) {
+        return <ProjectManagerQCPerformancePage />;
       }
       // Default to survey reports
-      return <QualityManagerSurveyReports />;
+      return <ProjectManagerSurveyReports />;
     }
     
     // Interviewer routes

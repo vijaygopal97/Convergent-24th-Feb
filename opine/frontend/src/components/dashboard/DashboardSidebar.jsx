@@ -217,10 +217,10 @@ const DashboardSidebar = ({ sidebarOpen, userType }) => {
         { icon: BarChart3, label: 'Survey Reports', path: '/project-manager/survey-reports' },
         { icon: Users, label: 'Team Management', path: '/project-manager/team-management' }
       ];
-    } else if (userType === 'quality_manager') {
+    } else if (userType === 'state_manager') {
       return [
-        { icon: BarChart3, label: 'Survey Reports', path: '/quality-manager/survey-reports' },
-        { icon: Users, label: 'Team Management', path: '/quality-manager/team-management' }
+        { icon: BarChart3, label: 'Survey Reports', path: '/state-manager/survey-reports' },
+        { icon: Users, label: 'Team Management', path: '/state-manager/team-management' }
       ];
     } else if (userType === 'interviewer') {
       return [

@@ -1,0 +1,18 @@
+{
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "timestamp": "2026-02-18T11:39:40.189Z",
+  "changes": [
+    {
+      "sectionIndex": 3,
+      "sectionTitle": "Section 3",
+      "questionNumber": "28",
+      "questionId": "question_1763336667547_6582",
+      "fieldType": "option",
+      "fieldPath": "options[0].text",
+      "oldValue": "Yes, you can {হ্যাঁ, পারেন।{{हां, आप कर सकते हैं।}}",
+      "newValue": "Yes, you can {হ্যাঁ, পারেন।{{हां, आप कर सकते हैं।}{हां, आप कर सकते हैं।}}",
+      "hindiAdded": "हां, आप कर सकते हैं।"
+    }
+  ]
+}

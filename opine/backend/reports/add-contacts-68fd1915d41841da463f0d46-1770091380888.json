@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-02-03T04:03:00.888Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Kaliganj",
+  "excelFile": "/var/www/Report-Generation/ac80_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 5000,
+  "errors": [],
+  "newContactsAdded": 0,
+  "queueEntriesCreated": 5000,
+  "duplicateCleanup": {
+    "totalEntries": 783108,
+    "uniquePhones": 782977,
+    "duplicateCount": 131,
+    "deleted": 131
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4873,
+    "totalPending": 692495
+  },
+  "durationSeconds": "27.95"
+}

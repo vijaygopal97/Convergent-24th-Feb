@@ -9,6 +9,80 @@ const XLSX = require('xlsx');
 const multer = require('multer');
 const path = require('path');
 
+// Helper function to get filtered user IDs for state managers
+// State managers see all users in their company filtered by their selected types (CAPI, CATI, QC)
+const getStateManagerFilteredUserIds = async (stateManager) => {
+  try {
+    if (!stateManager || !stateManager.company || !stateManager.stateManagerTypes || stateManager.stateManagerTypes.length === 0) {
+      return { interviewerIds: [], qualityAgentIds: [] };
+    }
+
+    const companyId = stateManager.company._id || stateManager.company;
+    const selectedTypes = stateManager.stateManagerTypes || [];
+    
+    const interviewerIds = [];
+    const qualityAgentIds = [];
+
+    // Build query for interviewers based on selected types
+    if (selectedTypes.includes('CAPI') || selectedTypes.includes('CATI')) {
+      const interviewerQuery = {
+        company: companyId,
+        userType: 'interviewer',
+        status: { $ne: 'deleted' }
+      };
+
+      // If both CAPI and CATI are selected, get all interviewers
+      // Otherwise filter by interviewModes
+      if (selectedTypes.includes('CAPI') && selectedTypes.includes('CATI')) {
+        // Get all interviewers (no mode filter)
+      } else if (selectedTypes.includes('CAPI')) {
+        // Get only CAPI interviewers
+        interviewerQuery.$or = [
+          { interviewModes: 'CAPI (Face To Face)' },
+          { interviewModes: 'Both' }
+        ];
+      } else if (selectedTypes.includes('CATI')) {
+        // Get only CATI interviewers
+        interviewerQuery.$or = [
+          { interviewModes: 'CATI (Telephonic interview)' },
+          { interviewModes: 'Both' }
+        ];
+      }
+
+      const interviewers = await User.find(interviewerQuery)
+        .select('_id')
+        .lean();
+
+      interviewers.forEach(interviewer => {
+        interviewerIds.push(interviewer._id);
+      });
+    }
+
+    // If QC is selected, get all quality agents in the company
+    if (selectedTypes.includes('QC')) {
+      const qualityAgents = await User.find({
+        company: companyId,
+        userType: 'quality_agent',
+        status: { $ne: 'deleted' }
+      })
+        .select('_id')
+        .lean();
+
+      qualityAgents.forEach(qa => {
+        qualityAgentIds.push(qa._id);
+      });
+    }
+
+    return {
+      interviewerIds: interviewerIds.map(id => new mongoose.Types.ObjectId(id)),
+      qualityAgentIds: qualityAgentIds.map(id => new mongoose.Types.ObjectId(id))
+    };
+  } catch (error) {
+    console.error('Error getting state manager filtered user IDs:', error);
+    return { interviewerIds: [], qualityAgentIds: [] };
+  }
+};
+
 // Helper functions for IST (Indian Standard Time) timezone handling
 // IST is UTC+5:30
 
@@ -260,7 +334,7 @@ exports.createSurvey = async (req, res) => {
 
 // @desc    Get all surveys for a company
 // @route   GET /api/surveys
-// @access  Private (Company Admin, Project Manager, Quality Manager)
+// @access  Private (Company Admin, Project Manager)
 exports.getSurveys = async (req, res) => {
   try {
     console.log('🚀 getSurveys function called');
@@ -269,7 +343,7 @@ exports.getSurveys = async (req, res) => {
     console.log('getSurveys - Query parameters:', { status, mode, search, category, page, limit });
 
     // Get current user and their company
-    const currentUser = await User.findById(req.user.id).populate('company').populate('assignedSurveys');
+    const currentUser = await User.findById(req.user.id).populate('company');
     if (!currentUser || !currentUser.company) {
       return res.status(400).json({
         success: false,
@@ -279,20 +353,6 @@ exports.getSurveys = async (req, res) => {
 
     // Build query
     const query = { company: currentUser.company._id };
-    
-    // For quality managers, filter by assigned surveys only
-    if (currentUser.userType === 'quality_manager') {
-      if (currentUser.assignedSurveys && currentUser.assignedSurveys.length > 0) {
-        const assignedSurveyIds = currentUser.assignedSurveys.map(survey => 
-          typeof survey === 'object' && survey._id ? survey._id : survey
-        );
-        query._id = { $in: assignedSurveyIds };
-      } else {
-        // If no assigned surveys, return empty result
-        query._id = { $in: [] };
-      }
-    }
-    
     if (status) query.status = status;
     if (mode) query.mode = mode;
     if (category) query.category = category;
@@ -564,21 +624,6 @@ exports.getSurvey = async (req, res) => {
         success: false,
         message: 'Access denied. You can only view surveys from your company.'
       });
-    }
-
-    // For quality managers, check if survey is in their assigned surveys
-    if (currentUser.userType === 'quality_manager') {
-      const userWithSurveys = await User.findById(currentUser._id).populate('assignedSurveys');
-      const assignedSurveyIds = userWithSurveys.assignedSurveys.map(s => 
-        typeof s === 'object' && s._id ? s._id.toString() : s.toString()
-      );
-      
-      if (!assignedSurveyIds.includes(survey._id.toString())) {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied. This survey is not assigned to you.'
-        });
-      }
     }
 
     // Special handling for survey 68fd1915d41841da463f0d46: Reorder question 13 for CATI mode
@@ -2805,7 +2850,7 @@ exports.getCatiStats = async (req, res) => {
       ac: ac || ''
     };
     
-    // Build project manager interviewer filter
+    // Build project manager and state manager interviewer filter
     let projectManagerInterviewerIds = [];
     if (req.user.userType === 'project_manager' && !interviewerIds) {
       try {
@@ -2826,6 +2871,18 @@ exports.getCatiStats = async (req, res) => {
       } catch (error) {
         console.error('❌ Error fetching project manager assigned interviewers:', error);
       }
+    } else if (req.user.userType === 'state_manager' && !interviewerIds) {
+      try {
+        const currentUser = await User.findById(req.user.id).populate('company');
+        const filteredUsers = await getStateManagerFilteredUserIds(currentUser);
+        
+        if (filteredUsers.interviewerIds.length > 0) {
+          projectManagerInterviewerIds = filteredUsers.interviewerIds;
+          console.log(`🔍 getCatiStats - State Manager: Filtering by ${filteredUsers.interviewerIds.length} interviewer(s)`);
+        }
+      } catch (error) {
+        console.error('❌ Error fetching state manager filtered interviewers:', error);
+      }
     }
     
     // Parse interviewer IDs if provided
@@ -2840,8 +2897,8 @@ exports.getCatiStats = async (req, res) => {
         .map(id => new mongoose.Types.ObjectId(id.trim()));
     }
     
-    // For project managers with no assigned interviewers, return empty results
-    if (req.user.userType === 'project_manager' && projectManagerInterviewerIds.length === 0 && parsedInterviewerIds.length === 0) {
+    // For project managers and state managers with no assigned interviewers, return empty results
+    if ((req.user.userType === 'project_manager' || req.user.userType === 'state_manager') && projectManagerInterviewerIds.length === 0 && parsedInterviewerIds.length === 0) {
       clearTimeout(timeout);
       return res.json({
         success: true,
@@ -4112,6 +4169,7 @@ exports.getSurveyAnalyticsV2 = async (req, res) => {
     }
 
     // For project managers: filter by assigned interviewers
+    // For state managers: filter by company and stateManagerTypes
     if (req.user.userType === 'project_manager') {
       const currentUser = await User.findById(req.user.id).populate('assignedTeamMembers.user', '_id userType');
       if (currentUser && currentUser.assignedTeamMembers && currentUser.assignedTeamMembers.length > 0) {
@@ -4155,6 +4213,26 @@ exports.getSurveyAnalyticsV2 = async (req, res) => {
         // No assigned team members, return empty results
         console.log(`⚠️ getSurveyAnalyticsV2 - Project Manager: No assigned team members`);
         matchFilter.interviewer = { $in: [] }; // Empty array will return no results
+      }
+    } else if (req.user.userType === 'state_manager') {
+      const currentUser = await User.findById(req.user.id).populate('company');
+      const filteredUsers = await getStateManagerFilteredUserIds(currentUser);
+      
+      if (filteredUsers.interviewerIds.length > 0) {
+        if (!matchFilter.interviewer) {
+          matchFilter.interviewer = { $in: filteredUsers.interviewerIds };
+          console.log(`🔍 getSurveyAnalyticsV2 - State Manager: Filtering by ${filteredUsers.interviewerIds.length} interviewer(s)`);
+        } else if (matchFilter.interviewer.$in) {
+          const originalIds = matchFilter.interviewer.$in;
+          matchFilter.interviewer.$in = originalIds.filter(id => {
+            const idStr = id.toString();
+            return filteredUsers.interviewerIds.some(filteredId => filteredId.toString() === idStr);
+          });
+          console.log(`🔍 getSurveyAnalyticsV2 - State Manager: Intersected ${originalIds.length} selected with ${filteredUsers.interviewerIds.length} filtered, result: ${matchFilter.interviewer.$in.length} interviewer(s)`);
+        }
+      } else {
+        console.log(`⚠️ getSurveyAnalyticsV2 - State Manager: No interviewers found for selected types`);
+        matchFilter.interviewer = { $in: [] };
       }
     }
 
@@ -4350,18 +4428,6 @@ exports.getACWiseStatsV2 = async (req, res) => {
       interviewerMode = 'include'
     } = req.query;
 
-    // TOP-TIER TECH COMPANY SOLUTION: Analytics caching (Meta, Google, Amazon pattern)
-    // Cache expensive aggregation queries to reduce database load (10 minute TTL for survey stats)
-    const analyticsCache = require('../utils/analyticsCache');
-    const cacheParams = { dateRange, startDate, endDate, status, interviewMode, ac, district, lokSabha, interviewerIds, interviewerMode };
-    
-    // Check cache first
-    const cachedResult = await analyticsCache.get('ac_stats', surveyId, cacheParams);
-    if (cachedResult) {
-      console.log(`⚡ Using cached AC-wise stats for survey ${surveyId}`);
-      return res.status(200).json(cachedResult);
-    }
-
     // Verify survey exists
     const survey = await Survey.findById(surveyId);
     if (!survey) {
@@ -4498,6 +4564,7 @@ exports.getACWiseStatsV2 = async (req, res) => {
     }
 
     // For project managers: filter by assigned interviewers
+    // For state managers: filter by company and stateManagerTypes
     if (req.user.userType === 'project_manager') {
       const currentUser = await User.findById(req.user.id).populate('assignedTeamMembers.user', '_id userType');
       if (currentUser && currentUser.assignedTeamMembers && currentUser.assignedTeamMembers.length > 0) {
@@ -4539,6 +4606,62 @@ exports.getACWiseStatsV2 = async (req, res) => {
         console.log(`⚠️ getACWiseStatsV2 - Project Manager: No assigned team members`);
         matchFilter.interviewer = { $in: [] }; // Empty array will return no results
       }
+    } else if (req.user.userType === 'state_manager') {
+      const currentUser = await User.findById(req.user.id).populate('company');
+      const filteredUsers = await getStateManagerFilteredUserIds(currentUser);
+      
+      if (filteredUsers.interviewerIds.length > 0) {
+        if (!matchFilter.interviewer) {
+          matchFilter.interviewer = { $in: filteredUsers.interviewerIds };
+          console.log(`🔍 getACWiseStatsV2 - State Manager: Filtering by ${filteredUsers.interviewerIds.length} interviewer(s)`);
+        } else if (matchFilter.interviewer.$in) {
+          const originalIds = matchFilter.interviewer.$in;
+          matchFilter.interviewer.$in = originalIds.filter(id => {
+            const idStr = id.toString();
+            return filteredUsers.interviewerIds.some(filteredId => filteredId.toString() === idStr);
+          });
+          console.log(`🔍 getACWiseStatsV2 - State Manager: Intersected ${originalIds.length} selected with ${filteredUsers.interviewerIds.length} filtered, result: ${matchFilter.interviewer.$in.length} interviewer(s)`);
+        }
+      } else {
+        console.log(`⚠️ getACWiseStatsV2 - State Manager: No interviewers found for selected types`);
+        matchFilter.interviewer = { $in: [] };
+      }
+    }
+
+    // TOP-TIER TECH COMPANY SOLUTION: Analytics caching (Meta, Google, Amazon pattern)
+    // Cache expensive aggregation queries to reduce database load (10 minute TTL for survey stats)
+    // IMPORTANT: Cache check happens AFTER user-specific filtering to ensure correct cache keys
+    const analyticsCache = require('../utils/analyticsCache');
+    
+    // Include filtered interviewer IDs in cache key for user-specific caching
+    let filteredInterviewerIdsForCache = null;
+    if (matchFilter.interviewer && matchFilter.interviewer.$in) {
+      filteredInterviewerIdsForCache = matchFilter.interviewer.$in.map(id => id.toString()).sort().join(',');
+    } else if (matchFilter.interviewer && matchFilter.interviewer.$nin) {
+      filteredInterviewerIdsForCache = `exclude:${matchFilter.interviewer.$nin.map(id => id.toString()).sort().join(',')}`;
+    }
+    
+    const cacheParams = { 
+      dateRange, 
+      startDate, 
+      endDate, 
+      status, 
+      interviewMode, 
+      ac, 
+      district, 
+      lokSabha, 
+      interviewerIds, 
+      interviewerMode,
+      userType: req.user.userType,
+      userId: req.user.id,
+      filteredInterviewerIds: filteredInterviewerIdsForCache
+    };
+    
+    // Check cache after filtering is applied
+    const cachedResult = await analyticsCache.get('ac_stats', surveyId, cacheParams);
+    if (cachedResult) {
+      console.log(`⚡ Using cached AC-wise stats for survey ${surveyId} (user: ${req.user.userType})`);
+      return res.status(200).json(cachedResult);
     }
 
     // Build aggregation pipeline - pure MongoDB aggregation
@@ -4910,6 +5033,7 @@ exports.getInterviewerWiseStatsV2 = async (req, res) => {
     }
 
     // For project managers: filter by assigned interviewers
+    // For state managers: filter by company and stateManagerTypes
     if (req.user.userType === 'project_manager') {
       const currentUser = await User.findById(req.user.id).populate('assignedTeamMembers.user', '_id userType');
       if (currentUser && currentUser.assignedTeamMembers && currentUser.assignedTeamMembers.length > 0) {
@@ -4950,6 +5074,26 @@ exports.getInterviewerWiseStatsV2 = async (req, res) => {
         // No assigned team members, return empty results
         console.log(`⚠️ getACWiseStatsV2 - Project Manager: No assigned team members`);
         matchFilter.interviewer = { $in: [] }; // Empty array will return no results
+      }
+    } else if (req.user.userType === 'state_manager') {
+      const currentUser = await User.findById(req.user.id).populate('company');
+      const filteredUsers = await getStateManagerFilteredUserIds(currentUser);
+      
+      if (filteredUsers.interviewerIds.length > 0) {
+        if (!matchFilter.interviewer) {
+          matchFilter.interviewer = { $in: filteredUsers.interviewerIds };
+          console.log(`🔍 getACWiseStatsV2 - State Manager: Filtering by ${filteredUsers.interviewerIds.length} interviewer(s)`);
+        } else if (matchFilter.interviewer.$in) {
+          const originalIds = matchFilter.interviewer.$in;
+          matchFilter.interviewer.$in = originalIds.filter(id => {
+            const idStr = id.toString();
+            return filteredUsers.interviewerIds.some(filteredId => filteredId.toString() === idStr);
+          });
+          console.log(`🔍 getACWiseStatsV2 - State Manager: Intersected ${originalIds.length} selected with ${filteredUsers.interviewerIds.length} filtered, result: ${matchFilter.interviewer.$in.length} interviewer(s)`);
+        }
+      } else {
+        console.log(`⚠️ getACWiseStatsV2 - State Manager: No interviewers found for selected types`);
+        matchFilter.interviewer = { $in: [] };
       }
     }
 
@@ -5299,6 +5443,7 @@ exports.getChartDataV2 = async (req, res) => {
     }
 
     // For project managers: filter by assigned interviewers
+    // For state managers: filter by company and stateManagerTypes
     if (req.user.userType === 'project_manager') {
       const currentUser = await User.findById(req.user.id).populate('assignedTeamMembers.user', '_id userType');
       if (currentUser && currentUser.assignedTeamMembers && currentUser.assignedTeamMembers.length > 0) {
@@ -5339,6 +5484,26 @@ exports.getChartDataV2 = async (req, res) => {
         // No assigned team members, return empty results
         console.log(`⚠️ getACWiseStatsV2 - Project Manager: No assigned team members`);
         matchFilter.interviewer = { $in: [] }; // Empty array will return no results
+      }
+    } else if (req.user.userType === 'state_manager') {
+      const currentUser = await User.findById(req.user.id).populate('company');
+      const filteredUsers = await getStateManagerFilteredUserIds(currentUser);
+      
+      if (filteredUsers.interviewerIds.length > 0) {
+        if (!matchFilter.interviewer) {
+          matchFilter.interviewer = { $in: filteredUsers.interviewerIds };
+          console.log(`🔍 getACWiseStatsV2 - State Manager: Filtering by ${filteredUsers.interviewerIds.length} interviewer(s)`);
+        } else if (matchFilter.interviewer.$in) {
+          const originalIds = matchFilter.interviewer.$in;
+          matchFilter.interviewer.$in = originalIds.filter(id => {
+            const idStr = id.toString();
+            return filteredUsers.interviewerIds.some(filteredId => filteredId.toString() === idStr);
+          });
+          console.log(`🔍 getACWiseStatsV2 - State Manager: Intersected ${originalIds.length} selected with ${filteredUsers.interviewerIds.length} filtered, result: ${matchFilter.interviewer.$in.length} interviewer(s)`);
+        }
+      } else {
+        console.log(`⚠️ getACWiseStatsV2 - State Manager: No interviewers found for selected types`);
+        matchFilter.interviewer = { $in: [] };
       }
     }
 

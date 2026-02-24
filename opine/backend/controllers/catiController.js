@@ -8,13 +8,12 @@ const CatiAgent = require('../models/CatiAgent');
 const ProviderFactory = require('../services/catiProviders/providerFactory');
 const CloudTelephonyProvider = require('../services/catiProviders/cloudtelephonyProvider');
 const Company = require('../models/Company');
-const User = require('../models/User');
 
 // DeepCall API Configuration
 const DEEPCALL_API_BASE_URL = 'https://s-ct3.sarv.com/v2/clickToCall/para';
 const DEEPCALL_USER_ID = process.env.DEEPCALL_USER_ID || '89130240';
 const DEEPCALL_TOKEN = process.env.DEEPCALL_TOKEN || '6GQJuwW6lB8ZBHntzaRU';
-const WEBHOOK_BASE_URL = process.env.WEBHOOK_BASE_URL || 'https://opine.exypnossolutions.com';
+const WEBHOOK_BASE_URL = process.env.WEBHOOK_BASE_URL || 'https://convo.convergentview.com';
 
 // Lightweight, safe debug logger for webhooks (avoids large JSON stringify + sync disk writes)
 const shouldDebugWebhook = () => process.env.WEBHOOK_DEBUG_LOG === '1';
@@ -85,7 +84,7 @@ const makeCall = async (req, res) => {
           try {
             const regResult = await provider.registerAgent(cleanFrom, agentName);
             // Mark as registered even if provider says "already exists" (idempotent behavior)
-            agent.markRegistered('cloudtelephony', regResult?.response?.member_id || regResult?.response?.agentId || null);
+            agent.markRegistered('cloudtelephony', regResult?.response?.member_id || regResult?.response?.agentId || regResult?.response?.getmember?.[0]?.member_id || null);
             await agent.save();
             
             // Update cache with registered status
@@ -1659,7 +1658,7 @@ const getCallById = async (req, res) => {
           .populate('createdBy', 'name email');
       }
     } else {
-      // For company admins and interviewers, use company filter
+      // For company admins, state managers, and interviewers, use company filter
       // Try to find by MongoDB _id first only if it's a valid ObjectId
       if (isValidObjectId) {
         try {
@@ -1697,8 +1696,8 @@ const getCallById = async (req, res) => {
       });
     }
 
-    // If user is an interviewer (not company_admin, project_manager, quality_manager, or quality_agent), verify they own a response linked to this call
-    if (userRole !== 'company_admin' && userRole !== 'project_manager' && userRole !== 'quality_manager' && userRole !== 'quality_agent') {
+    // If user is an interviewer (not company_admin, project_manager, state_manager, or quality_agent), verify they own a response linked to this call
+    if (userRole !== 'company_admin' && userRole !== 'project_manager' && userRole !== 'state_manager' && userRole !== 'quality_agent') {
       // Check if this call is linked to one of the interviewer's survey responses
       const callIdToCheck = call.callId || call._id.toString();
       const responseWithCall = await SurveyResponse.findOne({
@@ -1719,63 +1718,6 @@ const getCallById = async (req, res) => {
             message: 'Access denied. You can only view calls associated with your own interviews.'
           });
         }
-      }
-    } else if (userRole === 'quality_manager') {
-      // For quality managers, verify the call is linked to a response from their assigned surveys
-      const callIdToCheck = call.callId || call._id.toString();
-      
-      // Find the response linked to this call
-      let responseWithCall = await SurveyResponse.findOne({
-        call_id: callIdToCheck
-      }).populate('survey');
-
-      // If not found, try by MongoDB _id
-      if (!responseWithCall) {
-        responseWithCall = await SurveyResponse.findOne({
-          call_id: call._id.toString()
-        }).populate('survey');
-      }
-
-      if (!responseWithCall || !responseWithCall.survey) {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied. Call not linked to any response.'
-        });
-      }
-
-      // Check if the survey belongs to the quality manager's company
-      const currentUser = await User.findById(userId).populate('company').populate('assignedSurveys');
-      if (!currentUser || !currentUser.company) {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied. User not associated with any company.'
-        });
-      }
-
-      const survey = responseWithCall.survey;
-      if (survey.company) {
-        const surveyCompanyId = survey.company._id ? survey.company._id.toString() : survey.company.toString();
-        const userCompanyId = currentUser.company._id ? currentUser.company._id.toString() : currentUser.company.toString();
-        
-        if (surveyCompanyId !== userCompanyId) {
-          return res.status(403).json({
-            success: false,
-            message: 'Access denied. You can only view calls from your company.'
-          });
-        }
-      }
-
-      // Check if survey is assigned to this quality manager
-      const assignedSurveyIds = currentUser.assignedSurveys.map(s => 
-        typeof s === 'object' && s._id ? s._id.toString() : s.toString()
-      );
-      
-      const surveyId = survey._id ? survey._id.toString() : survey.toString();
-      if (!assignedSurveyIds.includes(surveyId)) {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied. This survey is not assigned to you.'
-        });
       }
     } else if (userRole === 'quality_agent') {
       // For quality agents, verify the call is linked to a response they can review
@@ -1864,7 +1806,7 @@ const checkCallStatus = async (req, res) => {
       message: 'Call status check completed. Webhook will update when DeepCall sends it.',
       data: call,
       webhookReceived: call.webhookReceived,
-      note: 'If webhook is not received, please verify webhook URL is correctly configured in DeepCall dashboard: https://opine.exypnossolutions.com/api/cati/webhook'
+      note: 'If webhook is not received, please verify webhook URL is correctly configured in DeepCall dashboard: https://convo.convergentview.com/api/cati/webhook'
     });
 
   } catch (error) {
@@ -1944,6 +1886,13 @@ const getCallStats = async (req, res) => {
 const getRecording = async (req, res) => {
   try {
     const { callId } = req.params;
+    
+    // Auth is handled by protect middleware (supports headers, cookies, or query param)
+    // req.user is set by protect middleware
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Authentication required' });
+    }
+    
     const userId = req.user._id;
     const companyId = req.user.company;
     const userRole = req.user.userType;
@@ -1984,8 +1933,8 @@ const getRecording = async (req, res) => {
       });
     }
 
-    // If user is an interviewer (not company_admin, project_manager, or quality_agent), verify they own a response linked to this call
-    if (userRole !== 'company_admin' && userRole !== 'project_manager' && userRole !== 'quality_agent') {
+    // If user is an interviewer (not company_admin, project_manager, state_manager, or quality_agent), verify they own a response linked to this call
+    if (userRole !== 'company_admin' && userRole !== 'project_manager' && userRole !== 'state_manager' && userRole !== 'quality_agent') {
       // Check if this call is linked to one of the interviewer's survey responses
       const callIdToCheck = call.callId || call._id.toString();
       const responseWithCall = await SurveyResponse.findOne({

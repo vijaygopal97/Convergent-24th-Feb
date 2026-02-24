@@ -629,7 +629,7 @@ const downloadAndUploadCatiAudio = async (recordingUrl, callId, options = {}) =>
   let lastError = null;
 
   if (source !== 'deepcall') {
-    // Non-DeepCall: do NOT mutate query params (could break signed URLs)
+    // Other non-DeepCall: no auth
     try {
       recordingResponse = await axios.get(recordingUrl, {
         headers: {

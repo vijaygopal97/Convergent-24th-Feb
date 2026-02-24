@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-02-03T02:28:47.740Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Pingla",
+  "excelFile": "/var/www/Report-Generation/ac227_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 4998,
+  "errors": [
+    "Row 463: Invalid phone number format. Phone must be 10-15 digits (got 9 digits)",
+    "Row 1146: Invalid phone number format. Phone must be 10-15 digits (got 9 digits)"
+  ],
+  "newContactsAdded": 4997,
+  "queueEntriesCreated": 4996,
+  "duplicateCleanup": {
+    "totalEntries": 679929,
+    "uniquePhones": 679773,
+    "duplicateCount": 156,
+    "deleted": 156
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4842,
+    "totalPending": 589329
+  },
+  "durationSeconds": "29.39"
+}

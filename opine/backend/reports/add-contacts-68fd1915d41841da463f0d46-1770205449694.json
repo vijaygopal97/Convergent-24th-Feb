@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-02-04T11:44:09.694Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Hemtabad",
+  "excelFile": "/var/www/Report-Generation/ac33_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 5000,
+  "errors": [],
+  "newContactsAdded": 5000,
+  "queueEntriesCreated": 5000,
+  "duplicateCleanup": {
+    "totalEntries": 831077,
+    "uniquePhones": 830773,
+    "duplicateCount": 304,
+    "deleted": 304
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4696,
+    "totalPending": 737018
+  },
+  "durationSeconds": "29.21"
+}

@@ -231,6 +231,83 @@ const redisOps = {
   // Check if using in-memory
   isUsingInMemory() {
     return useInMemory || !redisClient;
+  },
+
+  // LPOP: Atomically remove and return the first element of a list (for queue operations)
+  async lpop(key) {
+    if (useInMemory || !redisClient) {
+      const list = inMemoryStore.get(key) || [];
+      if (Array.isArray(list) && list.length > 0) {
+        const value = list.shift();
+        inMemoryStore.set(key, list);
+        return value;
+      }
+      return null;
+    }
+    try {
+      const value = await redisClient.lpop(key);
+      return value; // Returns string or null
+    } catch (error) {
+      console.warn('Redis lpop error, using in-memory:', error.message);
+      const list = inMemoryStore.get(key) || [];
+      if (Array.isArray(list) && list.length > 0) {
+        const value = list.shift();
+        inMemoryStore.set(key, list);
+        return value;
+      }
+      return null;
+    }
+  },
+
+  // RPUSH: Add one or more elements to the end of a list (for queue operations)
+  async rpush(key, ...values) {
+    if (useInMemory || !redisClient) {
+      const list = inMemoryStore.get(key) || [];
+      list.push(...values);
+      inMemoryStore.set(key, list);
+      return list.length;
+    }
+    try {
+      return await redisClient.rpush(key, ...values);
+    } catch (error) {
+      console.warn('Redis rpush error, using in-memory:', error.message);
+      const list = inMemoryStore.get(key) || [];
+      list.push(...values);
+      inMemoryStore.set(key, list);
+      return list.length;
+    }
+  },
+
+  // LLEN: Get the length of a list
+  async llen(key) {
+    if (useInMemory || !redisClient) {
+      const list = inMemoryStore.get(key) || [];
+      return Array.isArray(list) ? list.length : 0;
+    }
+    try {
+      return await redisClient.llen(key);
+    } catch (error) {
+      console.warn('Redis llen error, using in-memory:', error.message);
+      const list = inMemoryStore.get(key) || [];
+      return Array.isArray(list) ? list.length : 0;
+    }
+  },
+
+  // LRANGE: Get a range of elements from a list
+  async lrange(key, start, stop) {
+    if (useInMemory || !redisClient) {
+      const list = inMemoryStore.get(key) || [];
+      if (!Array.isArray(list)) return [];
+      return list.slice(start, stop + 1);
+    }
+    try {
+      return await redisClient.lrange(key, start, stop);
+    } catch (error) {
+      console.warn('Redis lrange error, using in-memory:', error.message);
+      const list = inMemoryStore.get(key) || [];
+      if (!Array.isArray(list)) return [];
+      return list.slice(start, stop + 1);
+    }
   }
 };
 

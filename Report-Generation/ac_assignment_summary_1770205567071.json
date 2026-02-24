@@ -1,0 +1,234 @@
+{
+  "generatedAt": "2026-02-04T11:46:07.071Z",
+  "excelFile": "/var/www/MyLogos/Int_wisse Acs._Vijay.xlsx",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "totalMappings": 24,
+  "successful": 24,
+  "alreadyAssigned": 0,
+  "failed": 0,
+  "notFound": 0,
+  "durationSeconds": "1.71",
+  "results": {
+    "successful": [
+      {
+        "memberId": "10031",
+        "acCode": "33",
+        "acCodeFormatted": "WB033",
+        "acName": "Hemtabad",
+        "interviewerId": "6978a51e4e30e6669e569769",
+        "interviewerName": "Renu Bibi",
+        "rowNum": 2
+      },
+      {
+        "memberId": "10014",
+        "acCode": "33",
+        "acCodeFormatted": "WB033",
+        "acName": "Hemtabad",
+        "interviewerId": "69730cbc17a75c0d27c500e9",
+        "interviewerName": "Priti das",
+        "rowNum": 3
+      },
+      {
+        "memberId": "10020",
+        "acCode": "45",
+        "acCodeFormatted": "WB045",
+        "acName": "Chanchal",
+        "interviewerId": "69746693450165ed1aca3e67",
+        "interviewerName": "sampa mahato",
+        "rowNum": 4
+      },
+      {
+        "memberId": "3800",
+        "acCode": "45",
+        "acCodeFormatted": "WB045",
+        "acName": "Chanchal",
+        "interviewerId": "693d2b7fa66b5df82f9fc01b",
+        "interviewerName": "Subrata Chakraborty",
+        "rowNum": 5
+      },
+      {
+        "memberId": "664",
+        "acCode": "47",
+        "acCodeFormatted": "WB047",
+        "acName": "Malatipur",
+        "interviewerId": "6938a4e5a3f38fb8cfd554af",
+        "interviewerName": "Sakina khatun",
+        "rowNum": 6
+      },
+      {
+        "memberId": "3556",
+        "acCode": "47",
+        "acCodeFormatted": "WB047",
+        "acName": "Malatipur",
+        "interviewerId": "693d455ccba171e81f4daf1e",
+        "interviewerName": "SUMAN CHAKRABORTY",
+        "rowNum": 7
+      },
+      {
+        "memberId": "10010",
+        "acCode": "63",
+        "acCodeFormatted": "WB063",
+        "acName": "Raninagar",
+        "interviewerId": "697309044e30e6669e49fe94",
+        "interviewerName": "Jesmin khatun",
+        "rowNum": 8
+      },
+      {
+        "memberId": "196",
+        "acCode": "63",
+        "acCodeFormatted": "WB063",
+        "acName": "Raninagar",
+        "interviewerId": "6938a2e4a3f38fb8cfd24b8e",
+        "interviewerName": "Arushi Das",
+        "rowNum": 9
+      },
+      {
+        "memberId": "3907",
+        "acCode": "76",
+        "acCodeFormatted": "WB076",
+        "acName": "Jalangi",
+        "interviewerId": "693d2b92a66b5df82f9fdae7",
+        "interviewerName": "Anish Ghoshal",
+        "rowNum": 10
+      },
+      {
+        "memberId": "3804",
+        "acCode": "80",
+        "acCodeFormatted": "WB080",
+        "acName": "Kaliganj",
+        "interviewerId": "693d2b8aa66b5df82f9fcf65",
+        "interviewerName": "Suman Adak",
+        "rowNum": 11
+      },
+      {
+        "memberId": "272",
+        "acCode": "80",
+        "acCodeFormatted": "WB080",
+        "acName": "Kaliganj",
+        "interviewerId": "69464b5a047d016a11700186",
+        "interviewerName": "Deepshikha Das",
+        "rowNum": 12
+      },
+      {
+        "memberId": "10007",
+        "acCode": "93",
+        "acCodeFormatted": "WB093",
+        "acName": "Haringhata",
+        "interviewerId": "697306df4e30e6669e4929c5",
+        "interviewerName": "Sabana Mustary",
+        "rowNum": 13
+      },
+      {
+        "memberId": "150",
+        "acCode": "93",
+        "acCodeFormatted": "WB093",
+        "acName": "Haringhata",
+        "interviewerId": "6938a26aa3f38fb8cfd1d497",
+        "interviewerName": "Swati Mondal",
+        "rowNum": 14
+      },
+      {
+        "memberId": "10024",
+        "acCode": "131",
+        "acCodeFormatted": "WB131",
+        "acName": "Kakdwip",
+        "interviewerId": "6978427eea03aaf99b83e77d",
+        "interviewerName": "Mahammuda Khatun",
+        "rowNum": 15
+      },
+      {
+        "memberId": "153",
+        "acCode": "133",
+        "acCodeFormatted": "WB133",
+        "acName": "Kulpi",
+        "interviewerId": "6938a26fa3f38fb8cfd1d88a",
+        "interviewerName": "Rupsa Roy",
+        "rowNum": 16
+      },
+      {
+        "memberId": "10018",
+        "acCode": "135",
+        "acCodeFormatted": "WB135",
+        "acName": "Mandirbazar",
+        "interviewerId": "697465f7ea03aaf99b7f69a8",
+        "interviewerName": "Rehena Sultana",
+        "rowNum": 17
+      },
+      {
+        "memberId": "10026",
+        "acCode": "135",
+        "acCodeFormatted": "WB135",
+        "acName": "Mandirbazar",
+        "interviewerId": "697842cfea03aaf99b844aad",
+        "interviewerName": "Kulsuma Khatun",
+        "rowNum": 18
+      },
+      {
+        "memberId": "10002",
+        "acCode": "149",
+        "acCodeFormatted": "WB149",
+        "acName": "Kasba",
+        "interviewerId": "69730629ea03aaf99b7b7665",
+        "interviewerName": "Tuhina Khatun",
+        "rowNum": 19
+      },
+      {
+        "memberId": "10005",
+        "acCode": "149",
+        "acCodeFormatted": "WB149",
+        "acName": "Kasba",
+        "interviewerId": "6973069b4e30e6669e48c976",
+        "interviewerName": "Laboni debnath",
+        "rowNum": 20
+      },
+      {
+        "memberId": "10003",
+        "acCode": "193",
+        "acCodeFormatted": "WB193",
+        "acName": "Saptagram",
+        "interviewerId": "6973064f4e30e6669e4857ad",
+        "interviewerName": "SEULI KHATUN",
+        "rowNum": 21
+      },
+      {
+        "memberId": "10013",
+        "acCode": "193",
+        "acCodeFormatted": "WB193",
+        "acName": "Saptagram",
+        "interviewerId": "697309d84e30e6669e4af392",
+        "interviewerName": "Geeta Dey",
+        "rowNum": 22
+      },
+      {
+        "memberId": "702",
+        "acCode": "251",
+        "acCodeFormatted": "WB251",
+        "acName": "Taldangra",
+        "interviewerId": "6938a336a3f38fb8cfd2a91b",
+        "interviewerName": "Mahuya Mistry",
+        "rowNum": 23
+      },
+      {
+        "memberId": "278",
+        "acCode": "251",
+        "acCodeFormatted": "WB251",
+        "acName": "Taldangra",
+        "interviewerId": "6969feb1054ee14d6664a3ad",
+        "interviewerName": "Maitree Sarkar",
+        "rowNum": 24
+      },
+      {
+        "memberId": "825",
+        "acCode": "290",
+        "acCodeFormatted": "WB290",
+        "acName": "Mayureswar",
+        "interviewerId": "6938a325a3f38fb8cfd29520",
+        "interviewerName": "Manika Sarkar",
+        "rowNum": 25
+      }
+    ],
+    "alreadyAssigned": [],
+    "failed": [],
+    "notFound": []
+  }
+}

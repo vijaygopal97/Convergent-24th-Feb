@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-02-03T03:54:03.778Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Garbeta",
+  "excelFile": "/var/www/Report-Generation/ac233_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 4999,
+  "errors": [
+    "Row 1924: Invalid phone number format. Phone must be 10-15 digits (got 9 digits)"
+  ],
+  "newContactsAdded": 0,
+  "queueEntriesCreated": 4999,
+  "duplicateCleanup": {
+    "totalEntries": 740322,
+    "uniquePhones": 735323,
+    "duplicateCount": 4999,
+    "deleted": 4999
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4816,
+    "totalPending": 644849
+  },
+  "durationSeconds": "32.42"
+}

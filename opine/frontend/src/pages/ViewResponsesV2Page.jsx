@@ -37,15 +37,16 @@ const ViewResponsesV2Page = () => {
   const location = useLocation();
   const { user } = useAuth();
   
-  // Determine if we're in project manager or quality manager route
+  // Determine if we're in project manager or state manager route
   const isProjectManagerRoute = location.pathname.includes('/project-manager/');
-  const isQualityManagerRoute = location.pathname.includes('/quality-manager/');
-  const backPath = isProjectManagerRoute ? '/project-manager/survey-reports' : 
-                   isQualityManagerRoute ? '/quality-manager/survey-reports' : 
-                   '/company/surveys';
+  const isStateManagerRoute = location.pathname.includes('/state-manager/');
+  const backPath = isProjectManagerRoute ? '/project-manager/survey-reports' : (isStateManagerRoute ? '/state-manager/survey-reports' : '/company/surveys');
   
   // Check if user is company admin (for CSV download)
   const isCompanyAdmin = user?.userType === 'company_admin';
+  
+  // Check if user is state manager (should not be able to change response status)
+  const isStateManager = user?.userType === 'state_manager';
   
   // Get qualityAgentId from URL params (for filtering by quality agent)
   const searchParams = new URLSearchParams(location.search);
@@ -71,7 +72,8 @@ const ViewResponsesV2Page = () => {
     ac: [],
     city: [],
     district: [],
-    lokSabha: []
+    lokSabha: [],
+    rejectionReasons: []
   });
   
   // Filter states
@@ -94,7 +96,8 @@ const ViewResponsesV2Page = () => {
     interviewMode: '',
     interviewerIds: [],
     interviewerMode: 'include',
-    qualityAgentId: qualityAgentIdFromUrl || '' // Filter by quality agent who reviewed
+    qualityAgentId: qualityAgentIdFromUrl || '', // Filter by quality agent who reviewed
+    rejectionReason: '' // Filter by rejection reason (only applies to rejected responses)
   });
   
   const [showFilters, setShowFilters] = useState(true);
@@ -202,6 +205,7 @@ const ViewResponsesV2Page = () => {
         interviewerMode: filters.interviewerMode || 'include',
         search: filters.search || '',
         qualityAgentId: filters.qualityAgentId || '', // Filter by quality agent who reviewed
+        rejectionReason: filters.rejectionReason || '', // Filter by rejection reason
         includeFilterOptions: skipFilterOptions ? 'false' : 'true' // Make filterOptions optional
       };
 
@@ -1443,7 +1447,8 @@ const ViewResponsesV2Page = () => {
       lokSabha: '',
       interviewMode: '',
       interviewerIds: [],
-      interviewerMode: 'include'
+      interviewerMode: 'include',
+      rejectionReason: ''
     });
     setInterviewerSearchTerm('');
     setAcSearchTerm('');
@@ -1790,6 +1795,39 @@ const ViewResponsesV2Page = () => {
                 )}
               </div>
 
+              {/* Rejection Reason Filter - Only show when filtering rejected responses */}
+              {(filters.status === 'Rejected' || filters.status === 'approved_rejected' || filters.status === 'approved_rejected_pending') && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Rejection Reason</label>
+                  <select
+                    value={filters.rejectionReason}
+                    onChange={(e) => handleFilterChange('rejectionReason', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">All Rejection Reasons</option>
+                    {filterOptions.rejectionReasons && filterOptions.rejectionReasons.length > 0 ? (
+                      filterOptions.rejectionReasons.map((reason) => (
+                        <option key={reason.code} value={reason.code}>
+                          {reason.label}
+                        </option>
+                      ))
+                    ) : (
+                      <>
+                        <option value="1">Short Duration</option>
+                        <option value="2">GPS Distance Too Far</option>
+                        <option value="3">Duplicate Phone Number</option>
+                        <option value="4">Audio Quality Doesn't Meet Standard</option>
+                        <option value="5">Gender Mismatch</option>
+                        <option value="6">2021 Assembly Elections Mismatch</option>
+                        <option value="7">2024 Lok Sabha Elections Mismatch</option>
+                        <option value="8">Upcoming Elections Mismatch</option>
+                        <option value="9">Interviewer Performance/Quality Issues</option>
+                      </>
+                    )}
+                  </select>
+                </div>
+              )}
+
               {/* Clear Filters */}
               <div className="flex items-end">
                 <button
@@ -1989,6 +2027,7 @@ const ViewResponsesV2Page = () => {
         <ResponseDetailsModal
           response={fullResponseDetails || selectedResponse}
           survey={survey}
+          hideStatusChange={isProjectManagerRoute || isStateManager}
           onClose={handleCloseModal}
           onStatusChange={(updatedResponse) => {
             // Update the response in the list

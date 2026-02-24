@@ -21,16 +21,16 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
   const { showSuccess, showError } = useToast();
   const { user } = useAuth();
   
-  // Check if current user is a project manager or quality manager (should not be able to approve responses)
-  // CRITICAL: Check multiple possible variations of userType to ensure project managers and quality managers cannot approve
+  // Check if current user is a project manager or state manager (should not be able to approve responses)
+  // CRITICAL: Check multiple possible variations of userType to ensure project managers and state managers cannot approve
   const isProjectManager = user?.userType === 'project_manager' || 
                           user?.userType === 'Project Manager' ||
                           user?.role === 'project_manager' ||
                           user?.role === 'Project Manager';
-  const isQualityManager = user?.userType === 'quality_manager' || 
-                          user?.userType === 'Quality Manager' ||
-                          user?.role === 'quality_manager' ||
-                          user?.role === 'Quality Manager';
+  const isStateManager = user?.userType === 'state_manager' || 
+                         user?.userType === 'State Manager' ||
+                         user?.role === 'state_manager' ||
+                         user?.role === 'State Manager';
 
   // Update currentResponse when response prop changes
   useEffect(() => {
@@ -83,6 +83,7 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
               // Check if S3 audio is available (preferred - fast and reliable)
               if (callData.s3AudioUrl && callData.s3AudioUploadStatus === 'uploaded') {
                 // Use S3 proxy URL for streaming (same as CAPI recordings)
+                // Note: S3 proxy endpoint is public (no auth required) - defined before protect middleware
                 const isProduction = window.location.protocol === 'https:' || window.location.hostname !== 'localhost';
                 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (isProduction ? '' : 'http://localhost:5000');
                 const s3ProxyUrl = `${API_BASE_URL}/api/survey-responses/audio/${encodeURIComponent(callData.s3AudioUrl)}`;
@@ -90,11 +91,18 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
                 console.log('✅ Using S3 audio URL for streaming:', s3ProxyUrl);
               } else if (recordingId) {
                 // Fallback: Use recording endpoint URL for streaming (will stream from provider or S3)
+                // CRITICAL: Add auth token as query param because <audio> elements don't send headers
+                // Backend supports token in query param (see auth.js middleware)
                 const isProduction = window.location.protocol === 'https:' || window.location.hostname !== 'localhost';
                 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (isProduction ? '' : 'http://localhost:5000');
-                const recordingStreamUrl = `${API_BASE_URL}/api/cati/recording/${recordingId}`;
+                const token = localStorage.getItem('token');
+                if (!token) {
+                  console.error('❌ No auth token found - cannot load CATI recording');
+                  return;
+                }
+                const recordingStreamUrl = `${API_BASE_URL}/api/cati/recording/${recordingId}?token=${encodeURIComponent(token)}`;
                 setCatiRecordingBlobUrl(recordingStreamUrl);
-                console.log('✅ Using recording endpoint URL for streaming:', recordingStreamUrl);
+                console.log('✅ Using recording endpoint URL for streaming (with auth token):', recordingStreamUrl.replace(/\?token=[^&]+/, '?token=***'));
               }
             }
           } catch (error) {
@@ -2003,8 +2011,8 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
               </div>
             )}
 
-            {/* Survey Responses - Hide for project managers and quality managers */}
-            {!hideSurveyResponses && !isProjectManager && !isQualityManager && (
+            {/* Survey Responses - Hide for project managers */}
+            {!hideSurveyResponses && !isProjectManager && (
             <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Survey Responses</h3>
@@ -2295,13 +2303,13 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
             </div>
 
             {/* Status Change Buttons - Show for Approved/Rejected/Pending_Approval responses */}
-            {!hideActions && !hideStatusChange && !isQualityManager && (currentResponse.status === 'Approved' || currentResponse.status === 'Rejected' || currentResponse.status === 'Pending_Approval') && (
+            {!hideActions && !hideStatusChange && (currentResponse.status === 'Approved' || currentResponse.status === 'Rejected' || currentResponse.status === 'Pending_Approval') && (
               <div className="bg-gray-50 border-t border-gray-200 p-4 mt-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Change Response Status</h3>
                 <div className="flex items-center justify-end space-x-3 flex-wrap gap-2">
                   {/* Set to Pending Approval - Show if Approved or Rejected, but ONLY for Company Admins */}
-                  {/* CRITICAL: Project managers and quality managers should NOT see this button */}
-                  {!isProjectManager && !isQualityManager && (currentResponse.status === 'Approved' || currentResponse.status === 'Rejected') && (
+                  {/* CRITICAL: Project managers and state managers should NOT see this button */}
+                  {!isProjectManager && !isStateManager && (currentResponse.status === 'Approved' || currentResponse.status === 'Rejected') && (
                     <button
                       onClick={handleSetPendingApproval}
                       disabled={isSubmitting}
@@ -2312,9 +2320,9 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
                     </button>
                   )}
                   
-                  {/* Approve - Show if Rejected or Pending_Approval, but NOT for project managers or quality managers */}
-                  {/* CRITICAL: Project managers and quality managers should NEVER see the approve button */}
-                  {!isProjectManager && !isQualityManager && (currentResponse.status === 'Rejected' || currentResponse.status === 'Pending_Approval') && (
+                  {/* Approve - Show if Rejected or Pending_Approval, but NOT for project managers or state managers */}
+                  {/* CRITICAL: Project managers and state managers should NEVER see the approve button */}
+                  {!isProjectManager && !isStateManager && (currentResponse.status === 'Rejected' || currentResponse.status === 'Pending_Approval') && (
                     <button
                       onClick={handleApproveResponse}
                       disabled={isSubmitting}
@@ -2326,8 +2334,8 @@ const ResponseDetailsModal = ({ response, survey, onClose, hideActions = false, 
                   )}
                   
                   {/* Reject - Show if Pending_Approval or Approved, but ONLY for Company Admins */}
-                  {/* CRITICAL: Project managers and quality managers should NOT see this button */}
-                  {!isProjectManager && !isQualityManager && (currentResponse.status === 'Pending_Approval' || currentResponse.status === 'Approved') && (
+                  {/* CRITICAL: Project managers and state managers should NOT see this button */}
+                  {!isProjectManager && !isStateManager && (currentResponse.status === 'Pending_Approval' || currentResponse.status === 'Approved') && (
                     <button
                       onClick={() => setShowRejectForm(true)}
                       disabled={isSubmitting}

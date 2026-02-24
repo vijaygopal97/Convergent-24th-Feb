@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-02-20T06:31:57.247Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Asansol Dakshin",
+  "excelFile": "/var/www/Report-Generation/ac280_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 4998,
+  "errors": [
+    "Row 2974: Missing name or phone",
+    "Row 3257: Invalid phone number format. Phone must be 10-15 digits (got 9 digits)"
+  ],
+  "newContactsAdded": 4995,
+  "queueEntriesCreated": 4998,
+  "duplicateCleanup": {
+    "totalEntries": 855098,
+    "uniquePhones": 849794,
+    "duplicateCount": 5304,
+    "deleted": 5304
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4696,
+    "totalPending": 790691
+  },
+  "durationSeconds": "41.30"
+}

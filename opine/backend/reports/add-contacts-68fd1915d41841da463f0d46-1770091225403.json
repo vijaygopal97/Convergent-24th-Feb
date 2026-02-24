@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-02-03T04:00:25.403Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Baisnabnagar",
+  "excelFile": "/var/www/Report-Generation/ac54_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 4999,
+  "errors": [
+    "Row 1135: Invalid phone number format. Phone must be 10-15 digits (got 9 digits)"
+  ],
+  "newContactsAdded": 0,
+  "queueEntriesCreated": 4999,
+  "duplicateCleanup": {
+    "totalEntries": 768823,
+    "uniquePhones": 768606,
+    "duplicateCount": 217,
+    "deleted": 217
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4783,
+    "totalPending": 678126
+  },
+  "durationSeconds": "31.03"
+}

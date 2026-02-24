@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-02-03T03:47:44.935Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Sagar",
+  "excelFile": "/var/www/Report-Generation/ac132_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 4999,
+  "errors": [
+    "Row 2230: Invalid phone number"
+  ],
+  "newContactsAdded": 0,
+  "queueEntriesCreated": 4999,
+  "duplicateCleanup": {
+    "totalEntries": 740322,
+    "uniquePhones": 735323,
+    "duplicateCount": 4999,
+    "deleted": 4999
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4818,
+    "totalPending": 644858
+  },
+  "durationSeconds": "26.35"
+}

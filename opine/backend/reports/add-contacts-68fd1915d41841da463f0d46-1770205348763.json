@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-02-04T11:42:28.763Z",
+  "surveyId": "68fd1915d41841da463f0d46",
+  "surveyName": "West Bengal Opinion Poll (2025 - 2026)",
+  "acName": "Purbasthali Uttar",
+  "excelFile": "/var/www/Report-Generation/ac269_output.xlsx",
+  "totalRowsInExcel": 5000,
+  "validContacts": 5000,
+  "errors": [],
+  "newContactsAdded": 4999,
+  "queueEntriesCreated": 5000,
+  "duplicateCleanup": {
+    "totalEntries": 821432,
+    "uniquePhones": 821263,
+    "duplicateCount": 169,
+    "deleted": 169
+  },
+  "finalStatus": {
+    "pendingTargetAC": 4837,
+    "totalPending": 727512
+  },
+  "durationSeconds": "32.49"
+}

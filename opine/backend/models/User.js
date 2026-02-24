@@ -84,7 +84,7 @@ const userSchema = new mongoose.Schema({
   userType: {
     type: String,
     required: [true, 'User type is required'],
-    enum: ['super_admin', 'company_admin', 'project_manager', 'quality_manager', 'interviewer', 'quality_agent', 'Data_Analyst'],
+    enum: ['super_admin', 'company_admin', 'project_manager', 'state_manager', 'interviewer', 'quality_agent', 'Data_Analyst'],
     default: 'interviewer'
   },
   
@@ -102,23 +102,35 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Company',
     required: function() {
-      // Company is required for company_admin, project_manager, and quality_manager
+      // Company is required for company_admin, project_manager, and state_manager
       // Optional for interviewer, quality_agent, and Data_Analyst (independent workers)
-      return ['company_admin', 'project_manager', 'quality_manager'].includes(this.userType);
+      return ['company_admin', 'project_manager', 'state_manager'].includes(this.userType);
     }
   },
   companyCode: {
     type: String,
     required: function() {
-      // Company code is required for company_admin, project_manager, and quality_manager
+      // Company code is required for company_admin, project_manager, and state_manager
       // Optional for interviewer, quality_agent, and Data_Analyst (independent workers)
-      return ['company_admin', 'project_manager', 'quality_manager'].includes(this.userType);
+      return ['company_admin', 'project_manager', 'state_manager'].includes(this.userType);
     },
     trim: true,
     uppercase: true
   },
+  
+  // State Manager Type Selection (for State Managers)
+  stateManagerTypes: {
+    type: [{
+      type: String,
+      enum: ['CAPI', 'CATI', 'QC']
+    }],
+    default: [],
+    required: function() {
+      return this.userType === 'state_manager';
+    }
+  },
 
-  // Assigned Team Members (for Project Managers and Quality Managers)
+  // Assigned Team Members (for Project Managers)
   assignedTeamMembers: [{
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -138,12 +150,6 @@ const userSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
     }
-  }],
-
-  // Assigned Surveys (for Quality Managers)
-  assignedSurveys: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Survey'
   }],
 
   // Profile Information
@@ -518,9 +524,9 @@ userSchema.methods.canPerformAction = function(action, resource) {
     return ['create_surveys', 'manage_surveys', 'view_analytics'].includes(action);
   }
   
-  // Quality manager can manage quality agents and view QC performance
-  if (this.userType === 'quality_manager') {
-    return ['manage_quality_agents', 'view_qc_performance', 'view_analytics'].includes(action);
+  // State manager can manage project managers and view analytics
+  if (this.userType === 'state_manager') {
+    return ['manage_project_managers', 'view_analytics', 'manage_surveys'].includes(action);
   }
   
   // Interviewer can conduct interviews
@@ -557,6 +563,7 @@ userSchema.statics.getStats = async function(companyId = null) {
         superAdmins: { $sum: { $cond: [{ $eq: ['$userType', 'super_admin'] }, 1, 0] } },
         companyAdmins: { $sum: { $cond: [{ $eq: ['$userType', 'company_admin'] }, 1, 0] } },
         projectManagers: { $sum: { $cond: [{ $eq: ['$userType', 'project_manager'] }, 1, 0] } },
+        stateManagers: { $sum: { $cond: [{ $eq: ['$userType', 'state_manager'] }, 1, 0] } },
         interviewers: { $sum: { $cond: [{ $eq: ['$userType', 'interviewer'] }, 1, 0] } },
         qualityAgents: { $sum: { $cond: [{ $eq: ['$userType', 'quality_agent'] }, 1, 0] } },
         dataAnalysts: { $sum: { $cond: [{ $eq: ['$userType', 'Data_Analyst'] }, 1, 0] } },

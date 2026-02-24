@@ -54,18 +54,18 @@ class AppUpdateService {
       else {
         const versionStr = Constants.expoConfig?.version || 
                           (Constants.manifest as any)?.version || 
-                          '20';
+                          '22';
         const parsed = parseInt(versionStr, 10);
         if (!isNaN(parsed)) {
           versionCode = parsed;
         }
       }
       
-      this.currentVersionCode = versionCode || 20;
+      this.currentVersionCode = versionCode || 22;
       
     } catch (error) {
-      console.warn('⚠️ Could not read version code from Constants, using default: 20', error);
-      this.currentVersionCode = 20;
+      console.warn('⚠️ Could not read version code from Constants, using default: 22', error);
+      this.currentVersionCode = 22;
     }
     
     console.log(`📱 App Update Service initialized - Current version code: ${this.currentVersionCode}`);

@@ -329,8 +329,6 @@ const CompanyAdminUserManagement = () => {
         return <Building2 className="w-4 h-4 text-blue-500" />;
       case 'project_manager':
         return <BarChart3 className="w-4 h-4 text-green-500" />;
-      case 'quality_manager':
-        return <Shield className="w-4 h-4 text-purple-600" />;
       case 'interviewer':
         return <UserCheck className="w-4 h-4 text-purple-500" />;
       case 'quality_agent':

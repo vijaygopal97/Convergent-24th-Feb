@@ -1,0 +1,150 @@
+{
+  "generatedAt": "2026-02-17T11:09:10.114Z",
+  "totalFiles": 23,
+  "successful": 0,
+  "failed": 23,
+  "durationSeconds": "18.55",
+  "defaultSurveyId": "68fd1915d41841da463f0d46",
+  "maxRowsPerFile": 5000,
+  "processedACs": [],
+  "failedFiles": [
+    {
+      "error": "CSV conversion failed",
+      "acCode": 131,
+      "acName": "Kakdwip",
+      "processedAt": "2026-02-17T11:08:53.250Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 132,
+      "acName": "Sagar",
+      "processedAt": "2026-02-17T11:08:54.001Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 133,
+      "acName": "Kulpi",
+      "processedAt": "2026-02-17T11:08:54.762Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 135,
+      "acName": "Mandirbazar",
+      "processedAt": "2026-02-17T11:08:55.537Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 15,
+      "acName": "Dhupguri",
+      "processedAt": "2026-02-17T11:08:56.322Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 150,
+      "acName": "Jadavpur",
+      "processedAt": "2026-02-17T11:08:57.067Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 193,
+      "acName": "Saptagram",
+      "processedAt": "2026-02-17T11:08:57.812Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 203,
+      "acName": "Tamluk",
+      "processedAt": "2026-02-17T11:08:58.555Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 207,
+      "acName": "Nandakumar",
+      "processedAt": "2026-02-17T11:08:59.302Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 228,
+      "acName": "Kharagpur",
+      "processedAt": "2026-02-17T11:09:00.021Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 233,
+      "acName": "Garbeta",
+      "processedAt": "2026-02-17T11:09:00.790Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 235,
+      "acName": "Keshpur",
+      "processedAt": "2026-02-17T11:09:01.550Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 255,
+      "acName": "Bishnupur, Bankura",
+      "processedAt": "2026-02-17T11:09:02.289Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 261,
+      "acName": "Raina",
+      "processedAt": "2026-02-17T11:09:03.119Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 290,
+      "acName": "Mayureswar",
+      "processedAt": "2026-02-17T11:09:03.950Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 291,
+      "acName": "Rampurhat",
+      "processedAt": "2026-02-17T11:09:04.644Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 45,
+      "acName": "Chanchal",
+      "processedAt": "2026-02-17T11:09:05.415Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 47,
+      "acName": "Malatipur",
+      "processedAt": "2026-02-17T11:09:06.206Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 54,
+      "acName": "Baisnabnagar",
+      "processedAt": "2026-02-17T11:09:06.971Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 63,
+      "acName": "Raninagar",
+      "processedAt": "2026-02-17T11:09:07.715Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 70,
+      "acName": "Rejinagar",
+      "processedAt": "2026-02-17T11:09:08.507Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 80,
+      "acName": "Kaliganj",
+      "processedAt": "2026-02-17T11:09:09.324Z"
+    },
+    {
+      "error": "CSV conversion failed",
+      "acCode": 93,
+      "acName": "Haringhata",
+      "processedAt": "2026-02-17T11:09:10.114Z"
+    }
+  ]
+}

@@ -3,8 +3,9 @@ const Queue = require('bull');
 const mongoose = require('mongoose');
 const Survey = require('../models/Survey');
 const SurveyResponse = require('../models/SurveyResponse');
-const { generateCSVContent } = require('../utils/csvGeneratorHelper');
+const { generateCSVContentBatch } = require('../utils/csvGeneratorHelper');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 const path = require('path');
 
 // MongoDB Connection
@@ -435,16 +436,47 @@ csvQueue.process('generate-csv', async (job) => {
     
     console.log(`📊 Found ${totalResponses} responses to process for CSV job ${jobId}`);
     
-    // Process in batches to avoid memory issues
+    // Process in batches and stream to file to avoid memory issues
     const BATCH_SIZE = 1500;
-    let allResponses = [];
     let skip = 0;
     let processedCount = 0;
+    
+    // Create filename and file path
+    const filename = `survey_${surveyId}_${mode}_${new Date().toISOString().split('T')[0]}.csv`;
+    const filePath = path.join(surveyDir, filename);
+    
+    // Create write stream for incremental CSV writing
+    const writeStream = fsSync.createWriteStream(filePath, { encoding: 'utf8' });
+    let isFirstBatch = true;
+    let csvRowsWritten = 0;
+    
+    // Helper function to write CSV rows to stream
+    const writeCSVRows = (rows) => {
+      return new Promise((resolve, reject) => {
+        if (rows.length === 0) {
+          resolve();
+          return;
+        }
+        
+        // Join rows with newlines, add newline before batch if not first batch
+        const prefix = csvRowsWritten > 0 ? '\n' : '';
+        const rowsString = prefix + rows.join('\n');
+        
+        writeStream.write(rowsString, (error) => {
+          if (error) {
+            reject(error);
+          } else {
+            csvRowsWritten += rows.length;
+            resolve();
+          }
+        });
+      });
+    };
     
     await job.progress({ 
       stage: 'fetching_responses', 
       percentage: 25, 
-      message: `Fetching responses (0/${totalResponses})...`,
+      message: `Fetching and processing responses (0/${totalResponses})...`,
       current: 0,
       total: totalResponses
     });
@@ -457,14 +489,16 @@ csvQueue.process('generate-csv', async (job) => {
       ];
       
       const batchEnd = Math.min(skip + BATCH_SIZE, totalResponses);
-      console.log(`   [Job ${jobId}] Fetching batch: ${skip + 1} to ${batchEnd} of ${totalResponses}...`);
+      console.log(`   [Job ${jobId}] Processing batch: ${skip + 1} to ${batchEnd} of ${totalResponses}...`);
       
       // Ensure MongoDB connection is still healthy before each batch
       const batchMongoHealthy = await ensureMongoConnection();
       if (!batchMongoHealthy) {
+        writeStream.end();
         throw new Error('MongoDB connection lost during batch processing');
       }
       
+      // Fetch batch
       const batch = await SurveyResponse.aggregate(batchPipeline, {
         allowDiskUse: true,
         maxTimeMS: 300000 // Reduced to 5 minutes to stay within socketTimeoutMS
@@ -472,14 +506,37 @@ csvQueue.process('generate-csv', async (job) => {
       
       if (batch.length === 0) break;
       
-      allResponses.push(...batch);
-      processedCount += batch.length;
-      const fetchProgress = 25 + Math.floor((processedCount / totalResponses) * 50); // 25% to 75%
+      // Generate CSV rows for this batch (includes headers on first batch)
+      const csvRows = await generateCSVContentBatch(
+        survey,
+        batch,
+        mode,
+        surveyId,
+        isFirstBatch,
+        skip
+      );
+      
+      // Write batch to file immediately
+      await writeCSVRows(csvRows);
+      
+      // IMPORTANT: Save batch length BEFORE clearing from memory
+      const batchSize = batch.length;
+      
+      // Clear batch from memory
+      batch.length = 0;
+      csvRows.length = 0;
+      
+      // Update processed count with actual batch size
+      processedCount += batchSize;
+      isFirstBatch = false;
+      
+      // Update progress (25% to 95% - fetching + generating)
+      const progressPercentage = 25 + Math.floor((processedCount / totalResponses) * 70);
       
       await job.progress({ 
-        stage: 'fetching_responses', 
-        percentage: fetchProgress, 
-        message: `Fetching responses (${processedCount}/${totalResponses})...`,
+        stage: 'generating_csv', 
+        percentage: progressPercentage, 
+        message: `Processing responses (${processedCount}/${totalResponses})...`,
         current: processedCount,
         total: totalResponses
       });
@@ -487,31 +544,18 @@ csvQueue.process('generate-csv', async (job) => {
       skip += BATCH_SIZE;
     }
     
-    console.log(`📊 [Job ${jobId}] Processing ${allResponses.length} responses for CSV generation...`);
-    
-    // Generate CSV content
-    await job.progress({ 
-      stage: 'generating_csv', 
-      percentage: 75, 
-      message: 'Generating CSV content...',
-      current: processedCount,
-      total: totalResponses
+    // Close write stream
+    await new Promise((resolve, reject) => {
+      writeStream.end((error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      });
     });
     
-    const csvContent = await generateCSVContent(survey, allResponses, mode, surveyId);
-    
-    // Save CSV file
-    await job.progress({ 
-      stage: 'saving_file', 
-      percentage: 90, 
-      message: 'Saving CSV file...',
-      current: processedCount,
-      total: totalResponses
-    });
-    
-    const filename = `survey_${surveyId}_${mode}_${new Date().toISOString().split('T')[0]}.csv`;
-    const filePath = path.join(surveyDir, filename);
-    await fs.writeFile(filePath, csvContent, 'utf8');
+    console.log(`✅ [Job ${jobId}] CSV file written: ${filePath} (${csvRowsWritten} rows)`);
     
     // Update progress: Complete
     await job.progress({ 

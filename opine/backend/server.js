@@ -266,6 +266,24 @@ if (!MONGODB_URI) {
     const { scheduleCSVGeneration } = require('./jobs/csvGenerator');
     scheduleCSVGeneration();
     
+    // Schedule CATI queue clearing and reinitialization every 15 minutes
+    const runClearAndReinitCatiQueues = require('./jobs/clearAndReinitCatiQueuesJob');
+    cron.schedule('*/15 * * * *', async () => {
+      console.log('⏰ Clear and Reinit CATI Queues Job triggered (every 15 minutes)');
+      try {
+        // Run asynchronously without blocking
+        runClearAndReinitCatiQueues().catch(err => {
+          console.error('❌ Clear and Reinit CATI Queues Job error:', err.message);
+        });
+      } catch (error) {
+        console.error('❌ Error scheduling Clear and Reinit CATI Queues Job:', error);
+      }
+    }, {
+      scheduled: true,
+      timezone: "Asia/Kolkata"
+    });
+    console.log('⏰ Clear and Reinit CATI Queues Job scheduled to run every 15 minutes');
+    
     // Start server only after MongoDB connection is established
     server.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 HTTP Server is running on port ${PORT}`);
