@@ -1859,6 +1859,10 @@ const ViewResponsesV2Page = () => {
             </div>
 
             {/* Responses Table */}
+            {(() => {
+              const showRejectionReasonColumn = ['Rejected', 'approved_rejected', 'approved_rejected_pending'].includes(filters.status);
+              const colSpan = showRejectionReasonColumn ? 9 : 8;
+              return (
             <div className="bg-white rounded-lg shadow overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -1868,6 +1872,9 @@ const ViewResponsesV2Page = () => {
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Response ID</th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interviewer</th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      {showRejectionReasonColumn && (
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rejection Reason</th>
+                      )}
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mode</th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AC</th>
                       <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
@@ -1877,7 +1884,7 @@ const ViewResponsesV2Page = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {responses.length === 0 ? (
                       <tr>
-                        <td colSpan="8" className="px-4 sm:px-6 py-8 text-center text-gray-500">
+                        <td colSpan={colSpan} className="px-4 sm:px-6 py-8 text-center text-gray-500">
                           No responses found matching the filters
                         </td>
                       </tr>
@@ -1885,7 +1892,8 @@ const ViewResponsesV2Page = () => {
                       responses.map((response, index) => {
                         const respondentInfo = getRespondentInfo(response);
                         const serialNumber = (pagination.currentPage - 1) * 20 + index + 1;
-                        
+                        const rejectionFeedback = response.status === 'Rejected' ? (response.verificationData?.feedback || '') : '';
+                        const rejectionDisplay = rejectionFeedback.length > 60 ? rejectionFeedback.slice(0, 60) + '…' : rejectionFeedback;
                         return (
                           <tr key={response._id} className="hover:bg-gray-50">
                             <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">{serialNumber}</td>
@@ -1904,6 +1912,11 @@ const ViewResponsesV2Page = () => {
                                 {response.status}
                               </span>
                             </td>
+                            {showRejectionReasonColumn && (
+                              <td className="px-4 sm:px-6 py-4 text-sm text-gray-700 max-w-xs" title={rejectionFeedback || undefined}>
+                                {rejectionDisplay || '—'}
+                              </td>
+                            )}
                             <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm">
                               {response.interviewMode ? (
                                 <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
@@ -2018,6 +2031,8 @@ const ViewResponsesV2Page = () => {
                 </div>
               )}
             </div>
+              );
+            })()}
           </>
         )}
       </div>
